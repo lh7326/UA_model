@@ -5,8 +5,6 @@ This module contains some functions that will be useful in the construction of t
 import cmath
 import math
 
-from ua_model.function_utils import compose
-
 
 def z_minus_its_reciprocal(z: complex) -> complex:
     """

@@ -1,6 +1,5 @@
 import cmath
 from unittest import TestCase
-import math
 
 from ua_model.functions import z_minus_its_reciprocal, square_root
 
