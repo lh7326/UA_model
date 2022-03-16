@@ -1,6 +1,5 @@
 from unittest import TestCase
 import cmath
-from configparser import ConfigParser
 
 from ua_model.KaonUAModel import KaonUAModel
 
@@ -8,34 +7,12 @@ from ua_model.KaonUAModel import KaonUAModel
 class TestKaonUAModel(TestCase):
 
     def test___call__(self):
-
-        config = ConfigParser()
-        config['branch_points'] = {
-            'kaon_isoscalar': '1.0',
-            'kaon_isovector': '0.1',
-        }
-        config['resonances'] = {
-            'omega_mass': '1.4',
-            'omega_decay_rate': '0.001',
-            'omega_prime_mass': '1.5',
-            'omega_prime_decay_rate': '0.001',
-            'omega_double_prime_mass': '1.6',
-            'omega_double_prime_decay_rate': '0.001',
-            'phi_mass': '2.0',
-            'phi_decay_rate': '0.01',
-            'phi_prime_mass': '2.2',
-            'phi_prime_decay_rate': '0.01',
-            'phi_double_prime_mass': '2.4',
-            'phi_double_prime_decay_rate': '0.01',
-            'rho_mass': '3.1',
-            'rho_decay_rate': '0.1',
-            'rho_prime_mass': '3.2',
-            'rho_prime_decay_rate': '0.1',
-            'rho_double_prime_mass': '3.3',
-            'rho_double_prime_decay_rate': '0.1',
-        }
-
         kaon_model = KaonUAModel(
+            charged_variant=True,
+            t_0_isoscalar=1.0,
+            t_0_isovector=0.1,
+            t_in_isoscalar=4.5,
+            t_in_isovector=14.7,
             a_omega=0.21,
             a_omega_prime=0.09,
             a_omega_double_prime=0.12,
@@ -43,10 +20,27 @@ class TestKaonUAModel(TestCase):
             a_phi_prime=0.07,
             a_rho=0.34,
             a_rho_prime=0.03,
-            t_in_isoscalar=4.5,
-            t_in_isovector=14.7,
-            config=config,
-            charged_variant=True,
+            a_rho_double_prime=0.09,
+            mass_omega=1.4,
+            decay_rate_omega=0.001,
+            mass_omega_prime=1.5,
+            decay_rate_omega_prime=0.001,
+            mass_omega_double_prime=1.6,
+            decay_rate_omega_double_prime=0.001,
+            mass_phi=2.0,
+            decay_rate_phi=0.01,
+            mass_phi_prime=2.2,
+            decay_rate_phi_prime=0.01,
+            mass_phi_double_prime=2.4,
+            decay_rate_phi_double_prime=0.01,
+            mass_rho=3.1,
+            decay_rate_rho=0.1,
+            mass_rho_prime=3.2,
+            decay_rate_rho_prime=0.1,
+            mass_rho_double_prime=3.3,
+            decay_rate_rho_double_prime=0.1,
+            mass_rho_triple_prime=3.4,
+            decay_rate_rho_triple_prime=0.1,
         )
 
         with self.subTest(msg='Testing "charged_variant" flag'):
@@ -65,14 +59,14 @@ class TestKaonUAModel(TestCase):
             self.assertTrue(cmath.isclose(actual, expected, abs_tol=1.0e-15))
 
         test_cases = [
-            {'t': 1.7, 'charged_variant': True, 'expected_value': 3.07377941981359-0.02693634055780967j},
-            {'t': 1.7, 'charged_variant': False, 'expected_value': 1.8749940882607046+0.0037825009468283807j},
-            {'t': 0.4+1.2j, 'charged_variant': True, 'expected_value': 0.9476115946337496+0.3317430734118266j},
+            {'t': 1.7, 'charged_variant': True, 'expected_value': 3.073269926471771-0.02695425107525793j},
+            {'t': 1.7, 'charged_variant': False, 'expected_value': 1.8755035816025236+0.0038004114642766432j},
+            {'t': 0.4+1.2j, 'charged_variant': True, 'expected_value': 0.9475875980415935+0.33143141222536704j},
             {'t': 162.42-0.647j, 'charged_variant': False,
-             'expected_value': 0.027572466270023334+0.00011626299922461292j},
+             'expected_value': 0.027789176727690115+0.00011725561280149965j},
             {'t': 84.1-9124.1j, 'charged_variant': True,
-             'expected_value': -5.668628530153822e-06-0.0006860125397040155j},
-            {'t': 62.4j, 'charged_variant': False, 'expected_value': -0.01280598718730843-0.06423566902122738j},
+             'expected_value': -5.691108792051046e-06-0.0006893509534412159j},
+            {'t': 62.4j, 'charged_variant': False, 'expected_value': -0.012972244493240833-0.0646782195188189j},
         ]
         for case in test_cases:
             with self.subTest(case=case):

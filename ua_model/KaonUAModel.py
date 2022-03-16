@@ -2,8 +2,6 @@
 TODO: add docstring
 
 """
-import configparser
-
 from ua_model.ua_components.UAComponent import UAComponent
 from ua_model.ua_components.UAComponentVariantA import UAComponentVariantA
 from ua_model.ua_components.UAComponentVariantB import UAComponentVariantB
@@ -17,6 +15,11 @@ class KaonUAModel:
     """
     def __init__(
             self,
+            charged_variant: bool,
+            t_0_isoscalar: float,
+            t_in_isoscalar: float,
+            t_0_isovector: float,
+            t_in_isovector: float,
             a_omega: float,
             a_omega_prime: float,
             a_omega_double_prime: float,
@@ -24,28 +27,39 @@ class KaonUAModel:
             a_phi_prime: float,
             a_rho: float,
             a_rho_prime: float,
-            t_in_isoscalar: float,
-            t_in_isovector: float,
-            config: configparser.ConfigParser,
-            charged_variant: bool,
+            a_rho_double_prime: float,
+            mass_omega: float,
+            decay_rate_omega: float,
+            mass_omega_prime: float,
+            decay_rate_omega_prime: float,
+            mass_omega_double_prime: float,
+            decay_rate_omega_double_prime: float,
+            mass_phi: float,
+            decay_rate_phi: float,
+            mass_phi_prime: float,
+            decay_rate_phi_prime: float,
+            mass_phi_double_prime: float,
+            decay_rate_phi_double_prime: float,
+            mass_rho: float,
+            decay_rate_rho: float,
+            mass_rho_prime: float,
+            decay_rate_rho_prime: float,
+            mass_rho_double_prime: float,
+            decay_rate_rho_double_prime: float,
+            mass_rho_triple_prime: float,
+            decay_rate_rho_triple_prime: float,
     ) -> None:
         """
         TODO: add docstring
 
-        Args:
-            a_omega:
-            a_omega_prime:
-            a_omega_double_prime:
-            a_phi:
-            a_phi_prime:
-            a_rho:
-            a_rho_prime:
-            t_in_isoscalar:
-            t_in_isovector:
-            config:
-            charged_variant:
-
         """
+        self.t_0_isoscalar = t_0_isoscalar
+        self.t_in_isoscalar = t_in_isoscalar
+        self.t_0_isovector = t_0_isovector
+        self.t_in_isovector = t_in_isovector
+
+        self.charged_variant = charged_variant
+
         # isoscalar components' proportionality constants
         self.a_omega = a_omega
         self.a_omega_prime = a_omega_prime
@@ -59,20 +73,38 @@ class KaonUAModel:
         # isovector components' proportionality constants
         self.a_rho = a_rho
         self.a_rho_prime = a_rho_prime
-        self.a_rho_double_prime = 0.5 - a_rho - a_rho_prime
+        self.a_rho_double_prime = a_rho_double_prime
+        self.a_rho_triple_prime = 0.5 - a_rho - a_rho_prime - a_rho_double_prime
 
-        self.t_in_isoscalar = t_in_isoscalar
-        self.t_in_isovector = t_in_isovector
+        # read data about the resonances
+        self.mass_omega = mass_omega
+        self.decay_rate_omega = decay_rate_omega
+        self.mass_omega_prime = mass_omega_prime
+        self.decay_rate_omega_prime = decay_rate_omega_prime
+        self.mass_omega_double_prime = mass_omega_double_prime
+        self.decay_rate_omega_double_prime = decay_rate_omega_double_prime
+        self.mass_phi = mass_phi
+        self.decay_rate_phi = decay_rate_phi
+        self.mass_phi_prime = mass_phi_prime
+        self.decay_rate_phi_prime = decay_rate_phi_prime
+        self.mass_phi_double_prime = mass_phi_double_prime
+        self.decay_rate_phi_double_prime = decay_rate_phi_double_prime
+        self.mass_rho = mass_rho
+        self.decay_rate_rho = decay_rate_rho
+        self.mass_rho_prime = mass_rho_prime
+        self.decay_rate_rho_prime = decay_rate_rho_prime
+        self.mass_rho_double_prime = mass_rho_double_prime
+        self.decay_rate_rho_double_prime = decay_rate_rho_double_prime
+        self.mass_rho_triple_prime = mass_rho_triple_prime
+        self.decay_rate_rho_triple_prime = decay_rate_rho_triple_prime
 
-        self._config = config
-        self.charged_variant = charged_variant
         self._t_to_W_isoscalar = MapFromTtoW(
-            t_0=config.getfloat('branch_points', 'kaon_isoscalar'),
-            t_in=t_in_isoscalar,
+            t_0=self.t_0_isoscalar,
+            t_in=self.t_in_isoscalar,
         )
         self._t_to_W_isovector = MapFromTtoW(
-            t_0=config.getfloat('branch_points', 'kaon_isovector'),
-            t_in=t_in_isovector,
+            t_0=self.t_0_isovector,
+            t_in=self.t_in_isovector,
         )
 
         self._component_omega = None
@@ -84,6 +116,7 @@ class KaonUAModel:
         self._component_rho = None
         self._component_rho_prime = None
         self._component_rho_double_prime = None
+        self._component_rho_triple_prime = None
         self._initialize_isoscalar_components()
         self._initialize_isovector_components()
 
@@ -116,29 +149,26 @@ class KaonUAModel:
             self.a_rho * self._component_rho(w)
             + self.a_rho_prime * self._component_rho_prime(w)
             + self.a_rho_double_prime * self._component_rho_double_prime(w)
+            + self.a_rho_triple_prime * self._component_rho_triple_prime(w)
         )
 
     def _initialize_isoscalar_components(self) -> None:
-        t_0 = self._config.getfloat('branch_points', 'kaon_isoscalar')
-
         # The construction below is perhaps a bit unfortunate, but it seems to me
         # less error-prone than explicitly repeating the same code section for each resonance.
         for resonance_name in [
             'omega', 'omega_prime', 'omega_double_prime',
             'phi', 'phi_prime', 'phi_double_prime',
         ]:
-            mass = self._config.getfloat('resonances', resonance_name + '_mass')
-            decay_rate = self._config.getfloat('resonances', resonance_name + '_decay_rate')
-            component = self._build_component(t_0, self.t_in_isoscalar, mass, decay_rate)
+            mass = self.__getattribute__('mass_' + resonance_name)
+            decay_rate = self.__getattribute__('decay_rate_' + resonance_name)
+            component = self._build_component(self.t_0_isoscalar, self.t_in_isoscalar, mass, decay_rate)
             self.__setattr__('_component_' + resonance_name, component)
 
     def _initialize_isovector_components(self) -> None:
-        t_0 = self._config.getfloat('branch_points', 'kaon_isovector')
-
-        for resonance_name in ['rho', 'rho_prime', 'rho_double_prime']:
-            mass = self._config.getfloat('resonances', resonance_name + '_mass')
-            decay_rate = self._config.getfloat('resonances', resonance_name + '_decay_rate')
-            component = self._build_component(t_0, self.t_in_isovector, mass, decay_rate)
+        for resonance_name in ['rho', 'rho_prime', 'rho_double_prime', 'rho_triple_prime']:
+            mass = self.__getattribute__('mass_' + resonance_name)
+            decay_rate = self.__getattribute__('decay_rate_' + resonance_name)
+            component = self._build_component(self.t_0_isovector, self.t_in_isovector, mass, decay_rate)
             self.__setattr__('_component_' + resonance_name, component)
 
     @staticmethod
