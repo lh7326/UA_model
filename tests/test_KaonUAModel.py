@@ -73,5 +73,4 @@ class TestKaonUAModel(TestCase):
                 kaon_model.charged_variant = case['charged_variant']
                 actual = kaon_model(case['t'])
                 expected = case['expected_value']
-                print(actual, expected)
                 self.assertTrue(cmath.isclose(actual, expected, abs_tol=1.0e-15))

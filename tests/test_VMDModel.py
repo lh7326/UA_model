@@ -9,7 +9,7 @@ class TestVMDModel(TestCase):
     def test_add_vector_meson(self):
         vmd_model = VMDModel()
         vmd_model.add_vector_meson(1.0, 20.5)
-        self.assertEquals(len(vmd_model._vector_mesons), 1)
+        self.assertEqual(len(vmd_model._vector_mesons), 1)
         self.assertDictEqual(
             vmd_model._vector_mesons[0],
             {'coefficient': 1.0, 'mass': 20.5},
@@ -17,8 +17,8 @@ class TestVMDModel(TestCase):
 
     def test_create(self):
         vmd_model = VMDModel.create([{'coefficient': 1.3, 'mass': 12.4}, {'coefficient': 1.3, 'mass': 0.1}])
-        self.assertEquals(len(vmd_model._vector_mesons), 2)
-        self.assertEquals(vmd_model._vector_mesons[0]['coefficient'], 1.3)
+        self.assertEqual(len(vmd_model._vector_mesons), 2)
+        self.assertEqual(vmd_model._vector_mesons[0]['coefficient'], 1.3)
 
     def test___call__(self):
         vmd_model = VMDModel.create([

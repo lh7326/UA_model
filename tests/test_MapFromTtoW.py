@@ -25,7 +25,6 @@ class TestMapFromTtoW(TestCase):
 
         for case in test_cases:
             with self.subTest(case=case):
-                print(f(case['t']), case['expected_W'])
                 self.assertTrue(
                     cmath.isclose(f(case['t']), case['expected_W'])
                 )
