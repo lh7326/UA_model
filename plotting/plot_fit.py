@@ -8,10 +8,7 @@ def plot_ff_fit(ts, ffs, errors, f, pars):
     ax.set_ylabel('FF [GeV^-1]')
     ax.errorbar(ts, ffs, yerr=errors, ecolor='black', color='black', fmt='x')
 
-    #min_ts = min(ts)
-    #max_ts = max(ts)
-    #fit_ts = [min_ts + (max_ts - min_ts) * x / 100.0 for x in range(101)]
-    fit_ffs = [f(t, *pars) for t in ts]
+    fit_ffs = f(ts, *pars)
     ax.scatter(ts, fit_ffs, color='red')
 
     ax.set_xscale('log')

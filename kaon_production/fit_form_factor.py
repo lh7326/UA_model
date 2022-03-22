@@ -30,8 +30,8 @@ if __name__ == '__main__':
     t_0_isoscalar = (3 * pion_mass)**2
     t_0_isovector = (2 * pion_mass)**2
 
-    def partial_f(t, *args, **kwargs):
-        return function_form_factor(t, t_0_isoscalar, t_0_isovector, *args, **kwargs)
+    def partial_f(ts, *args, **kwargs):
+        return function_form_factor(ts, t_0_isoscalar, t_0_isovector, *args, **kwargs)
 
     ts, form_factors_values, errors = read_form_factor_data()
 
@@ -73,11 +73,11 @@ if __name__ == '__main__':
         xdata=ts,
         ydata=form_factors_values,
         p0=initial_parameters,
-        sigma=errors,
+        sigma=None,  # errors,
         absolute_sigma=False,
         bounds=_get_bounds(t_0_isoscalar, t_0_isovector),
     )
 
-    print(popt, pcov)
+    print(popt)
 
     plot_ff_fit(ts, form_factors_values, errors, partial_f, initial_parameters)

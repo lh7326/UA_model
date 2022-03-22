@@ -1,12 +1,11 @@
 from configparser import ConfigParser
-from functools import lru_cache
 
 from ua_model.KaonUAModel import KaonUAModel
 from cross_section.ScalarMesonProductionTotalCrossSection import ScalarMesonProductionTotalCrossSection
 
 
-@lru_cache(maxsize=128, typed=False)
-def _get_kaon_form_factor_model(
+def function_form_factor(
+        ts,
         t_0_isoscalar,
         t_0_isovector,
         t_in_isoscalar,
@@ -40,42 +39,7 @@ def _get_kaon_form_factor_model(
         mass_rho_triple_prime,
         decay_rate_rho_triple_prime,
         ):
-    print(f'''Initializing a new model:
-              charged_variant=True,
-              t_0_isoscalar={t_0_isoscalar},
-              t_0_isovector={t_0_isovector},
-              t_in_isoscalar={t_in_isoscalar},
-              t_in_isovector={t_in_isovector},
-              a_omega={a_omega},
-              a_omega_prime={a_omega_prime},
-              a_omega_double_prime={a_omega_double_prime},
-              a_phi={a_phi},
-              a_phi_prime={a_phi_prime},
-              a_rho={a_rho},
-              a_rho_prime={a_rho_prime},
-              a_rho_double_prime={a_rho_double_prime},
-              mass_omega={mass_omega},
-              decay_rate_omega={decay_rate_omega},
-              mass_omega_prime={mass_omega_prime},
-              decay_rate_omega_prime={decay_rate_omega_prime},
-              mass_omega_double_prime={mass_omega_double_prime},
-              decay_rate_omega_double_prime={decay_rate_omega_double_prime},
-              mass_phi={mass_phi},
-              decay_rate_phi={decay_rate_phi},
-              mass_phi_prime={mass_phi_prime},
-              decay_rate_phi_prime={decay_rate_phi_prime},
-              mass_phi_double_prime={mass_phi_double_prime},
-              decay_rate_phi_double_prime={decay_rate_phi_double_prime},
-              mass_rho={mass_rho},
-              decay_rate_rho={decay_rate_rho},
-              mass_rho_prime={mass_rho_prime},
-              decay_rate_rho_prime={decay_rate_rho_prime},
-              mass_rho_double_prime={mass_rho_double_prime},
-              decay_rate_rho_double_prime={decay_rate_rho_double_prime},
-              mass_rho_triple_prime={mass_rho_triple_prime},
-              decay_rate_rho_triple_prime={decay_rate_rho_triple_prime},
-    ''')
-    return KaonUAModel(
+    ff_model = KaonUAModel(
         charged_variant=True,
         t_0_isoscalar=t_0_isoscalar,
         t_0_isovector=t_0_isovector,
@@ -110,10 +74,11 @@ def _get_kaon_form_factor_model(
         mass_rho_triple_prime=mass_rho_triple_prime,
         decay_rate_rho_triple_prime=decay_rate_rho_triple_prime,
     )
+    return [abs(ff_model(t)) for t in ts]
 
 
-@lru_cache(maxsize=128, typed=False)
-def _get_kaon_cross_section_model(
+def function_cross_section(
+        ts,
         k_meson_mass,
         alpha,
         hc_squared,
@@ -150,43 +115,7 @@ def _get_kaon_cross_section_model(
         mass_rho_triple_prime,
         decay_rate_rho_triple_prime,
         ):
-    print(f'''Initializing a new cross section model:
-              k_meson_mass={k_meson_mass},
-              alpha={alpha},
-              hc_squared={hc_squared},
-              t_0_isoscalar={t_0_isoscalar},
-              t_0_isovector={t_0_isovector},
-              t_in_isoscalar={t_in_isoscalar},
-              t_in_isovector={t_in_isovector},
-              a_omega={a_omega},
-              a_omega_prime={a_omega_prime},
-              a_omega_double_prime={a_omega_double_prime},
-              a_phi={a_phi},
-              a_phi_prime={a_phi_prime},
-              a_rho={a_rho},
-              a_rho_prime={a_rho_prime},
-              a_rho_double_prime={a_rho_double_prime},
-              mass_omega={mass_omega},
-              decay_rate_omega={decay_rate_omega},
-              mass_omega_prime={mass_omega_prime},
-              decay_rate_omega_prime={decay_rate_omega_prime},
-              mass_omega_double_prime={mass_omega_double_prime},
-              decay_rate_omega_double_prime={decay_rate_omega_double_prime},
-              mass_phi={mass_phi},
-              decay_rate_phi={decay_rate_phi},
-              mass_phi_prime={mass_phi_prime},
-              decay_rate_phi_prime={decay_rate_phi_prime},
-              mass_phi_double_prime={mass_phi_double_prime},
-              decay_rate_phi_double_prime={decay_rate_phi_double_prime},
-              mass_rho={mass_rho},
-              decay_rate_rho={decay_rate_rho},
-              mass_rho_prime={mass_rho_prime},
-              decay_rate_rho_prime={decay_rate_rho_prime},
-              mass_rho_double_prime={mass_rho_double_prime},
-              decay_rate_rho_double_prime={decay_rate_rho_double_prime},
-              mass_rho_triple_prime={mass_rho_triple_prime},
-              decay_rate_rho_triple_prime={decay_rate_rho_triple_prime},
-    ''')
+
     ff_model = KaonUAModel(
         charged_variant=True,
         t_0_isoscalar=t_0_isoscalar,
@@ -225,108 +154,6 @@ def _get_kaon_cross_section_model(
 
     config = ConfigParser()
     config['constants'] = {'alpha': alpha, 'hc_squared': hc_squared}
-    return ScalarMesonProductionTotalCrossSection(k_meson_mass, ff_model, config)
+    cross_section_model = ScalarMesonProductionTotalCrossSection(k_meson_mass, ff_model, config)
 
-
-def function_form_factor(
-        t,
-        t_0_isoscalar,
-        t_0_isovector,
-        t_in_isoscalar,
-        t_in_isovector,
-        a_omega,
-        a_omega_prime,
-        a_omega_double_prime,
-        a_phi,
-        a_phi_prime,
-        a_rho,
-        a_rho_prime,
-        a_rho_double_prime,
-        mass_omega,
-        decay_rate_omega,
-        mass_omega_prime,
-        decay_rate_omega_prime,
-        mass_omega_double_prime,
-        decay_rate_omega_double_prime,
-        mass_phi,
-        decay_rate_phi,
-        mass_phi_prime,
-        decay_rate_phi_prime,
-        mass_phi_double_prime,
-        decay_rate_phi_double_prime,
-        mass_rho,
-        decay_rate_rho,
-        mass_rho_prime,
-        decay_rate_rho_prime,
-        mass_rho_double_prime,
-        decay_rate_rho_double_prime,
-        mass_rho_triple_prime,
-        decay_rate_rho_triple_prime,
-        ):
-    ff_model = _get_kaon_form_factor_model(
-        t_0_isoscalar, t_0_isovector, t_in_isoscalar, t_in_isovector,
-        a_omega, a_omega_prime, a_omega_double_prime,
-        a_phi, a_phi_prime,
-        a_rho, a_rho_prime, a_rho_double_prime,
-        mass_omega, decay_rate_omega, mass_omega_prime, decay_rate_omega_prime,
-        mass_omega_double_prime, decay_rate_omega_double_prime,
-        mass_phi, decay_rate_phi, mass_phi_prime, decay_rate_phi_prime,
-        mass_phi_double_prime, decay_rate_phi_double_prime,
-        mass_rho, decay_rate_rho, mass_rho_prime, decay_rate_rho_prime,
-        mass_rho_double_prime, decay_rate_rho_double_prime,
-        mass_rho_triple_prime, decay_rate_rho_triple_prime)
-    return ff_model(t)
-
-
-def function_cross_section(
-        t,
-        k_meson_mass,
-        alpha,
-        hc_squared,
-        t_0_isoscalar,
-        t_0_isovector,
-        t_in_isoscalar,
-        t_in_isovector,
-        a_omega,
-        a_omega_prime,
-        a_omega_double_prime,
-        a_phi,
-        a_phi_prime,
-        a_rho,
-        a_rho_prime,
-        a_rho_double_prime,
-        mass_omega,
-        decay_rate_omega,
-        mass_omega_prime,
-        decay_rate_omega_prime,
-        mass_omega_double_prime,
-        decay_rate_omega_double_prime,
-        mass_phi,
-        decay_rate_phi,
-        mass_phi_prime,
-        decay_rate_phi_prime,
-        mass_phi_double_prime,
-        decay_rate_phi_double_prime,
-        mass_rho,
-        decay_rate_rho,
-        mass_rho_prime,
-        decay_rate_rho_prime,
-        mass_rho_double_prime,
-        decay_rate_rho_double_prime,
-        mass_rho_triple_prime,
-        decay_rate_rho_triple_prime,
-        ):
-    cross_section_model = _get_kaon_cross_section_model(
-        k_meson_mass, alpha, hc_squared,
-        t_0_isoscalar, t_0_isovector, t_in_isoscalar, t_in_isovector,
-        a_omega, a_omega_prime, a_omega_double_prime,
-        a_phi, a_phi_prime,
-        a_rho, a_rho_prime, a_rho_double_prime,
-        mass_omega, decay_rate_omega, mass_omega_prime, decay_rate_omega_prime,
-        mass_omega_double_prime, decay_rate_omega_double_prime,
-        mass_phi, decay_rate_phi, mass_phi_prime, decay_rate_phi_prime,
-        mass_phi_double_prime, decay_rate_phi_double_prime,
-        mass_rho, decay_rate_rho, mass_rho_prime, decay_rate_rho_prime,
-        mass_rho_double_prime, decay_rate_rho_double_prime,
-        mass_rho_triple_prime, decay_rate_rho_triple_prime)
-    return cross_section_model(t)
+    return [cross_section_model(t) for t in ts]
