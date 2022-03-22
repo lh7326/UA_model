@@ -2,7 +2,7 @@ import cmath
 from unittest import TestCase
 from configparser import ConfigParser
 
-from cross_section.scalar_meson_production_total_cross_section import ScalarMesonProductionTotalCrossSection
+from cross_section.ScalarMesonProductionTotalCrossSection import ScalarMesonProductionTotalCrossSection
 from ua_model.KaonUAModel import KaonUAModel
 
 
