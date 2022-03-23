@@ -1,4 +1,5 @@
 from configparser import ConfigParser
+import math
 import numpy as np
 from scipy.optimize import curve_fit
 
@@ -11,13 +12,17 @@ def _get_bounds(t_0_isoscalar, t_0_isovector):
     """
     There are no upper bounds. The branch points t_in_isoscalar and t_in_isovector
     must lie above the values of t_0_isoscalar and t_0_isovector, respectively.
-    The masses and decay rates must be non-negative.
+    Decay rates must be non-negative and squared masses must lie above their respective t_0 treshold.
 
     """
+    lower_mass_bound_isoscalar = math.sqrt(t_0_isoscalar)
+    lower_mass_bound_isovector = math.sqrt(t_0_isovector)
     return (
         [t_0_isoscalar,  t_0_isovector, -np.inf, -np.inf, -np.inf, -np.inf, -np.inf,
-         -np.inf, -np.inf, -np.inf, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-         0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+         -np.inf, -np.inf, -np.inf, lower_mass_bound_isoscalar, 0.0, lower_mass_bound_isoscalar, 0.0,
+         lower_mass_bound_isoscalar, 0.0, lower_mass_bound_isoscalar, 0.0, lower_mass_bound_isoscalar, 0.0,
+         lower_mass_bound_isoscalar, 0.0, lower_mass_bound_isovector, 0.0, lower_mass_bound_isovector, 0.0,
+         lower_mass_bound_isovector, 0.0, lower_mass_bound_isovector, 0.0],
         np.inf
     )
 
