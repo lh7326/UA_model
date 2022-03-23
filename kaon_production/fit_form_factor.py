@@ -38,6 +38,15 @@ if __name__ == '__main__':
     def partial_f(ts, *args, **kwargs):
         return function_form_factor(ts, t_0_isoscalar, t_0_isovector, *args, **kwargs)
 
+    def make_partial_only_coupling_constants(pars):
+
+        def partial_f(ts, a_omega, a_omega_prime, a_omega_double_prime, a_phi, a_phi_prime,
+                      a_rho, a_rho_prime, a_rho_double_prime):
+            return function_form_factor(ts, t_0_isoscalar, t_0_isovector, pars[0], pars[1],  a_omega, a_omega_prime,
+                                        a_omega_double_prime, a_phi, a_phi_prime, a_rho, a_rho_prime, a_rho_double_prime,
+                                        *pars[10:])
+        return partial_f
+
     ts, form_factors_values, errors = read_form_factor_data()
 
     initial_parameters = [
@@ -73,16 +82,19 @@ if __name__ == '__main__':
         0.3,  # decay_rate_rho_triple_prime
     ]
 
+    #partial_f = make_partial_only_coupling_constants(initial_parameters)
+
     popt, pcov = curve_fit(
         f=partial_f,
         xdata=ts,
         ydata=form_factors_values,
-        p0=initial_parameters,
-        sigma=None,  # errors,
+        p0=initial_parameters, #[2:10],
+        sigma=errors,
         absolute_sigma=False,
-        bounds=_get_bounds(t_0_isoscalar, t_0_isovector),
+        bounds=_get_bounds(t_0_isoscalar, t_0_isovector),  #(-np.inf, np.inf),
     )
 
     print(popt)
+    #popt = popt + initial_parameters[10:]
 
-    plot_ff_fit(ts, form_factors_values, errors, partial_f, initial_parameters)
+    plot_ff_fit(ts, form_factors_values, errors, partial_f, popt)
