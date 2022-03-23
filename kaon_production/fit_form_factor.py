@@ -62,10 +62,10 @@ if __name__ == '__main__':
         0.1474,  # decay_rate_rho
         1.465,  # mass_rho_prime
         0.4,  # decay_rate_rho_prime
-        1.570,  # mass_rho_double_prime
-        0.144,  # decay_rate_rho_double_prime
-        1.720,  # mass_rho_triple_prime
-        0.25,  # decay_rate_rho_triple_prime
+        1.720,  # mass_rho_double_prime
+        0.25,  # decay_rate_rho_double_prime
+        2.15,  # mass_rho_triple_prime
+        0.3,  # decay_rate_rho_triple_prime
     ]
 
     popt, pcov = curve_fit(
