@@ -1,4 +1,5 @@
 from configparser import ConfigParser
+import math
 import numpy as np
 from scipy.optimize import curve_fit
 
@@ -8,17 +9,18 @@ from kaon_production.utils import (
     make_partial_fixed_resonances, make_partial_only_resonances_parameters)
 from plotting.plot_fit import plot_ff_fit
 
+
 INITIAL_PARAMETERS = [
-    1.0,  # t_in_isoscalar
-    1.0,  # t_in_isovector
-    1.0 / 12,  # a_omega
-    1.0 / 12,  # a_omega_prime
-    1.0 / 12,  # a_omega_double_prime
-    1.0 / 12,  # a_phi
-    1.0 / 12,  # a_phi_prime
-    1.0 / 8,  # a_rho
-    1.0 / 8,  # a_rho_prime
-    1.0 / 8,  # a_rho_double_prime
+    1.12110178,  # t_in_isoscalar
+    1.49572898,  # t_in_isovector
+    2.06984628,  # a_omega
+    -2.19271179,  # a_omega_prime
+    0.31957227,  # a_omega_double_prime
+    0.25334654,  # a_phi
+    0.08406246,  # a_phi_prime
+    -0.58567654,  # a_rho
+    1.23174638,  # a_rho_prime
+    -0.1842823,  # a_rho_double_prime
     0.78266,  # mass_omega
     0.00868,  # decay_rate_omega
     1.410,  # mass_omega_prime
@@ -146,6 +148,48 @@ def pipeline2(ts, form_factors_values, errors, path_to_config):
         sigma=errors,
         absolute_sigma=False,
         bounds=(get_bounds(t_0_isoscalar, t_0_isovector)[0][:10], np.inf),
+        maxfev=5000,
+    )
+
+    print(report_fit(ts, form_factors_values, errors, popt, partial))
+    plot_ff_fit(ts, form_factors_values, errors, partial, popt, 'Fixed resonances')
+
+
+def pipeline3(ts, form_factors_values, errors, path_to_config):
+    config = ConfigParser(inline_comment_prefixes='#')
+    config.read('../configuration.ini')
+
+    pion_mass = config.getfloat('constants', 'charged_pion_mass')
+    t_0_isoscalar = (3 * pion_mass) ** 2
+    t_0_isovector = (2 * pion_mass) ** 2
+
+    partial = make_partial_only_resonances_parameters(
+        path_to_config, 1.12110178,  1.49572898,  2.06984628, -2.19271179,  0.31957227,
+        0.25334654,  0.08406246, -0.58567654,  1.23174638, -0.1842823
+    )
+
+    initial_parameters = [
+        0.78266, 0.00868, 1.410, 0.29, 1.67, 0.315,
+        1.019461, 0.004249, 1.680, 0.150, 2.159, 0.137,
+        0.77526, 0.1474, 1.465, 0.4, 1.720, 0.25, 2.15, 0.3
+    ]
+
+    lower_mass_bound_isoscalar = math.sqrt(t_0_isoscalar)
+    lower_mass_bound_isovector = math.sqrt(t_0_isovector)
+
+    popt, _ = curve_fit(
+        f=partial,
+        xdata=ts,
+        ydata=form_factors_values,
+        p0=initial_parameters,
+        sigma=errors,
+        absolute_sigma=False,
+        bounds=((lower_mass_bound_isoscalar, 0.0, lower_mass_bound_isoscalar, 0.0,
+                 lower_mass_bound_isoscalar, 0.0, lower_mass_bound_isoscalar, 0.0, lower_mass_bound_isoscalar, 0.0,
+                 lower_mass_bound_isoscalar, 0.0, lower_mass_bound_isovector, 0.0, lower_mass_bound_isovector, 0.0,
+                 lower_mass_bound_isovector, 0.0, lower_mass_bound_isovector, 0.0),
+                np.inf),
+        maxfev=5000,
     )
 
     print(report_fit(ts, form_factors_values, errors, popt, partial))
@@ -155,4 +199,4 @@ def pipeline2(ts, form_factors_values, errors, path_to_config):
 if __name__ == '__main__':
     ts, form_factors_values, errors = read_form_factor_data()
 
-    pipeline2(ts, form_factors_values, errors, '../configuration.ini')
+    pipeline3(ts, form_factors_values, errors, '../configuration.ini')

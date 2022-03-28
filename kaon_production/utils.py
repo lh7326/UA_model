@@ -25,12 +25,13 @@ def get_bounds(t_0_isoscalar, t_0_isovector):
     )
 
 
-def report_fit(xs, data_ys, errors, parameters, f_partial):
+def report_fit(xs, data_ys, errors, parameters, f_partial, name='Fit Report'):
 
     fit_ys = f_partial(xs, *parameters)
     r_squared_absolute = [(data - fit)**2 for data, fit in zip(data_ys, fit_ys)]
     r_squared_errors_normalized = [r2 / (err ** 2) for r2, err in zip(r_squared_absolute, errors)]
     return {
+        'name': name,
         'parameters': parameters,
         'r2': sum(r_squared_absolute),
         'r2_normalized': sum(r_squared_errors_normalized),
