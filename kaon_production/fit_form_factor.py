@@ -1,30 +1,10 @@
 from configparser import ConfigParser
-import math
-import numpy as np
 from scipy.optimize import curve_fit
 
-from kaon_production.function import function_form_factor
 from kaon_production.data import read_form_factor_data
+from kaon_production.function import function_form_factor
+from kaon_production.utils import get_bounds, report_fit
 from plotting.plot_fit import plot_ff_fit
-
-
-def _get_bounds(t_0_isoscalar, t_0_isovector):
-    """
-    There are no upper bounds. The branch points t_in_isoscalar and t_in_isovector
-    must lie above the values of t_0_isoscalar and t_0_isovector, respectively.
-    Decay rates must be non-negative and squared masses must lie above their respective t_0 treshold.
-
-    """
-    lower_mass_bound_isoscalar = math.sqrt(t_0_isoscalar)
-    lower_mass_bound_isovector = math.sqrt(t_0_isovector)
-    return (
-        [t_0_isoscalar,  t_0_isovector, -np.inf, -np.inf, -np.inf, -np.inf, -np.inf,
-         -np.inf, -np.inf, -np.inf, lower_mass_bound_isoscalar, 0.0, lower_mass_bound_isoscalar, 0.0,
-         lower_mass_bound_isoscalar, 0.0, lower_mass_bound_isoscalar, 0.0, lower_mass_bound_isoscalar, 0.0,
-         lower_mass_bound_isoscalar, 0.0, lower_mass_bound_isovector, 0.0, lower_mass_bound_isovector, 0.0,
-         lower_mass_bound_isovector, 0.0, lower_mass_bound_isovector, 0.0],
-        np.inf
-    )
 
 
 if __name__ == '__main__':
@@ -91,10 +71,10 @@ if __name__ == '__main__':
         p0=initial_parameters, #[2:10],
         sigma=errors,
         absolute_sigma=False,
-        bounds=_get_bounds(t_0_isoscalar, t_0_isovector),  #(-np.inf, np.inf),
+        bounds=get_bounds(t_0_isoscalar, t_0_isovector),  #(-np.inf, np.inf),
     )
 
-    print(popt)
+    print(report_fit(ts, form_factors_values, errors, popt, partial_f))
     #popt = popt + initial_parameters[10:]
 
     plot_ff_fit(ts, form_factors_values, errors, partial_f, popt)

@@ -1,9 +1,9 @@
 import matplotlib.pyplot as plt
 
 
-def plot_ff_fit(ts, ffs, errors, f, pars):
+def plot_ff_fit(ts, ffs, errors, f, pars, title='Form Factor Fit'):
     fig, ax = plt.subplots()
-    ax.set_title('Form Factor Fit')
+    ax.set_title(title)
     ax.set_xlabel('t [GeV^2]')
     ax.set_ylabel('FF [GeV^-1]')
     ax.errorbar(ts, ffs, yerr=errors, ecolor='black', color='black', fmt='x')
