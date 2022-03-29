@@ -12,6 +12,7 @@ def make_partial_for_parameters(parameters: ModelParameters):
             return args.pop()
 
     def partial_f(ts, *args):
+        args = list(args)
 
         # WARNING: the order of the commands below is important!
         decay_rate_rho_triple_prime = _from_parameters_or_arguments('decay_rate_rho_triple_prime', args)
@@ -39,7 +40,7 @@ def make_partial_for_parameters(parameters: ModelParameters):
         decay_rate_omega_prime = _from_parameters_or_arguments('decay_rate_omega_prime', args)
         mass_omega_prime = _from_parameters_or_arguments('mass_omega_prime', args)
         a_omega_prime = _from_parameters_or_arguments('a_omega_prime', args)
-        decay_rate_omega = _from_parameters_or_arguments('decay_omega_phi', args)
+        decay_rate_omega = _from_parameters_or_arguments('decay_rate_omega', args)
         mass_omega = _from_parameters_or_arguments('mass_omega', args)
         a_omega = _from_parameters_or_arguments('a_omega', args)
         t_in_isovector = _from_parameters_or_arguments('t_in_isovector', args)
