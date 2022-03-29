@@ -45,19 +45,19 @@ def make_initial_parameters(t_0_isoscalar, t_0_isovector):
     )
 
 
-def make_pipeline1(ts, form_factors_values, errors, t_0_isoscalar, t_0_isovector, initial_params):
+def make_pipeline1(ts, form_factors_values, errors,
+                   t_0_isoscalar, t_0_isovector, initial_params,
+                   reports_dir, name='Pipeline1'):
 
     task_list = [
         TaskFixedResonancesFit, TaskFixedCouplingConstants,
-        TaskFixedResonancesFit, TaskFixedCouplingConstants,
         TaskFullFit,
-        TaskFixedResonancesFit, TaskFixedCouplingConstants,
         TaskFixedResonancesFit, TaskFixedCouplingConstants,
         TaskFullFit,
     ]
-    return Pipeline('Pipeline1', initial_params, task_list,
+    return Pipeline(name, initial_params, task_list,
                     ts, form_factors_values, errors,
-                    t_0_isoscalar, t_0_isovector, plot=True)
+                    t_0_isoscalar, t_0_isovector, reports_dir, plot=False)
 
 
 if __name__ == '__main__':
@@ -67,9 +67,12 @@ if __name__ == '__main__':
     t_0_isoscalar = (3 * pion_mass) ** 2
     t_0_isovector = (2 * pion_mass) ** 2
 
+    path_to_reports = '/home/lukas/reports'
+
     ts, form_factors_values, errors = read_form_factor_data()
 
     initial_parameters = make_initial_parameters(t_0_isoscalar, t_0_isovector)
     pipeline = make_pipeline1(ts, form_factors_values, errors,
-                              t_0_isoscalar, t_0_isovector, initial_parameters)
+                              t_0_isoscalar, t_0_isovector, initial_parameters,
+                              path_to_reports, name='test')
     pipeline.run()

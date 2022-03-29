@@ -1,4 +1,5 @@
 from typing import List, Type
+import os.path
 
 from kaon_production.ModelParameters import ModelParameters
 from kaon_production.Task import Task
@@ -8,7 +9,7 @@ class Pipeline:
 
     def __init__(self, name: str, parameters: ModelParameters, tasks: List[Type[Task]],
                  t_values: List[float], form_factors: List[float], errors: List[float],
-                 t_0_isoscalar: float, t_0_isovector: float, plot: bool = True):
+                 t_0_isoscalar: float, t_0_isovector: float, reports_dir: str, plot: bool = True):
         self.name = name
         self.parameters = parameters
         self.tasks = tasks
@@ -17,7 +18,10 @@ class Pipeline:
         self.errors = errors
         self.t_0_isoscalar = t_0_isoscalar
         self.t_0_isovector = t_0_isovector
+        self.reports_dir = os.path.join(reports_dir, name)
         self.plot = plot
+
+        self._set_up_reports_directory()
 
     def run(self):
         res = None
@@ -27,7 +31,7 @@ class Pipeline:
             task_name = f'Task#{i}:{task_class.__name__}'
             task = task_class(
                 task_name, self.parameters, self.t_values, self.form_factors, self.errors,
-                self.t_0_isoscalar, self.t_0_isovector, self.plot
+                self.t_0_isoscalar, self.t_0_isovector, self.reports_dir, self.plot
             )
 
             self._log(f'Running {task_name}')
@@ -39,4 +43,11 @@ class Pipeline:
         return res
 
     def _log(self, msg):
-        print(f'Pipeline {self.name}: {msg}')
+        print(f'Pipeline {self.name}: {msg}\n')
+
+    def _set_up_reports_directory(self):
+        #TODO: do better!
+        if os.path.exists(self.reports_dir):
+            raise ValueError(f'Directory already exists: {self.reports_dir}')
+        os.mkdir(self.reports_dir)
+
