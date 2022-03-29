@@ -44,7 +44,7 @@ class Task:
 
     def _plot(self, opt_params):
         plot_ff_fit(self.ts, self.ffs, self.errors, self.partial_f,
-                    opt_params, f'Task {self.name}')
+                    opt_params, self.name)
 
     def _report_fit(self, opt_parameters):
         fit_ys = self.partial_f(self.ts, *opt_parameters)
@@ -52,12 +52,12 @@ class Task:
         chi_squared = math.sqrt(
             sum([r2 / (err ** 2) for r2, err in zip(r_squared, self.errors)])
         )
-        return {
+        print({
             'name': self.name,
             'parameters': self.parameters.to_list(),
             'r2': sum(r_squared),
             'chi_squared': chi_squared,
-        }
+        })
 
     def _set_up(self):
         raise NotImplementedError

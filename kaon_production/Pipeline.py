@@ -23,7 +23,7 @@ class Pipeline:
         res = None
         self._log(f'Starting. Initial parameters: {self.parameters.to_list()}')
         for i, task_class in enumerate(self.tasks):
-            self._log(f'Initializing task #{i}. Parameters: {self.parameters.to_list()}')
+            self._log(f'Initializing Task#{i}. Parameters: {self.parameters.to_list()}')
             task_name = f'Task#{i}:{task_class.__name__}'
             task = task_class(
                 task_name, self.parameters, self.t_values, self.form_factors, self.errors,
