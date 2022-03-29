@@ -9,9 +9,9 @@ def make_partial_for_parameters(parameters: ModelParameters):
         scheme = []
         for parameter in parameters:
             if parameter.is_fixed:
-                scheme.append(lambda _: parameter.value)
+                scheme.append(lambda _, p=parameter: p.value)
             else:
-                scheme.append(lambda args: args[argument_index])
+                scheme.append(lambda args, i=argument_index: args[i])
                 argument_index += 1
         return scheme, argument_index
 
