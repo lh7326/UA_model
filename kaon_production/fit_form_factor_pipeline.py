@@ -4,7 +4,7 @@ from kaon_production.data import read_form_factor_data
 from kaon_production.ModelParameters import ModelParameters
 from kaon_production.tasks import (
     TaskFullFit, TaskFixedResonancesFit, TaskFixedCouplingConstants,
-    TaskFitLowEnergies, TaskFitHighEnergies)
+    TaskFitLowEnergies, TaskFitHighEnergies, TaskFitOnRandomSubsetOfData)
 from kaon_production.Pipeline import Pipeline
 
 

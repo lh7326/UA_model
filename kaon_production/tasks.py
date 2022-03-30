@@ -1,4 +1,5 @@
 import math
+import random
 
 from kaon_production.ModelParameters import ModelParameters
 from kaon_production.Task import Task
@@ -41,8 +42,8 @@ class TaskFixedCouplingConstants(Task):
 class TaskFitLowEnergies(Task):
 
     def __init__(self, name: str, parameters: ModelParameters, ts, ffs, errors,
-                 t_0_isoscalar, t_0_isovector, threshold=1.2, plot=True):
-        super().__init__(name, parameters, ts, ffs, errors, t_0_isoscalar, t_0_isovector, plot)
+                 t_0_isoscalar, t_0_isovector, reports_dir, plot=True, threshold=1.2):
+        super().__init__(name, parameters, ts, ffs, errors, t_0_isoscalar, t_0_isovector, reports_dir, plot)
         assert threshold > 0
         self.threshold = threshold
 
@@ -52,21 +53,31 @@ class TaskFitLowEnergies(Task):
                                'phi', 'phi_prime', 'phi_double_prime',
                                'rho', 'rho_prime', 'rho_double_prime', 'rho_triple_prime']:
             if self.parameters[f'mass_{resonance_name}'].value <= threshold_mass:
-                self.parameters.release_parameters([resonance_name])
+                self.parameters.release_parameters(self._parameter_tied_to_resonance(resonance_name))
             else:
-                self.parameters.fix_parameters([resonance_name])
+                self.parameters.fix_parameters(self._parameter_tied_to_resonance(resonance_name))
         self.partial_f = make_partial_for_parameters(self.parameters)
 
-        self.ts, self.ffs, self.errors = zip(
-            *[(t, ff, err) for t, ff, err in zip(self.ts, self.ffs, self.errors) if t <= self.threshold]
+        self._crop_data_for_fitting()
+
+    def _crop_data_for_fitting(self):
+        self.ts_fit, self.ffs_fit, self.errors_fit = zip(
+            *[(t, ff, err) for t, ff, err in zip(self.ts_fit, self.ffs_fit, self.errors_fit) if t <= self.threshold]
         )
+
+    @staticmethod
+    def _parameter_tied_to_resonance(resonance_name):
+        par_names = [f'mass_{resonance_name}', f'decay_rate_{resonance_name}']
+        if resonance_name not in ['phi_double_prime', 'rho_triple_prime']:
+            par_names.append(f'a_{resonance_name}')
+        return par_names
 
 
 class TaskFitHighEnergies(Task):
 
     def __init__(self, name: str, parameters: ModelParameters, ts, ffs, errors,
-                 t_0_isoscalar, t_0_isovector, threshold=1.2, plot=True):
-        super().__init__(name, parameters, ts, ffs, errors, t_0_isoscalar, t_0_isovector, plot)
+                 t_0_isoscalar, t_0_isovector, reports_dir, plot=True, threshold=1.2):
+        super().__init__(name, parameters, ts, ffs, errors, t_0_isoscalar, t_0_isovector, reports_dir, plot)
         assert threshold > 0
         self.threshold = threshold
 
@@ -76,11 +87,37 @@ class TaskFitHighEnergies(Task):
                                'phi', 'phi_prime', 'phi_double_prime',
                                'rho', 'rho_prime', 'rho_double_prime', 'rho_triple_prime']:
             if self.parameters[f'mass_{resonance_name}'].value > threshold_mass:
-                self.parameters.release_parameters([resonance_name])
+                self.parameters.release_parameters(self._parameter_tied_to_resonance(resonance_name))
             else:
-                self.parameters.fix_parameters([resonance_name])
+                self.parameters.fix_parameters(self._parameter_tied_to_resonance(resonance_name))
         self.partial_f = make_partial_for_parameters(self.parameters)
 
-        self.ts, self.ffs, self.errors = zip(
-            *[(t, ff, err) for t, ff, err in zip(self.ts, self.ffs, self.errors) if t > self.threshold]
+        self._crop_data_for_fitting()
+
+    def _crop_data_for_fitting(self):
+        self.ts_fit, self.ffs_fit, self.errors_fit = zip(
+            *[(t, ff, err) for t, ff, err in zip(self.ts_fit, self.ffs_fit, self.errors_fit) if t > self.threshold]
+        )
+
+    @staticmethod
+    def _parameter_tied_to_resonance(resonance_name):
+        par_names = [f'mass_{resonance_name}', f'decay_rate_{resonance_name}']
+        if resonance_name not in ['phi_double_prime', 'rho_triple_prime']:
+            par_names.append(f'a_{resonance_name}')
+        return par_names
+
+
+class TaskFitOnRandomSubsetOfData(Task):
+
+    THRESHOLD = 0.5 # probability of retaining a datapoint
+
+    def _set_up(self):
+        self.parameters.release_all_parameters()
+        self.partial_f = make_partial_for_parameters(self.parameters)
+        self._crop_data_for_fitting()
+
+    def _crop_data_for_fitting(self):
+        self.ts_fit, self.ffs_fit, self.errors_fit = zip(
+            *[(t, ff, err) for t, ff, err in zip(self.ts_fit, self.ffs_fit, self.errors_fit)
+              if random.random() < self.THRESHOLD]
         )
