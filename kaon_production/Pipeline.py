@@ -21,6 +21,7 @@ class Pipeline:
         self.reports_dir = os.path.join(reports_dir, name)
         self.plot = plot
 
+        self._report = f'Report {name}:\n'
         self._set_up_reports_directory()
 
     def run(self):
@@ -36,14 +37,16 @@ class Pipeline:
 
             self._log(f'Running {task_name}')
             res = task.run()
-            self._log(f'{task_name} final parameters: {task.parameters.to_list()}')
+            self._log(f'{task_name} report: {task.report}')
 
             self.parameters = task.parameters
             self.parameters.release_all_parameters()
+            self._flush_report()
         return res
 
-    def _log(self, msg):
+    def _log(self, msg: str):
         print(f'Pipeline {self.name}: {msg}\n')
+        self._report += (msg + '\n')
 
     def _set_up_reports_directory(self):
         #TODO: do better!
@@ -51,3 +54,8 @@ class Pipeline:
             raise ValueError(f'Directory already exists: {self.reports_dir}')
         os.mkdir(self.reports_dir)
 
+    def _flush_report(self):
+        filepath = os.path.join(self.reports_dir,'report.txt')
+        with open(filepath, 'a') as f:
+            f.write(self._report)
+        self._report = '\n'
