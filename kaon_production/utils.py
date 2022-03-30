@@ -1,4 +1,8 @@
+import random
 from configparser import ConfigParser
+
+import numpy as np
+
 from kaon_production.function import function_form_factor
 from kaon_production.ModelParameters import ModelParameters
 
@@ -35,3 +39,26 @@ def _read_config(path_to_config):
     t_0_isoscalar = (3 * pion_mass) ** 2
     t_0_isovector = (2 * pion_mass) ** 2
     return t_0_isoscalar, t_0_isovector
+
+
+def perturb_model_parameters(parameters: ModelParameters, perturbation_size: float = 0.2):
+    def _get_perturbed_value(lower_bound, old_value, upper_bound, rnd):
+        if rnd < 0:
+            if lower_bound == -np.inf:
+                return old_value + perturbation_size * old_value * rnd
+            else:
+                return old_value + perturbation_size * (old_value - lower_bound) * rnd
+        elif rnd > 0:
+            if upper_bound == np.inf:
+                return old_value + perturbation_size * old_value * rnd
+            else:
+                return old_value + perturbation_size * (upper_bound - old_value) * rnd
+        else:
+            return old_value
+
+    lower_bounds, upper_bounds = parameters.get_model_parameters_bounds()
+    for lb, ub, par in zip(lower_bounds, upper_bounds, parameters):
+        random_number = 2 * (random.random() - 0.5)  # the interval [-1, +1)
+        perturbed_value = _get_perturbed_value(lb, par.value, ub, random_number)
+        parameters.set_value(par.name, perturbed_value)
+    return parameters
