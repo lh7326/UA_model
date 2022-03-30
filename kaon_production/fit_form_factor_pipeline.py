@@ -60,6 +60,38 @@ def make_pipeline1(ts, form_factors_values, errors,
                     t_0_isoscalar, t_0_isovector, reports_dir, plot=False)
 
 
+def make_pipeline2(ts, form_factors_values, errors,
+                   t_0_isoscalar, t_0_isovector, initial_params,
+                   reports_dir, name='Pipeline2'):
+
+    task_list = [
+        TaskFixedResonancesFit, TaskFitLowEnergies, TaskFixedResonancesFit,
+        TaskFitHighEnergies, TaskFixedResonancesFit,
+        TaskFixedCouplingConstants, TaskFullFit
+    ]
+    return Pipeline(name, initial_params, task_list,
+                    ts, form_factors_values, errors,
+                    t_0_isoscalar, t_0_isovector, reports_dir, plot=False)
+
+
+def make_pipeline3(ts, form_factors_values, errors,
+                   t_0_isoscalar, t_0_isovector, initial_params,
+                   reports_dir, name='Pipeline3'):
+    task_list = [
+        TaskFixedResonancesFit, TaskFixedCouplingConstants,
+        TaskFitLowEnergies, TaskFitHighEnergies, TaskFixedResonancesFit,
+        TaskFitOnRandomSubsetOfData, TaskFitOnRandomSubsetOfData,
+        TaskFixedResonancesFit, TaskFixedCouplingConstants,
+        TaskFitOnRandomSubsetOfData, TaskFitOnRandomSubsetOfData,
+        TaskFullFit,
+        TaskFitOnRandomSubsetOfData, TaskFitOnRandomSubsetOfData,
+        TaskFullFit,
+    ]
+    return Pipeline(name, initial_params, task_list,
+                    ts, form_factors_values, errors,
+                    t_0_isoscalar, t_0_isovector, reports_dir, plot=False)
+
+
 if __name__ == '__main__':
     config = ConfigParser(inline_comment_prefixes='#')
     config.read('../configuration.ini')
@@ -72,7 +104,7 @@ if __name__ == '__main__':
     ts, form_factors_values, errors = read_form_factor_data()
 
     initial_parameters = make_initial_parameters(t_0_isoscalar, t_0_isovector)
-    pipeline = make_pipeline1(ts, form_factors_values, errors,
+    pipeline = make_pipeline3(ts, form_factors_values, errors,
                               t_0_isoscalar, t_0_isovector, initial_parameters,
-                              path_to_reports, name='test')
+                              path_to_reports, name='Pipeline3')
     pipeline.run()
