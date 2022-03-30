@@ -25,25 +25,29 @@ class Task:
         self.report = None
 
     def run(self):
-        print(f'Running task {self.name}...')
         self._set_up()
         opt_params = self._fit()
-        self.parameters.update_free_values(opt_params)
-        self._build_report(opt_params)
-        self._plot(opt_params)
+        if opt_params is not None:  # opt_params are None if the fit ends in runtime error
+            self.parameters.update_free_values(opt_params)
+            self._build_report(opt_params)
+            self._plot(opt_params)
         return self.parameters
 
     def _fit(self):
-        opt_params, _ = curve_fit(
-            f=self.partial_f,
-            xdata=self.ts_fit,
-            ydata=self.ffs_fit,
-            p0=self.parameters.get_free_values(),
-            sigma=self.errors_fit,
-            absolute_sigma=False,
-            bounds=self.parameters.get_bounds_for_free_parameters(),
-            maxfev=15000,
-        )
+        try:
+            opt_params, _ = curve_fit(
+                f=self.partial_f,
+                xdata=self.ts_fit,
+                ydata=self.ffs_fit,
+                p0=self.parameters.get_free_values(),
+                sigma=self.errors_fit,
+                absolute_sigma=False,
+                bounds=self.parameters.get_bounds_for_free_parameters(),
+                maxfev=15000,
+            )
+        except RuntimeError as err:
+            self.report = f'Task {self.name} failed: {err}'
+            opt_params = None
         return opt_params
 
     def _plot(self, opt_params):
