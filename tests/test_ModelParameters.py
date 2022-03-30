@@ -1,7 +1,7 @@
 from unittest import TestCase
 import numpy as np
 
-from kaon_production.ModelParameters import ModelParameters
+from kaon_production.ModelParameters import ModelParameters, Parameter
 
 
 class TestModelParameters(TestCase):
@@ -34,6 +34,24 @@ class TestModelParameters(TestCase):
         with self.subTest():
             with self.assertRaises(KeyError):
                 _ = self.parameters['non-existent-key']
+
+    def test___setitem__(self):
+        with self.subTest(msg='Testing type checking'):
+            with self.assertRaises(TypeError):
+                self.parameters['a_omega'] = 2.0
+
+        with self.subTest(msg='Testing parameter name checking'):
+            with self.assertRaises(ValueError):
+                self.parameters['a_omega'] = Parameter(name='new name', value=2.0, is_fixed=True)
+
+        with self.subTest(msg='Testing a successful call'):
+            self.parameters['a_omega'] = Parameter(name='a_omega', value=95.412, is_fixed=True)
+            self.assertEqual(self.parameters['a_omega'].value, 95.412)
+            self.assertTrue(self.parameters['a_omega'].is_fixed)
+
+    def test_set_value(self):
+        self.parameters.set_value('a_rho_prime', 0.654321)
+        self.assertEqual(self.parameters['a_rho_prime'].value, 0.654321)
 
     def test_fix_parameters(self):
         self.parameters.release_all_parameters()

@@ -66,6 +66,19 @@ class ModelParameters:
         _, parameter = self._find(item)
         return parameter
 
+    def __setitem__(self, key, new_value):
+        index, parameter = self._find(key)
+        if not isinstance(new_value, Parameter):
+            raise TypeError('Bad type: new_value must be of type Parameter!')
+        if not parameter.name == new_value.name:
+            raise ValueError('When setting new parameters names must be preserved!')
+        self._data[index] = new_value
+
+    def set_value(self, parameter_name, new_parameter_value):
+        index, old_par = self._find(parameter_name)
+        new_par = Parameter(name=parameter_name, value=new_parameter_value, is_fixed=old_par.is_fixed)
+        self._data[index] = new_par
+
     def fix_parameters(self, names):
         for name in names:
             index, parameter = self._find(name)
