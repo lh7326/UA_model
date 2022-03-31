@@ -56,9 +56,13 @@ def perturb_model_parameters(parameters: ModelParameters, perturbation_size: flo
         else:
             return old_value
 
-    lower_bounds, upper_bounds = parameters.get_model_parameters_bounds()
-    for lb, ub, par in zip(lower_bounds, upper_bounds, parameters):
+    bounds = parameters.get_model_parameters_bounds()
+    for p in parameters:
         random_number = 2 * (random.random() - 0.5)  # the interval [-1, +1)
-        perturbed_value = _get_perturbed_value(lb, par.value, ub, random_number)
-        parameters.set_value(par.name, perturbed_value)
+        lower_bound = bounds[p.name]['lower']
+        upper_bound = bounds[p.name]['upper']
+        perturbed_value = _get_perturbed_value(
+            lower_bound, p.value, upper_bound, random_number
+        )
+        parameters.set_value(p.name, perturbed_value)
     return parameters
