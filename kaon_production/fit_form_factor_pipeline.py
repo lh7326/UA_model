@@ -1,11 +1,14 @@
 from configparser import ConfigParser
 
+from multiprocessing import Pool
+
 from kaon_production.data import read_form_factor_data
 from kaon_production.ModelParameters import ModelParameters
 from kaon_production.tasks import (
     TaskFullFit, TaskFixedResonancesFit, TaskFixedCouplingConstants,
     TaskFitLowEnergies, TaskFitHighEnergies, TaskFitOnRandomSubsetOfData)
 from kaon_production.Pipeline import Pipeline
+from kaon_production.utils import perturb_model_parameters
 
 
 def make_initial_parameters(t_0_isoscalar, t_0_isovector):
@@ -45,28 +48,26 @@ def make_initial_parameters(t_0_isoscalar, t_0_isovector):
     )
 
 
-def make_pipeline1(ts, form_factors_values, errors,
-                   t_0_isoscalar, t_0_isovector, initial_params,
-                   reports_dir, name='Pipeline1'):
+def make_pipeline_fast(ts, form_factors_values, errors,
+                       t_0_isoscalar, t_0_isovector, initial_params,
+                       reports_dir, name='fast'):
 
     task_list = [
-        TaskFixedResonancesFit, TaskFixedCouplingConstants,
-        TaskFullFit,
-        TaskFixedResonancesFit, TaskFixedCouplingConstants,
-        TaskFullFit,
+        TaskFixedResonancesFit, TaskFixedCouplingConstants, TaskFullFit,
     ]
     return Pipeline(name, initial_params, task_list,
                     ts, form_factors_values, errors,
                     t_0_isoscalar, t_0_isovector, reports_dir, plot=False)
 
 
-def make_pipeline2(ts, form_factors_values, errors,
-                   t_0_isoscalar, t_0_isovector, initial_params,
-                   reports_dir, name='Pipeline2'):
+def make_pipeline_medium(ts, form_factors_values, errors,
+                         t_0_isoscalar, t_0_isovector, initial_params,
+                         reports_dir, name='medium'):
 
     task_list = [
         TaskFixedResonancesFit, TaskFitLowEnergies, TaskFixedResonancesFit,
-        TaskFitHighEnergies, TaskFixedResonancesFit,
+        TaskFixedResonancesFit, TaskFitOnRandomSubsetOfData,
+        TaskFixedResonancesFit, TaskFitOnRandomSubsetOfData,
         TaskFixedCouplingConstants, TaskFullFit
     ]
     return Pipeline(name, initial_params, task_list,
@@ -79,13 +80,12 @@ def make_pipeline3(ts, form_factors_values, errors,
                    reports_dir, name='Pipeline3'):
     task_list = [
         TaskFixedResonancesFit, TaskFixedCouplingConstants,
-        TaskFitLowEnergies, TaskFitHighEnergies, TaskFixedResonancesFit,
-        TaskFitOnRandomSubsetOfData, TaskFitOnRandomSubsetOfData,
+        TaskFitLowEnergies, TaskFitHighEnergies,
         TaskFixedResonancesFit, TaskFixedCouplingConstants,
         TaskFitOnRandomSubsetOfData, TaskFitOnRandomSubsetOfData,
-        TaskFullFit,
-        TaskFitOnRandomSubsetOfData, TaskFitOnRandomSubsetOfData,
-        TaskFullFit,
+        TaskFixedResonancesFit, TaskFitOnRandomSubsetOfData,
+        TaskFixedResonancesFit, TaskFitOnRandomSubsetOfData,
+        TaskFixedResonancesFit, TaskFullFit,
     ]
     return Pipeline(name, initial_params, task_list,
                     ts, form_factors_values, errors,
@@ -103,8 +103,26 @@ if __name__ == '__main__':
 
     ts, form_factors_values, errors = read_form_factor_data()
 
-    initial_parameters = make_initial_parameters(t_0_isoscalar, t_0_isovector)
-    pipeline = make_pipeline3(ts, form_factors_values, errors,
-                              t_0_isoscalar, t_0_isovector, initial_parameters,
-                              path_to_reports, name='Pipeline3')
-    pipeline.run()
+    def f(name):
+        initial_parameters = perturb_model_parameters(
+            make_initial_parameters(t_0_isoscalar, t_0_isovector)
+        )
+        pipeline = make_pipeline_fast(
+            ts, form_factors_values, errors, t_0_isoscalar, t_0_isovector,
+            initial_parameters, path_to_reports, name=name)
+        return pipeline.run()
+
+    with Pool(processes=2) as pool:
+        results = [pool.apply_async(f, (f'pool_fast_{i}',)) for i in range(100)]
+        pool.close()
+        pool.join()
+        best_fit = {'chi_squared': None, 'name': None, 'parameters': None}
+        for result in results:
+            r = result.get()
+            print(r)
+            if r and r.get('chi_squared', None) is not None:
+                if best_fit['chi_squared'] is None:
+                    best_fit = r
+                elif r['chi_squared'] < best_fit['chi_squared']:
+                    best_fit = r
+        print('Best fit: ', best_fit)
