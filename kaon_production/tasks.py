@@ -121,3 +121,25 @@ class TaskFitOnRandomSubsetOfData(Task):
             *[(t, ff, err) for t, ff, err in zip(self.ts_fit, self.ffs_fit, self.errors_fit)
               if random.random() < self.THRESHOLD]
         )
+
+
+class TaskOnlyThresholdsFit(Task):
+    def _set_up(self):
+        self.parameters.fix_all_parameters()
+        self.parameters.release_parameters(['t_in_isoscalar', 't_in_isovector'])
+        self.partial_f = make_partial_for_parameters(self.parameters)
+
+
+class TaskFixedResonancesAndThresholdsFit(Task):
+
+    def _set_up(self):
+        self.parameters.release_all_parameters()
+        self.parameters.fix_parameters([
+            'mass_omega', 'decay_rate_omega', 'mass_omega_prime', 'decay_rate_omega_prime',
+            'mass_omega_double_prime', 'decay_rate_omega_double_prime', 'mass_phi', 'decay_rate_phi',
+            'mass_phi_prime', 'decay_rate_phi_prime', 'mass_phi_double_prime', 'decay_rate_phi_double_prime',
+            'mass_rho', 'decay_rate_rho', 'mass_rho_prime', 'decay_rate_rho_prime',
+            'mass_rho_double_prime', 'decay_rate_rho_double_prime', 'mass_rho_triple_prime',
+            'decay_rate_rho_triple_prime', 't_in_isoscalar', 't_in_isovector',
+        ])
+        self.partial_f = make_partial_for_parameters(self.parameters)

@@ -6,7 +6,8 @@ from kaon_production.data import read_form_factor_data
 from kaon_production.ModelParameters import ModelParameters
 from kaon_production.tasks import (
     TaskFullFit, TaskFixedResonancesFit, TaskFixedCouplingConstants,
-    TaskFitLowEnergies, TaskFitHighEnergies, TaskFitOnRandomSubsetOfData)
+    TaskFitLowEnergies, TaskFitHighEnergies, TaskFitOnRandomSubsetOfData,
+    TaskOnlyThresholdsFit, TaskFixedResonancesAndThresholdsFit)
 from kaon_production.Pipeline import Pipeline
 from kaon_production.utils import perturb_model_parameters
 
