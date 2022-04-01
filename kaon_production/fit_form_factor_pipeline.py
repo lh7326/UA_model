@@ -116,7 +116,7 @@ if __name__ == '__main__':
 
     final_results = []
     with Pool(processes=15) as pool:
-        results = [pool.apply_async(f, (f'pool_medium_{i}',)) for i in range(40)]
+        results = [pool.apply_async(f, (f'pool_medium_{i}',)) for i in range(50)]
         pool.close()
         pool.join()
         best_fit = {'chi_squared': None, 'name': None, 'parameters': None}
@@ -131,4 +131,5 @@ if __name__ == '__main__':
                     best_fit = r
         print('Best fit: ', best_fit)
 
-    print(sorted(final_results, key=lambda r: r['chi_squared'], reverse=True))
+    for final_result in sorted(final_results, key=lambda fr: fr['chi_squared'])[:10]:
+        print(final_result)
