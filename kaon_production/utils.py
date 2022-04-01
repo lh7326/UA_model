@@ -1,5 +1,6 @@
-import random
 from configparser import ConfigParser
+import random
+from typing import Optional
 
 import numpy as np
 
@@ -41,28 +42,45 @@ def _read_config(path_to_config):
     return t_0_isoscalar, t_0_isovector
 
 
-def perturb_model_parameters(parameters: ModelParameters, perturbation_size: float = 0.2):
-    def _get_perturbed_value(lower_bound, old_value, upper_bound, rnd):
+def perturb_model_parameters(
+        parameters: ModelParameters,
+        perturbation_size: float = 0.2,
+        perturbation_size_resonances: Optional[float] = None,
+        respect_fixed: bool = False,
+        ):
+    if perturbation_size_resonances is None:
+        perturbation_size_resonances = perturbation_size
+
+    def _get_perturbation_size(parameter_name):
+        if 'mass' in parameter_name or 'decay_rate' in parameter_name:
+            return perturbation_size_resonances
+        else:
+            return perturbation_size
+
+    def _get_perturbed_value(lower_bound, old_value, upper_bound, rnd, ps):
         if rnd < 0:
             if lower_bound == -np.inf:
-                return old_value + perturbation_size * old_value * rnd
+                return old_value + ps * old_value * rnd
             else:
-                return old_value + perturbation_size * (old_value - lower_bound) * rnd
+                return old_value + ps * (old_value - lower_bound) * rnd
         elif rnd > 0:
             if upper_bound == np.inf:
-                return old_value + perturbation_size * old_value * rnd
+                return old_value + ps * old_value * rnd
             else:
-                return old_value + perturbation_size * (upper_bound - old_value) * rnd
+                return old_value + ps * (upper_bound - old_value) * rnd
         else:
             return old_value
 
     bounds = parameters.get_model_parameters_bounds()
     for p in parameters:
+        if respect_fixed and p.is_fixed:
+            continue
         random_number = 2 * (random.random() - 0.5)  # the interval [-1, +1)
         lower_bound = bounds[p.name]['lower']
         upper_bound = bounds[p.name]['upper']
         perturbed_value = _get_perturbed_value(
-            lower_bound, p.value, upper_bound, random_number
+            lower_bound, p.value, upper_bound,
+            random_number, _get_perturbation_size(p.name),
         )
         parameters.set_value(p.name, perturbed_value)
     return parameters
