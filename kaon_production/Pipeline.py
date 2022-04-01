@@ -26,7 +26,6 @@ class Pipeline:
         self._best_fit = {'chi_squared': None, 'name': None, 'parameters': None}
 
     def run(self):
-        res = None
         self._log(f'Starting. Initial parameters: {self.parameters.to_list()}')
         for i, task_class in enumerate(self.tasks):
             self._log(f'Initializing Task#{i}. Parameters: {self.parameters.to_list()}')
@@ -65,7 +64,7 @@ class Pipeline:
         self._report = '\n'
 
     def _update_best_fit(self, task):
-        if not task.report:
+        if not task.report['chi_squared']:
             return None
         current = task.report['chi_squared']
         best_so_far = self._best_fit.get('chi_squared', None)

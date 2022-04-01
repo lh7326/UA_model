@@ -22,14 +22,23 @@ class Task:
         self.t_0_isovector = t_0_isovector
         self.reports_dir = reports_dir
         self.should_plot = plot
-        self.report = None
+        self.report = {
+            'name': self.name,
+            'initial_parameters': self.parameters.to_list(),
+            'final_parameters': None,
+            'r2': None,
+            'chi_squared': None,
+            'sqrt_sum_chi_squared': None,
+            'status': 'started',
+            'error_message': None,
+        }
 
     def run(self):
         self._set_up()
         opt_params = self._fit()
         if opt_params is not None:  # opt_params are None if the fit ends in runtime error
             self.parameters.update_free_values(opt_params)
-            self._build_report(opt_params)
+            self._update_report(opt_params)
             self._plot(opt_params)
         return self.parameters
 
@@ -46,7 +55,8 @@ class Task:
                 maxfev=15000,
             )
         except RuntimeError as err:
-            self.report = f'Task {self.name} failed: {err}'
+            self.report['status'] = 'failed'
+            self.report['error_message'] = str(err)
             opt_params = None
         return opt_params
 
@@ -54,7 +64,7 @@ class Task:
         plot_ff_fit(self.ts_report, self.ffs_report, self.errors_report, self.partial_f,
                     opt_params, self.name, show=self.should_plot, save_dir=self.reports_dir)
 
-    def _build_report(self, opt_parameters):
+    def _update_report(self, opt_parameters):
         fit_ys = self.partial_f(self.ts_report, *opt_parameters)
         r_squared = [(data - fit) ** 2 for data, fit in zip(self.ffs_report, fit_ys)]
         chi_squared = (
@@ -63,13 +73,13 @@ class Task:
         sqrt_sum_chi_squared = math.sqrt(
             sum([r2 / (err ** 2) for r2, err in zip(r_squared, self.errors_report)])
         )
-        self.report = {
-            'name': self.name,
-            'parameters': self.parameters.to_list(),
-            'r2': sum(r_squared),
-            'chi_squared': chi_squared,
-            'sqrt_sum_chi_squared': sqrt_sum_chi_squared,
-        }
+        self.report.update(
+            final_parameters=self.parameters.to_list(),
+            r2=sum(r_squared),
+            chi_squared=chi_squared,
+            sqrt_sum_chi_squared=sqrt_sum_chi_squared,
+            status='finished',
+        )
 
     def _set_up(self):
         raise NotImplementedError
