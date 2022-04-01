@@ -106,15 +106,17 @@ if __name__ == '__main__':
 
     def f(name):
         initial_parameters = perturb_model_parameters(
-            make_initial_parameters(t_0_isoscalar, t_0_isovector)
+            make_initial_parameters(t_0_isoscalar, t_0_isovector),
+            perturbation_size=0.1,
         )
-        pipeline = make_pipeline_fast(
+        pipeline = make_pipeline_medium(
             ts, form_factors_values, errors, t_0_isoscalar, t_0_isovector,
             initial_parameters, path_to_reports, name=name)
         return pipeline.run()
 
-    with Pool(processes=2) as pool:
-        results = [pool.apply_async(f, (f'pool_fast_{i}',)) for i in range(100)]
+    final_results = []
+    with Pool(processes=15) as pool:
+        results = [pool.apply_async(f, (f'pool_medium_{i}',)) for i in range(40)]
         pool.close()
         pool.join()
         best_fit = {'chi_squared': None, 'name': None, 'parameters': None}
@@ -122,8 +124,11 @@ if __name__ == '__main__':
             r = result.get()
             print(r)
             if r and r.get('chi_squared', None) is not None:
+                final_results.append(r)
                 if best_fit['chi_squared'] is None:
                     best_fit = r
                 elif r['chi_squared'] < best_fit['chi_squared']:
                     best_fit = r
         print('Best fit: ', best_fit)
+
+    print(sorted(final_results, key=lambda r: r['chi_squared'], reverse=True))

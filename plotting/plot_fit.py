@@ -19,3 +19,4 @@ def plot_ff_fit(ts, ffs, errors, f, pars, title='Form Factor Fit', show=True, sa
         plt.show()
     if save_dir:
         plt.savefig(os.path.join(save_dir, f'{title.lower()}.png'))
+    plt.close()
