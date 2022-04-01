@@ -89,6 +89,10 @@ class ModelParameters:
             index, parameter = self._find(name)
             self._data[index] = Parameter(parameter.name, parameter.value, False)
 
+    def fix_all_parameters(self):
+        for index, parameter in enumerate(self._data):
+            self._data[index] = Parameter(parameter.name, parameter.value, True)
+
     def release_all_parameters(self):
         for index, parameter in enumerate(self._data):
             self._data[index] = Parameter(parameter.name, parameter.value, False)

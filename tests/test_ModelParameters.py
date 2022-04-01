@@ -73,6 +73,13 @@ class TestModelParameters(TestCase):
         self.assertFalse(self.parameters['mass_omega_prime'].is_fixed)
         self.assertFalse(self.parameters['t_in_isovector'].is_fixed)
 
+    def test_fix_all_parameters(self):
+        self.parameters.release_parameters(['a_phi', 'mass_omega_prime', 't_in_isovector'])
+        self.parameters.fix_all_parameters()
+        self.assertTrue(self.parameters['a_phi'].is_fixed)
+        self.assertTrue(self.parameters['mass_omega_prime'].is_fixed)
+        self.assertTrue(self.parameters['t_in_isovector'].is_fixed)
+
     def test_get_fixed_values(self):
         self.parameters.release_all_parameters()
         self.parameters.fix_parameters(['a_omega_double_prime', 'mass_rho_prime', 't_in_isovector'])
