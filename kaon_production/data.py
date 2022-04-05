@@ -4,7 +4,7 @@ import os.path
 DIR_NAME = '../data'
 
 
-def read_form_factor_data(file_name='kaon.csv'):
+def read_cross_section_data(file_name='kaon.csv'):
     ts = []
     form_factors = []
     sigmas = []
