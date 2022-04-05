@@ -56,6 +56,18 @@ class ModelParameters:
             Parameter(name='decay_rate_rho_triple_prime', value=decay_rate_rho_triple_prime, is_fixed=False),
         ]
 
+    @classmethod
+    def from_list(cls, list_of_parameters):
+        kwargs = {par.name: par.value for par in list_of_parameters}
+        return cls(**kwargs)
+
+    def to_list(self):
+        thresholds_parameters = [
+            Parameter('t_0_isoscalar', self.t_0_isoscalar, True),
+            Parameter('t_0_isovector', self.t_0_isovector, True),
+        ]
+        return thresholds_parameters + list(self._data)
+
     def _find(self, name):
         for index, parameter in enumerate(self._data):
             if parameter.name == name:
@@ -117,9 +129,6 @@ class ModelParameters:
     def __iter__(self):
         for parameter in self._data:
             yield parameter
-
-    def to_list(self):
-        return list(self._data)
 
     def get_bounds_for_free_parameters(self):
         full_bounds = self.get_model_parameters_bounds()
