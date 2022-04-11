@@ -152,7 +152,7 @@ class TaskFitOnRandomSubsetOfData(Task):
         self._crop_data_for_fitting()
 
     def _crop_data_for_fitting(self):
-        self.ts_fit, self.ffs_fit, self.errors_fit = zip(
+        self.ts_fit, self.css_fit, self.errors_fit = zip(
             *[(t, ff, err) for t, ff, err in zip(self.ts_fit, self.css_fit, self.errors_fit)
               if random.random() < self.THRESHOLD]
         )
