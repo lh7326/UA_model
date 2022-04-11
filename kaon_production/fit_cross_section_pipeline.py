@@ -6,6 +6,7 @@ from kaon_production.data import read_cross_section_data
 from kaon_production.ModelParameters import ModelParameters
 from kaon_production.tasks import (
     TaskFullFit, TaskFixedResonancesFit, TaskFixedCouplingConstants,
+    TaskFixedCouplingConstantsAndMassesOfSelectedResonances, TaskFixMassesOfSelectedResonancesFit,
     TaskFitLowEnergies, TaskFitHighEnergies, TaskFitOnRandomSubsetOfData,
     TaskOnlyThresholdsFit, TaskFixedResonancesAndThresholdsFit)
 from kaon_production.Pipeline import Pipeline
@@ -36,14 +37,14 @@ def make_initial_parameters(t_0_isoscalar, t_0_isovector):
         mass_phi_double_prime=2.159,
         decay_rate_phi_double_prime=0.137,
         a_rho=1.0/8,
-        mass_rho=0.77525,
-        decay_rate_rho=0.1474,
+        mass_rho=0.75823,
+        decay_rate_rho=0.14456,
         a_rho_prime=1.0/8,
-        mass_rho_prime=1.465,
-        decay_rate_rho_prime=0.4,
+        mass_rho_prime=1.34231,
+        decay_rate_rho_prime=0.49217,
         a_rho_double_prime=1.0/8,
-        mass_rho_double_prime=1.720,
-        decay_rate_rho_double_prime=0.25,
+        mass_rho_double_prime=1.7185,
+        decay_rate_rho_double_prime=0.48958,
         mass_rho_triple_prime=2.15,
         decay_rate_rho_triple_prime=0.3,
     )
@@ -61,14 +62,33 @@ def make_pipeline_fast(ts, cross_section_values, errors, k_meson_mass, alpha, hc
                     t_0_isoscalar, t_0_isovector, reports_dir, plot=False)
 
 
+def make_pipeline_fast_some_masses_fixed(
+        ts, cross_section_values, errors, k_meson_mass, alpha, hc_squared,
+        t_0_isoscalar, t_0_isovector, initial_params,
+        reports_dir, name='fast_fixsome_masses'):
+
+    task_list = [
+        TaskFixedResonancesFit,
+        TaskFixedCouplingConstantsAndMassesOfSelectedResonances,
+        TaskFixMassesOfSelectedResonancesFit,
+        TaskFullFit,
+    ]
+    return Pipeline(name, initial_params, task_list,
+                    ts, cross_section_values, errors, k_meson_mass, alpha, hc_squared,
+                    t_0_isoscalar, t_0_isovector, reports_dir, plot=False)
+
+
 def make_pipeline_medium(ts, cross_section_values, errors, k_meson_mass, alpha, hc_squared,
                          t_0_isoscalar, t_0_isovector, initial_params,
                          reports_dir, name='medium'):
 
     task_list = [
-        TaskFixedResonancesFit,
-        TaskFitLowEnergies,
         TaskFixedResonancesAndThresholdsFit,
+        TaskOnlyThresholdsFit,
+        TaskFixedCouplingConstants,
+        TaskFixedResonancesFit,
+        TaskFullFit,
+        TaskFitOnRandomSubsetOfData,
         TaskOnlyThresholdsFit,
         TaskFixedCouplingConstants,
         TaskFullFit,
@@ -94,19 +114,23 @@ if __name__ == '__main__':
     ts, cross_sections_values, errors = read_cross_section_data()
 
     def f(name):
+        initial_parameters = make_initial_parameters(t_0_isoscalar, t_0_isovector)
+        initial_parameters.fix_parameters(['mass_phi', 'mass_omega', 'mass_rho'])
+
         initial_parameters = perturb_model_parameters(
-            make_initial_parameters(t_0_isoscalar, t_0_isovector),
-            perturbation_size=0.3, perturbation_size_resonances=0.1,
+            initial_parameters,
+            perturbation_size=0.6, perturbation_size_resonances=0.5,
+            respect_fixed=True,
         )
-        pipeline = make_pipeline_fast(
+        pipeline = make_pipeline_fast_some_masses_fixed(
             ts, cross_sections_values, errors, kaon_mass, alpha, hc_squared,
             t_0_isoscalar, t_0_isovector,
             initial_parameters, path_to_reports, name=name)
         return pipeline.run()
 
     final_results = []
-    with Pool(processes=16) as pool:
-        results = [pool.apply_async(f, (f'pool_fast_{i}',)) for i in range(300)]
+    with Pool(processes=15) as pool:
+        results = [pool.apply_async(f, (f'pool_fast_fixedmasses4_{i}',)) for i in range(200)]
         pool.close()
         pool.join()
         best_fit = {'chi_squared': None, 'name': None, 'parameters': None}
