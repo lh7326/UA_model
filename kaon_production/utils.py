@@ -4,11 +4,11 @@ from typing import Optional
 
 import numpy as np
 
-from kaon_production.function import function_form_factor
+from kaon_production.function import function_form_factor, function_cross_section
 from kaon_production.ModelParameters import ModelParameters
 
 
-def make_partial_for_parameters(parameters: ModelParameters):
+def make_partial_form_factor_for_parameters(parameters: ModelParameters):
     def _build_parameters_scheme():
         argument_index = 0
         scheme = []
@@ -27,6 +27,32 @@ def make_partial_for_parameters(parameters: ModelParameters):
         evaluated_scheme = [val(args) for val in scheme]
         return function_form_factor(
             ts, parameters.t_0_isoscalar, parameters.t_0_isovector, *evaluated_scheme
+        )
+
+    return partial_f
+
+
+def make_partial_cross_section_for_parameters(k_meson_mass: float, alpha: float, hc_squared:float,
+                                              parameters: ModelParameters):
+    def _build_parameters_scheme():
+        argument_index = 0
+        scheme = []
+        for parameter in parameters:
+            if parameter.is_fixed:
+                scheme.append(lambda _, p=parameter: p.value)
+            else:
+                scheme.append(lambda args, i=argument_index: args[i])
+                argument_index += 1
+        return scheme, argument_index
+
+    scheme, args_length = _build_parameters_scheme()
+
+    def partial_f(ts, *args):
+        assert len(args) == args_length
+        evaluated_scheme = [val(args) for val in scheme]
+        return function_cross_section(
+            ts, k_meson_mass, alpha, hc_squared,
+            parameters.t_0_isoscalar, parameters.t_0_isovector, *evaluated_scheme
         )
 
     return partial_f

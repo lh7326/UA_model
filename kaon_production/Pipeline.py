@@ -8,14 +8,18 @@ from kaon_production.Task import Task
 class Pipeline:
 
     def __init__(self, name: str, parameters: ModelParameters, tasks: List[Type[Task]],
-                 t_values: List[float], form_factors: List[float], errors: List[float],
+                 t_values: List[float], cross_sections: List[float], errors: List[float],
+                 k_meson_mass: float, alpha: float, hc_squared: float,
                  t_0_isoscalar: float, t_0_isovector: float, reports_dir: str, plot: bool = True):
         self.name = name
         self.parameters = parameters
         self.tasks = tasks
         self.t_values = t_values
-        self.form_factors = form_factors
+        self.cross_sections = cross_sections
         self.errors = errors
+        self.k_meson_mass = k_meson_mass
+        self.alpha = alpha
+        self.hc_squared = hc_squared
         self.t_0_isoscalar = t_0_isoscalar
         self.t_0_isovector = t_0_isovector
         self.reports_dir = os.path.join(reports_dir, name)
@@ -31,7 +35,8 @@ class Pipeline:
             self._log(f'Initializing Task#{i}. Parameters: {self.parameters.to_list()}')
             task_name = f'Task#{i}:{task_class.__name__}'
             task = task_class(
-                task_name, self.parameters, self.t_values, self.form_factors, self.errors,
+                task_name, self.parameters, self.t_values, self.cross_sections, self.errors,
+                self.k_meson_mass, self.alpha, self.hc_squared,
                 self.t_0_isoscalar, self.t_0_isovector, self.reports_dir, self.plot
             )
 
