@@ -62,11 +62,11 @@ class ModelParameters:
         return cls(**kwargs)
 
     def to_list(self):
-        thresholds_parameters = [
+        t_0_thresholds = [
             Parameter('t_0_isoscalar', self.t_0_isoscalar, True),
             Parameter('t_0_isovector', self.t_0_isovector, True),
         ]
-        return thresholds_parameters + list(self._data)
+        return t_0_thresholds + list(self._data)
 
     def _find(self, name):
         for index, parameter in enumerate(self._data):
