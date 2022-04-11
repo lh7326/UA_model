@@ -45,6 +45,29 @@ class TaskFixedCouplingConstants(Task):
         )
 
 
+class TaskFixedCouplingConstantsAndMassesOfSelectedResonances(Task):
+
+    def _set_up(self):
+        self.parameters.release_all_parameters()
+        self.parameters.fix_parameters([
+            'a_omega', 'a_omega_prime', 'a_omega_double_prime', 'a_phi', 'a_phi_prime',
+            'a_rho', 'a_rho_prime', 'a_rho_double_prime', 'mass_omega', 'mass_phi', 'mass_rho'
+        ])
+        self.partial_f = make_partial_cross_section_for_parameters(
+            self.k_meson_mass, self.alpha, self.hc_squared, self.parameters
+        )
+
+
+class TaskFixMassesOfSelectedResonancesFit(Task):
+
+    def _set_up(self):
+        self.parameters.release_all_parameters()
+        self.parameters.fix_parameters(['mass_omega', 'mass_phi', 'mass_rho'])
+        self.partial_f = make_partial_cross_section_for_parameters(
+            self.k_meson_mass, self.alpha, self.hc_squared, self.parameters
+        )
+
+
 class TaskFitLowEnergies(Task):
 
     def __init__(self, name: str, parameters: ModelParameters, ts, css, errors,
