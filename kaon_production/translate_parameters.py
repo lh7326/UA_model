@@ -8,7 +8,40 @@ if __name__ == '__main__':
     t_0_isoscalar = (3 * pion_mass) ** 2
     t_0_isovector = (2 * pion_mass) ** 2
 
-    mode_parameters = ModelParameters.from_list(
-        [Parameter(name='t_0_isoscalar', value=0.17531904388276887, is_fixed=True), Parameter(name='t_0_isovector', value=0.07791957505900839, is_fixed=True), Parameter(name='t_in_isoscalar', value=1.4269232672513286, is_fixed=False), Parameter(name='t_in_isovector', value=1.2829614681903232, is_fixed=False), Parameter(name='a_omega', value=0.8309184724689035, is_fixed=False), Parameter(name='mass_omega', value=0.78266, is_fixed=True), Parameter(name='decay_rate_omega', value=0.8294543505136526, is_fixed=False), Parameter(name='a_omega_prime', value=0.0054242477971990855, is_fixed=False), Parameter(name='mass_omega_prime', value=2.2760269025832334, is_fixed=False), Parameter(name='decay_rate_omega_prime', value=0.18824885417551065, is_fixed=False), Parameter(name='a_omega_double_prime', value=-0.03019115748136123, is_fixed=False), Parameter(name='mass_omega_double_prime', value=1.790292311596763, is_fixed=False), Parameter(name='decay_rate_omega_double_prime', value=0.17572763389832863, is_fixed=False), Parameter(name='a_phi', value=-0.3260080701844555, is_fixed=False), Parameter(name='mass_phi', value=1.019461, is_fixed=True), Parameter(name='decay_rate_phi', value=0.004326589123438959, is_fixed=False), Parameter(name='a_phi_prime', value=0.021214905455024656, is_fixed=False), Parameter(name='mass_phi_prime', value=1.6194202872999308, is_fixed=False), Parameter(name='decay_rate_phi_prime', value=0.12631811868816453, is_fixed=False), Parameter(name='mass_phi_double_prime', value=2.1672127302619315, is_fixed=False), Parameter(name='decay_rate_phi_double_prime', value=0.01605518995868908, is_fixed=False), Parameter(name='a_rho', value=-0.40631633537055695, is_fixed=False), Parameter(name='mass_rho', value=0.75823, is_fixed=True), Parameter(name='decay_rate_rho', value=1.9586605266362995, is_fixed=False), Parameter(name='a_rho_prime', value=0.8572533130103688, is_fixed=False), Parameter(name='mass_rho_prime', value=1.3511626876333933, is_fixed=False), Parameter(name='decay_rate_rho_prime', value=0.7388443808572671, is_fixed=False), Parameter(name='a_rho_double_prime', value=0.05072435563439353, is_fixed=False), Parameter(name='mass_rho_double_prime', value=2.887307028894166, is_fixed=False), Parameter(name='decay_rate_rho_double_prime', value=2.4017652747910367, is_fixed=False), Parameter(name='mass_rho_triple_prime', value=2.4728771992731553, is_fixed=False), Parameter(name='decay_rate_rho_triple_prime', value=0.012153437474732236, is_fixed=False)]
-    )
-    print(mode_parameters.get_ordered_values())
+    model_parameters = ModelParameters.from_list([Parameter(name='t_0_isoscalar', value=0.17531904388276887, is_fixed=True), Parameter(name='t_0_isovector', value=0.07791957505900839, is_fixed=True), Parameter(name='t_in_isoscalar', value=1.719520190300892, is_fixed=False), Parameter(name='t_in_isovector', value=1.3314211338413366, is_fixed=False), Parameter(name='a_omega', value=0.9028911434086133, is_fixed=False), Parameter(name='mass_omega', value=0.7750000000000052, is_fixed=False), Parameter(name='decay_rate_omega', value=0.008899911535638454, is_fixed=False), Parameter(name='a_omega_prime', value=0.03221862128992986, is_fixed=False), Parameter(name='mass_omega_prime', value=1.3875452756787783, is_fixed=False), Parameter(name='decay_rate_omega_prime', value=0.25000000000000006, is_fixed=False), Parameter(name='a_omega_double_prime', value=0.2308606519667505, is_fixed=False), Parameter(name='mass_omega_double_prime', value=1.6749999999999998, is_fixed=False), Parameter(name='decay_rate_omega_double_prime', value=0.32999999999999996, is_fixed=False), Parameter(name='a_phi', value=-0.3265301513590924, is_fixed=False), Parameter(name='mass_phi', value=1.0197565568295128, is_fixed=False), Parameter(name='decay_rate_phi', value=0.004499999999999999, is_fixed=False), Parameter(name='a_phi_prime', value=-0.015805307658535144, is_fixed=False), Parameter(name='mass_phi_prime', value=1.6750000000000003, is_fixed=False), Parameter(name='decay_rate_phi_prime', value=0.10000000000000002, is_fixed=False), Parameter(name='mass_phi_double_prime', value=2.1854329339382543, is_fixed=False), Parameter(name='decay_rate_phi_double_prime', value=0.10923779542006498, is_fixed=False), Parameter(name='a_rho', value=-0.39529949950263177, is_fixed=False), Parameter(name='mass_rho', value=0.7799999999994054, is_fixed=False), Parameter(name='decay_rate_rho', value=0.14999999999999997, is_fixed=False), Parameter(name='a_rho_prime', value=0.7071726765500697, is_fixed=False), Parameter(name='mass_rho_prime', value=1.2884577879671701, is_fixed=False), Parameter(name='decay_rate_rho_prime', value=0.5499999999999999, is_fixed=False), Parameter(name='a_rho_double_prime', value=-0.13496289837794273, is_fixed=False), Parameter(name='mass_rho_double_prime', value=1.7399999999999998, is_fixed=False), Parameter(name='decay_rate_rho_double_prime', value=0.22799305025607813, is_fixed=False), Parameter(name='mass_rho_triple_prime', value=2.18616762017487, is_fixed=False), Parameter(name='decay_rate_rho_triple_prime', value=0.10891038421314707, is_fixed=False)])
+    print(model_parameters.get_ordered_values())
+
+    # model_parameters = ModelParameters.from_ordered_values([
+    #     0.7908450,
+    #     1.3833681,
+    #     0.75823,
+    #     1.34231,
+    #     1.7182,
+    #     2.3053731,
+    #     0.14456,
+    #     0.49217,
+    #     0.48958,
+    #     0.5768760,
+    #     -0.1377353,
+    #     0.0389892,
+    #     0.5898944,
+    #     0.78266,
+    #     1.019461,
+    #     1.2261584,
+    #     1.7422655,
+    #     1.8109782,
+    #     2.2332353,
+    #     0.00868,
+    #     0.004249,
+    #     0.7375916,
+    #     0.2935377,
+    #     0.8568563,
+    #     0.0522538,
+    #     0.3139914,
+    #     -0.3325257,
+    #     1.0696948,
+    #     -0.2672411,
+    #     -0.2859869,
+    # ], t_0_isoscalar=0.17531904388276887, t_0_isovector=0.07791957505900839,
+    # )
+    # print(model_parameters.to_list())

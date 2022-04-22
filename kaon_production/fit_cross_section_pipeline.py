@@ -71,26 +71,8 @@ def make_pipeline_fast_some_masses_fixed(
         TaskFixedResonancesFit,
         TaskFixedCouplingConstantsAndMassesOfSelectedResonances,
         TaskFixMassesOfSelectedResonancesFit,
-        TaskFullFit,
-    ]
-    return Pipeline(name, initial_params, task_list,
-                    ts, cross_section_values, errors, k_meson_mass, alpha, hc_squared,
-                    t_0_isoscalar, t_0_isovector, reports_dir, plot=False)
-
-
-def make_pipeline_medium(ts, cross_section_values, errors, k_meson_mass, alpha, hc_squared,
-                         t_0_isoscalar, t_0_isovector, initial_params,
-                         reports_dir, name='medium'):
-
-    task_list = [
-        TaskFixedResonancesAndThresholdsFit,
         TaskOnlyThresholdsFit,
-        TaskFixedCouplingConstants,
         TaskFixedResonancesFit,
-        TaskFullFit,
-        TaskFitOnRandomSubsetOfData,
-        TaskOnlyThresholdsFit,
-        TaskFixedCouplingConstants,
         TaskFullFit,
     ]
     return Pipeline(name, initial_params, task_list,
@@ -119,7 +101,7 @@ if __name__ == '__main__':
 
         initial_parameters = perturb_model_parameters(
             initial_parameters,
-            perturbation_size=0.6, perturbation_size_resonances=0.5,
+            perturbation_size=0.9, perturbation_size_resonances=0.9,
             respect_fixed=True,
         )
         pipeline = make_pipeline_fast_some_masses_fixed(
@@ -129,8 +111,8 @@ if __name__ == '__main__':
         return pipeline.run()
 
     final_results = []
-    with Pool(processes=15) as pool:
-        results = [pool.apply_async(f, (f'pool_fast_fixedmasses4_{i}',)) for i in range(200)]
+    with Pool(processes=12) as pool:
+        results = [pool.apply_async(f, (f'pool_fast_fixedmasses12_{i}',)) for i in range(500)]
         pool.close()
         pool.join()
         best_fit = {'chi_squared': None, 'name': None, 'parameters': None}

@@ -156,33 +156,76 @@ class ModelParameters:
             't_in_isovector': {'lower': self.t_0_isovector, 'upper': np.inf},
             'a_omega': {'lower': -np.inf, 'upper': np.inf},
             'mass_omega': {'lower': 0.775, 'upper': 0.79},
-            'decay_rate_omega': {'lower': 0.0, 'upper': 0.05},
+            'decay_rate_omega': {'lower': 0.0085, 'upper': 0.0089},
             'a_omega_prime': {'lower': -np.inf, 'upper': np.inf},
-            'mass_omega_prime': {'lower': 1.3, 'upper': 1.5},
-            'decay_rate_omega_prime': {'lower': 0.0, 'upper': 0.4},
+            'mass_omega_prime': {'lower': 1.37, 'upper': 1.45},
+            'decay_rate_omega_prime': {'lower': 0.25, 'upper': 0.33},
             'a_omega_double_prime': {'lower': -np.inf, 'upper': np.inf},
             'mass_omega_double_prime': {'lower': 1.665, 'upper': 1.675},
-            'decay_rate_omega_double_prime': {'lower': 0.25, 'upper': 0.5},
+            'decay_rate_omega_double_prime': {'lower': 0.30, 'upper': 0.33},
             'a_phi': {'lower': -np.inf, 'upper': np.inf},
-            'mass_phi': {'lower': 0.9, 'upper': 1.1},
-            'decay_rate_phi': {'lower': 0.0, 'upper': 0.01},
+            'mass_phi': {'lower': 1.0, 'upper': 1.05},
+            'decay_rate_phi': {'lower': 0.0040, 'upper': 0.0045},
             'a_phi_prime': {'lower': -np.inf, 'upper': np.inf},
             'mass_phi_prime': {'lower': 1.675, 'upper': 1.685},
-            'decay_rate_phi_prime': {'lower': 0.0, 'upper': 0.25},
-            'mass_phi_double_prime': {'lower': 2.0, 'upper': 2.3},
-            'decay_rate_phi_double_prime': {'lower': 0.0, 'upper': 0.4},
+            'decay_rate_phi_prime': {'lower': 0.1, 'upper': 0.2},
+            'mass_phi_double_prime': {'lower': 2.1, 'upper': 2.2},
+            'decay_rate_phi_double_prime': {'lower': 0.05, 'upper': 0.2},
             'a_rho': {'lower': -np.inf, 'upper': np.inf},
-            'mass_rho': {'lower': 0.75, 'upper': 0.80},
-            'decay_rate_rho': {'lower': 0.0, 'upper': 0.2},
+            'mass_rho': {'lower': 0.75, 'upper': 0.78},
+            'decay_rate_rho': {'lower': 0.140, 'upper': 0.150},
             'a_rho_prime': {'lower': -np.inf, 'upper': np.inf},
-            'mass_rho_prime': {'lower': 1.35, 'upper': 1.55},
-            'decay_rate_rho_prime': {'lower': 0.0, 'upper': 0.8},
+            'mass_rho_prime': {'lower': 1.28, 'upper': 1.48},
+            'decay_rate_rho_prime': {'lower': 0.15, 'upper': 0.55},
             'a_rho_double_prime': {'lower': -np.inf, 'upper': np.inf},
-            'mass_rho_double_prime': {'lower': 1.685, 'upper': 1.75},
-            'decay_rate_rho_double_prime': {'lower': 0.0, 'upper': 0.5},
+            'mass_rho_double_prime': {'lower': 1.68, 'upper': 1.74},
+            'decay_rate_rho_double_prime': {'lower': 0.1, 'upper': 0.6},
             'mass_rho_triple_prime': {'lower': 2.0, 'upper': 2.4},
-            'decay_rate_rho_triple_prime': {'lower': 0.0, 'upper': 0.7},
+            'decay_rate_rho_triple_prime': {'lower': 0.1, 'upper': 0.6},
         }
+
+    # def get_model_parameters_bounds(self):
+    #     """
+    #     There are no upper bounds. The branch points t_in_isoscalar and t_in_isovector
+    #     must lie above the values of t_0_isoscalar and t_0_isovector, respectively.
+    #     Decay rates must be non-negative and squared masses must lie above their respective t_0 treshold.
+    #
+    #     """
+    #     # TODO: clean up
+    #     lower_mass_bound_isoscalar = math.sqrt(self.t_0_isoscalar)
+    #     lower_mass_bound_isovector = math.sqrt(self.t_0_isovector)
+    #     return {
+    #         't_in_isoscalar': {'lower': self.t_0_isoscalar, 'upper': np.inf},
+    #         't_in_isovector': {'lower': self.t_0_isovector, 'upper': np.inf},
+    #         'a_omega': {'lower': -np.inf, 'upper': np.inf},
+    #         'mass_omega': {'lower': lower_mass_bound_isoscalar, 'upper': np.inf},
+    #         'decay_rate_omega': {'lower': 0.0, 'upper': np.inf},
+    #         'a_omega_prime': {'lower': -np.inf, 'upper': np.inf},
+    #         'mass_omega_prime': {'lower': lower_mass_bound_isoscalar, 'upper': np.inf},
+    #         'decay_rate_omega_prime': {'lower': 0.0, 'upper': np.inf},
+    #         'a_omega_double_prime': {'lower': -np.inf, 'upper': np.inf},
+    #         'mass_omega_double_prime': {'lower': lower_mass_bound_isoscalar, 'upper': np.inf},
+    #         'decay_rate_omega_double_prime': {'lower': 0.0, 'upper': np.inf},
+    #         'a_phi': {'lower': -np.inf, 'upper': np.inf},
+    #         'mass_phi': {'lower': lower_mass_bound_isoscalar, 'upper': np.inf},
+    #         'decay_rate_phi': {'lower': 0.0, 'upper': np.inf},
+    #         'a_phi_prime': {'lower': -np.inf, 'upper': np.inf},
+    #         'mass_phi_prime': {'lower': lower_mass_bound_isoscalar, 'upper': np.inf},
+    #         'decay_rate_phi_prime': {'lower': 0.0, 'upper': np.inf},
+    #         'mass_phi_double_prime': {'lower': lower_mass_bound_isoscalar, 'upper': np.inf},
+    #         'decay_rate_phi_double_prime': {'lower': 0.0, 'upper': np.inf},
+    #         'a_rho': {'lower': -np.inf, 'upper': np.inf},
+    #         'mass_rho': {'lower': lower_mass_bound_isovector, 'upper': np.inf},
+    #         'decay_rate_rho': {'lower': 0.0, 'upper': np.inf},
+    #         'a_rho_prime': {'lower': -np.inf, 'upper': np.inf},
+    #         'mass_rho_prime': {'lower': lower_mass_bound_isovector, 'upper': np.inf},
+    #         'decay_rate_rho_prime': {'lower': 0.0, 'upper': np.inf},
+    #         'a_rho_double_prime': {'lower': -np.inf, 'upper': np.inf},
+    #         'mass_rho_double_prime': {'lower': lower_mass_bound_isovector, 'upper': np.inf},
+    #         'decay_rate_rho_double_prime': {'lower': 0.0, 'upper': np.inf},
+    #         'mass_rho_triple_prime': {'lower': lower_mass_bound_isovector, 'upper': np.inf},
+    #         'decay_rate_rho_triple_prime': {'lower': 0.0, 'upper': np.inf},
+    #     }
 
     def get_ordered_values(self):
         """
@@ -254,3 +297,45 @@ class ModelParameters:
             'a_phi_prime',
         ]
         return [self[name].value for name in names]
+
+    @classmethod
+    def from_ordered_values(cls, list_of_values, t_0_isoscalar, t_0_isovector):
+        names = [
+            't_in_isoscalar',
+            't_in_isovector',
+            'mass_rho',
+            'mass_rho_prime',
+            'mass_rho_double_prime',
+            'mass_rho_triple_prime',
+            'decay_rate_rho',
+            'decay_rate_rho_prime',
+            'decay_rate_rho_double_prime',
+            'decay_rate_rho_triple_prime',
+            'a_rho',
+            'a_rho_prime',
+            'a_rho_double_prime',
+            'mass_omega',
+            'mass_phi',
+            'mass_omega_prime',
+            'mass_omega_double_prime',
+            'mass_phi_prime',
+            'mass_phi_double_prime',
+            'decay_rate_omega',
+            'decay_rate_phi',
+            'decay_rate_omega_prime',
+            'decay_rate_omega_double_prime',
+            'decay_rate_phi_prime',
+            'decay_rate_phi_double_prime',
+            'a_omega',
+            'a_phi',
+            'a_omega_prime',
+            'a_omega_double_prime',
+            'a_phi_prime',
+        ]
+        assert len(list_of_values) == len(names)
+        pars = [Parameter(name, value, False) for name, value in zip(names, list_of_values)]
+        pars.extend([
+            Parameter('t_0_isoscalar', t_0_isoscalar, True),
+            Parameter('t_0_isovector', t_0_isovector, True),
+        ])
+        return cls.from_list(pars)
