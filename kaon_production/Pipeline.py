@@ -10,7 +10,7 @@ class Pipeline:
     def __init__(self, name: str, parameters: ModelParameters, tasks: List[Type[Task]],
                  t_values: List[float], cross_sections: List[float], errors: List[float],
                  k_meson_mass: float, alpha: float, hc_squared: float,
-                 t_0_isoscalar: float, t_0_isovector: float, reports_dir: str, plot: bool = True):
+                 t_0_isoscalar: float, t_0_isovector: float, reports_dir: str, plot: bool = True) -> None:
         self.name = name
         self.parameters = parameters
         self.tasks = tasks
@@ -27,9 +27,9 @@ class Pipeline:
 
         self._report = f'Report {name}:\n'
         self._set_up_reports_directory()
-        self._best_fit = {'chi_squared': None, 'name': None, 'parameters': None}
+        self._best_fit = {'chi_squared': None, 'name': None, 'parameters': None, 'parameters_list': None}
 
-    def run(self):
+    def run(self) -> dict:
         self._log(f'Starting. Initial parameters: {self.parameters.to_list()}')
         for i, task_class in enumerate(self.tasks):
             self._log(f'Initializing Task#{i}. Parameters: {self.parameters.to_list()}')
@@ -52,23 +52,22 @@ class Pipeline:
         self._flush_report()
         return self._best_fit
 
-    def _log(self, msg: str):
+    def _log(self, msg: str) -> None:
         print(f'Pipeline {self.name}: {msg}\n')
         self._report += (msg + '\n')
 
-    def _set_up_reports_directory(self):
-        #TODO: do better!
+    def _set_up_reports_directory(self) -> None:
         if os.path.exists(self.reports_dir):
             raise ValueError(f'Directory already exists: {self.reports_dir}')
         os.mkdir(self.reports_dir)
 
-    def _flush_report(self):
+    def _flush_report(self) -> None:
         filepath = os.path.join(self.reports_dir,'report.txt')
         with open(filepath, 'a') as f:
             f.write(self._report)
         self._report = '\n'
 
-    def _update_best_fit(self, task):
+    def _update_best_fit(self, task: Task) -> None:
         if not task.report['chi_squared']:
             return None
         current = task.report['chi_squared']
@@ -78,4 +77,5 @@ class Pipeline:
                 'chi_squared': current,
                 'name': task.name,
                 'parameters': task.parameters.to_list(),
+                'parameters_list': task.parameters.get_ordered_values(),
             }

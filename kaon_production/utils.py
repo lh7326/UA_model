@@ -1,6 +1,6 @@
 from configparser import ConfigParser
 import random
-from typing import Optional
+from typing import Optional, Callable, Tuple
 
 import numpy as np
 
@@ -8,7 +8,7 @@ from kaon_production.function import function_form_factor, function_cross_sectio
 from kaon_production.ModelParameters import ModelParameters
 
 
-def make_partial_form_factor_for_parameters(parameters: ModelParameters):
+def make_partial_form_factor_for_parameters(parameters: ModelParameters) -> Callable:
     def _build_parameters_scheme():
         argument_index = 0
         scheme = []
@@ -32,8 +32,8 @@ def make_partial_form_factor_for_parameters(parameters: ModelParameters):
     return partial_f
 
 
-def make_partial_cross_section_for_parameters(k_meson_mass: float, alpha: float, hc_squared:float,
-                                              parameters: ModelParameters):
+def make_partial_cross_section_for_parameters(k_meson_mass: float, alpha: float, hc_squared: float,
+                                              parameters: ModelParameters) -> Callable:
     def _build_parameters_scheme():
         argument_index = 0
         scheme = []
@@ -58,7 +58,7 @@ def make_partial_cross_section_for_parameters(k_meson_mass: float, alpha: float,
     return partial_f
 
 
-def _read_config(path_to_config):
+def _read_config(path_to_config: str) -> Tuple[float, float]:
     config = ConfigParser(inline_comment_prefixes='#')
     config.read(path_to_config)
 
@@ -73,7 +73,7 @@ def perturb_model_parameters(
         perturbation_size: float = 0.2,
         perturbation_size_resonances: Optional[float] = None,
         respect_fixed: bool = False,
-        ):
+        ) -> ModelParameters:
     if perturbation_size_resonances is None:
         perturbation_size_resonances = perturbation_size
 

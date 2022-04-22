@@ -111,8 +111,8 @@ if __name__ == '__main__':
         return pipeline.run()
 
     final_results = []
-    with Pool(processes=12) as pool:
-        results = [pool.apply_async(f, (f'pool_fast_fixedmasses12_{i}',)) for i in range(500)]
+    with Pool(processes=5) as pool:
+        results = [pool.apply_async(f, (f'pool_fast_fixedmasses12_{i}',)) for i in range(100)]
         pool.close()
         pool.join()
         best_fit = {'chi_squared': None, 'name': None, 'parameters': None}

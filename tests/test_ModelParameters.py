@@ -38,7 +38,7 @@ class TestModelParameters(TestCase):
     def test___setitem__(self):
         with self.subTest(msg='Testing type checking'):
             with self.assertRaises(TypeError):
-                self.parameters['a_omega'] = 2.0
+                self.parameters['a_omega'] = 2.0  # type: ignore
 
         with self.subTest(msg='Testing parameter name checking'):
             with self.assertRaises(ValueError):
@@ -144,30 +144,29 @@ class TestModelParameters(TestCase):
             self.parameters.get_all_values(),
         )
 
-    #TODO: restore
-    # def test_get_bounds_for_free_parameters(self):
-    #     self.parameters.release_all_parameters()
-    #     self.parameters.fix_parameters([
-    #         't_in_isovector',
-    #         'a_phi', 'decay_rate_phi',
-    #         'a_phi_prime', 'mass_phi_prime', 'decay_rate_phi_prime',
-    #         'mass_phi_double_prime', 'decay_rate_phi_double_prime',
-    #         'a_omega', 'mass_omega', 'decay_rate_omega',
-    #         'a_omega_prime', 'mass_omega_prime', 'decay_rate_omega_prime',
-    #         'a_omega_double_prime', 'mass_omega_double_prime', 'decay_rate_omega_double_prime',
-    #         'a_rho', 'mass_rho', 'decay_rate_rho',
-    #         'a_rho_prime', 'mass_rho_prime', 'decay_rate_rho_prime',
-    #         'mass_rho_triple_prime', 'decay_rate_rho_triple_prime',
-    #     ])
-    #     lower_bounds, upper_bounds = self.parameters.get_bounds_for_free_parameters()
-    #     self.assertListEqual(
-    #         lower_bounds,
-    #         [0.5, 0.7071067811865476, -np.inf, 0.7745966692414834, 0.0],
-    #     )
-    #     self.assertListEqual(
-    #         upper_bounds,
-    #         [np.inf, np.inf, np.inf, np.inf, np.inf],
-    #     )
+    def test_get_bounds_for_free_parameters(self):
+        self.parameters.release_all_parameters()
+        self.parameters.fix_parameters([
+            't_in_isovector',
+            'a_phi', 'decay_rate_phi',
+            'a_phi_prime', 'mass_phi_prime', 'decay_rate_phi_prime',
+            'mass_phi_double_prime', 'decay_rate_phi_double_prime',
+            'a_omega', 'mass_omega', 'decay_rate_omega',
+            'a_omega_prime', 'mass_omega_prime', 'decay_rate_omega_prime',
+            'a_omega_double_prime', 'mass_omega_double_prime', 'decay_rate_omega_double_prime',
+            'a_rho', 'mass_rho', 'decay_rate_rho',
+            'a_rho_prime', 'mass_rho_prime', 'decay_rate_rho_prime',
+            'mass_rho_triple_prime', 'decay_rate_rho_triple_prime',
+        ])
+        lower_bounds, upper_bounds = self.parameters.get_bounds_for_free_parameters(handpicked=False)
+        self.assertListEqual(
+            lower_bounds,
+            [0.5, 0.7071067811865476, -np.inf, 0.7745966692414834, 0.0],
+        )
+        self.assertListEqual(
+            upper_bounds,
+            [np.inf, np.inf, np.inf, np.inf, np.inf],
+        )
 
     def test_from_list_to_list_consistency(self):
         list_of_parameters = [

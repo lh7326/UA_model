@@ -1,9 +1,8 @@
 """
-This module contains a class to calculate the total cross-section for
-the electromagnetic production of a scalar meson.
+This module contains a class to calculate the total cross-section for the electromagnetic production of a scalar meson.
+(In the process of the creation of particle-antiparticle pairs in the electron positron collisions.)
 
-TODO: describe better
-TODO: Add units (everywhere?)
+The cross-section is evaluated in nanobarns.
 
 """
 from typing import Callable
@@ -20,11 +19,15 @@ class ScalarMesonProductionTotalCrossSection:
             config: ConfigParser
     ) -> None:
         """
+        Initialize the calculator of the total cross-section for the process:
+            electron + positron -> meson + anti-meson
 
         Args:
             meson_mass (float): the mass of the scalar meson
             form_factor_model (callable): a model for the form factor
-            config (ConfigParser): the configuration containing the required constants  TODO: specify!
+            config (ConfigParser): the configuration containing the values of the fine structure constant
+                                   (under the key 'alpha'), and the square of the product of the reduced Planck
+                                   constant and the speed of light, under the key 'hc_squared'
 
         """
         self.meson_mass = meson_mass
@@ -37,14 +40,18 @@ class ScalarMesonProductionTotalCrossSection:
 
     def __call__(self, t: complex) -> complex:
         """
-        TODO: finish the docstring
+        Evaluate the total cross-section for the process electron + positron -> meson + anti-meson.
 
-        sigma = [(pi * alpha^2) / (3 * t)] * [1 - 4 * meson_mass^2 / t]^(3/2) * |F(t)|^2
+        The cross-section depend on the corresponding form factor F through the formula:
+            sigma = [(pi * alpha^2) / (3 * t)] * [1 - 4 * meson_mass^2 / t]^(3/2) * |F(t)|^2
+
+        We express the cross-section in nanobarns.
 
         Args:
-            t:
+            t (complex): the square of the four-momentum of the collision
 
         Returns:
+            complex: the value of the total cross-section in nanobarns
 
         """
         form_factor_modulus = abs(self.form_factor(t))
