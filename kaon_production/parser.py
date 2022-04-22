@@ -1,5 +1,5 @@
 import os.path
-from kaon_production.ModelParameters import Parameter
+
 
 def report(directory, filename='grep.txt'):
     results = {}

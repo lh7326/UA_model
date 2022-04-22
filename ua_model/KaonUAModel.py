@@ -1,7 +1,3 @@
-"""
-TODO: add docstring
-
-"""
 from ua_model.ua_components.UAComponent import UAComponent
 from ua_model.ua_components.UAComponentVariantA import UAComponentVariantA
 from ua_model.ua_components.UAComponentVariantB import UAComponentVariantB
@@ -10,7 +6,7 @@ from ua_model.MapFromTtoW import MapFromTtoW
 
 class KaonUAModel:
     """
-    TODO: add docstring
+    The U&A model for the charged or neutral kaon form factors.
 
     """
     def __init__(
@@ -49,10 +45,6 @@ class KaonUAModel:
             mass_rho_triple_prime: float,
             decay_rate_rho_triple_prime: float,
     ) -> None:
-        """
-        TODO: add docstring
-
-        """
         self.t_0_isoscalar = t_0_isoscalar
         self.t_in_isoscalar = t_in_isoscalar
         self.t_0_isovector = t_0_isovector

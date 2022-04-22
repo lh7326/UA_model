@@ -1,21 +1,9 @@
 from unittest import TestCase
 
-from ua_model.utils import compose, validate_branch_point_positions
+from ua_model.utils import validate_branch_point_positions
 
 
 class TestFunctionUtils(TestCase):
-
-    def test_compose(self):
-
-        def f(x):
-            return x + 2
-
-        def g(x):
-            return 2 * x
-
-        h = compose(f, g)
-        self.assertEqual(h(0), 2)
-        self.assertEqual(h(3), 8)
 
     def test_validate_branch_point_positions(self):
         with self.subTest(msg='valid parameters'):

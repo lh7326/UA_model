@@ -1,6 +1,7 @@
 from collections import namedtuple
 import math
 import numpy as np
+from typing import Dict, Iterator, List, Tuple
 
 
 Parameter = namedtuple('Parameter', 'name value is_fixed')
@@ -9,18 +10,38 @@ Parameter = namedtuple('Parameter', 'name value is_fixed')
 class ModelParameters:
 
     def __init__(self,
-                 t_0_isoscalar, t_0_isovector,
-                 t_in_isoscalar, t_in_isovector,
-                 a_omega, mass_omega, decay_rate_omega,
-                 a_omega_prime, mass_omega_prime, decay_rate_omega_prime,
-                 a_omega_double_prime, mass_omega_double_prime, decay_rate_omega_double_prime,
-                 a_phi, mass_phi, decay_rate_phi,
-                 a_phi_prime, mass_phi_prime, decay_rate_phi_prime,
-                 mass_phi_double_prime, decay_rate_phi_double_prime,
-                 a_rho, mass_rho, decay_rate_rho,
-                 a_rho_prime, mass_rho_prime, decay_rate_rho_prime,
-                 a_rho_double_prime, mass_rho_double_prime, decay_rate_rho_double_prime,
-                 mass_rho_triple_prime, decay_rate_rho_triple_prime):
+                 t_0_isoscalar: float,
+                 t_0_isovector: float,
+                 t_in_isoscalar: float,
+                 t_in_isovector: float,
+                 a_omega: float,
+                 mass_omega: float,
+                 decay_rate_omega: float,
+                 a_omega_prime: float,
+                 mass_omega_prime: float,
+                 decay_rate_omega_prime: float,
+                 a_omega_double_prime: float,
+                 mass_omega_double_prime: float,
+                 decay_rate_omega_double_prime: float,
+                 a_phi: float,
+                 mass_phi: float,
+                 decay_rate_phi: float,
+                 a_phi_prime: float,
+                 mass_phi_prime: float,
+                 decay_rate_phi_prime: float,
+                 mass_phi_double_prime: float,
+                 decay_rate_phi_double_prime: float,
+                 a_rho: float,
+                 mass_rho: float,
+                 decay_rate_rho: float,
+                 a_rho_prime: float,
+                 mass_rho_prime: float,
+                 decay_rate_rho_prime: float,
+                 a_rho_double_prime: float,
+                 mass_rho_double_prime: float,
+                 decay_rate_rho_double_prime: float,
+                 mass_rho_triple_prime: float,
+                 decay_rate_rho_triple_prime: float):
         self.t_0_isoscalar = t_0_isoscalar
         self.t_0_isovector = t_0_isovector
         self._data = [
@@ -57,28 +78,28 @@ class ModelParameters:
         ]
 
     @classmethod
-    def from_list(cls, list_of_parameters):
+    def from_list(cls, list_of_parameters: List[Parameter]) -> 'ModelParameters':
         kwargs = {par.name: par.value for par in list_of_parameters}
         return cls(**kwargs)
 
-    def to_list(self):
+    def to_list(self) -> List[Parameter]:
         t_0_thresholds = [
             Parameter('t_0_isoscalar', self.t_0_isoscalar, True),
             Parameter('t_0_isovector', self.t_0_isovector, True),
         ]
         return t_0_thresholds + list(self._data)
 
-    def _find(self, name):
+    def _find(self, name: str) -> Tuple[int, Parameter]:
         for index, parameter in enumerate(self._data):
             if parameter.name == name:
                 return index, parameter
         raise KeyError(f'No such key: {name}')
 
-    def __getitem__(self, item):
+    def __getitem__(self, item: str) -> Parameter:
         _, parameter = self._find(item)
         return parameter
 
-    def __setitem__(self, key, new_value):
+    def __setitem__(self, key: str, new_value: Parameter) -> None:
         index, parameter = self._find(key)
         if not isinstance(new_value, Parameter):
             raise TypeError('Bad type: new_value must be of type Parameter!')
@@ -86,39 +107,39 @@ class ModelParameters:
             raise ValueError('When setting new parameters names must be preserved!')
         self._data[index] = new_value
 
-    def set_value(self, parameter_name, new_parameter_value):
+    def set_value(self, parameter_name: str, new_parameter_value: float) -> None:
         index, old_par = self._find(parameter_name)
         new_par = Parameter(name=parameter_name, value=new_parameter_value, is_fixed=old_par.is_fixed)
         self._data[index] = new_par
 
-    def fix_parameters(self, names):
+    def fix_parameters(self, names: List[str]) -> None:
         for name in names:
             index, parameter = self._find(name)
             self._data[index] = Parameter(parameter.name, parameter.value, True)
 
-    def release_parameters(self, names):
+    def release_parameters(self, names: List[str]) -> None:
         for name in names:
             index, parameter = self._find(name)
             self._data[index] = Parameter(parameter.name, parameter.value, False)
 
-    def fix_all_parameters(self):
+    def fix_all_parameters(self) -> None:
         for index, parameter in enumerate(self._data):
             self._data[index] = Parameter(parameter.name, parameter.value, True)
 
-    def release_all_parameters(self):
+    def release_all_parameters(self) -> None:
         for index, parameter in enumerate(self._data):
             self._data[index] = Parameter(parameter.name, parameter.value, False)
 
-    def get_fixed_values(self):
+    def get_fixed_values(self) -> List[float]:
         return [parameter.value for parameter in self._data if parameter.is_fixed]
 
-    def get_free_values(self):
+    def get_free_values(self) -> List[float]:
         return [parameter.value for parameter in self._data if not parameter.is_fixed]
 
-    def get_all_values(self):
+    def get_all_values(self) -> List[float]:
         return list(map(lambda p: p.value, self._data))
 
-    def update_free_values(self, new_values):
+    def update_free_values(self, new_values: List[float]) -> None:
         free_parameters = [(i, parameter) for i, parameter
                            in enumerate(self._data) if not parameter.is_fixed]
         if len(free_parameters) != len(new_values):
@@ -126,12 +147,15 @@ class ModelParameters:
         for (i, parameter), new_value in zip(free_parameters, new_values):
             self._data[i] = Parameter(parameter.name, new_value, parameter.is_fixed)
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[Parameter]:
         for parameter in self._data:
             yield parameter
 
-    def get_bounds_for_free_parameters(self):
-        full_bounds = self.get_model_parameters_bounds()
+    def get_bounds_for_free_parameters(self, handpicked: bool = True) -> Tuple[List[float], List[float]]:
+        if handpicked:
+            full_bounds = self.get_model_parameters_bounds_handpicked()
+        else:
+            full_bounds = self.get_model_parameters_bounds_maximal()
         lower_bounds = []
         upper_bounds = []
         for parameter in self._data:
@@ -141,16 +165,11 @@ class ModelParameters:
                 upper_bounds.append(bounds['upper'])
         return lower_bounds, upper_bounds
 
-    def get_model_parameters_bounds(self):
+    def get_model_parameters_bounds_handpicked(self) -> Dict:
         """
-        There are no upper bounds. The branch points t_in_isoscalar and t_in_isovector
-        must lie above the values of t_0_isoscalar and t_0_isovector, respectively.
-        Decay rates must be non-negative and squared masses must lie above their respective t_0 treshold.
+        Returns a handpicked set of bounds.
 
         """
-        # TODO: clean up
-        lower_mass_bound_isoscalar = math.sqrt(self.t_0_isoscalar)
-        lower_mass_bound_isovector = math.sqrt(self.t_0_isovector)
         return {
             't_in_isoscalar': {'lower': self.t_0_isoscalar, 'upper': np.inf},
             't_in_isovector': {'lower': self.t_0_isovector, 'upper': np.inf},
@@ -184,50 +203,49 @@ class ModelParameters:
             'decay_rate_rho_triple_prime': {'lower': 0.1, 'upper': 0.6},
         }
 
-    # def get_model_parameters_bounds(self):
-    #     """
-    #     There are no upper bounds. The branch points t_in_isoscalar and t_in_isovector
-    #     must lie above the values of t_0_isoscalar and t_0_isovector, respectively.
-    #     Decay rates must be non-negative and squared masses must lie above their respective t_0 treshold.
-    #
-    #     """
-    #     # TODO: clean up
-    #     lower_mass_bound_isoscalar = math.sqrt(self.t_0_isoscalar)
-    #     lower_mass_bound_isovector = math.sqrt(self.t_0_isovector)
-    #     return {
-    #         't_in_isoscalar': {'lower': self.t_0_isoscalar, 'upper': np.inf},
-    #         't_in_isovector': {'lower': self.t_0_isovector, 'upper': np.inf},
-    #         'a_omega': {'lower': -np.inf, 'upper': np.inf},
-    #         'mass_omega': {'lower': lower_mass_bound_isoscalar, 'upper': np.inf},
-    #         'decay_rate_omega': {'lower': 0.0, 'upper': np.inf},
-    #         'a_omega_prime': {'lower': -np.inf, 'upper': np.inf},
-    #         'mass_omega_prime': {'lower': lower_mass_bound_isoscalar, 'upper': np.inf},
-    #         'decay_rate_omega_prime': {'lower': 0.0, 'upper': np.inf},
-    #         'a_omega_double_prime': {'lower': -np.inf, 'upper': np.inf},
-    #         'mass_omega_double_prime': {'lower': lower_mass_bound_isoscalar, 'upper': np.inf},
-    #         'decay_rate_omega_double_prime': {'lower': 0.0, 'upper': np.inf},
-    #         'a_phi': {'lower': -np.inf, 'upper': np.inf},
-    #         'mass_phi': {'lower': lower_mass_bound_isoscalar, 'upper': np.inf},
-    #         'decay_rate_phi': {'lower': 0.0, 'upper': np.inf},
-    #         'a_phi_prime': {'lower': -np.inf, 'upper': np.inf},
-    #         'mass_phi_prime': {'lower': lower_mass_bound_isoscalar, 'upper': np.inf},
-    #         'decay_rate_phi_prime': {'lower': 0.0, 'upper': np.inf},
-    #         'mass_phi_double_prime': {'lower': lower_mass_bound_isoscalar, 'upper': np.inf},
-    #         'decay_rate_phi_double_prime': {'lower': 0.0, 'upper': np.inf},
-    #         'a_rho': {'lower': -np.inf, 'upper': np.inf},
-    #         'mass_rho': {'lower': lower_mass_bound_isovector, 'upper': np.inf},
-    #         'decay_rate_rho': {'lower': 0.0, 'upper': np.inf},
-    #         'a_rho_prime': {'lower': -np.inf, 'upper': np.inf},
-    #         'mass_rho_prime': {'lower': lower_mass_bound_isovector, 'upper': np.inf},
-    #         'decay_rate_rho_prime': {'lower': 0.0, 'upper': np.inf},
-    #         'a_rho_double_prime': {'lower': -np.inf, 'upper': np.inf},
-    #         'mass_rho_double_prime': {'lower': lower_mass_bound_isovector, 'upper': np.inf},
-    #         'decay_rate_rho_double_prime': {'lower': 0.0, 'upper': np.inf},
-    #         'mass_rho_triple_prime': {'lower': lower_mass_bound_isovector, 'upper': np.inf},
-    #         'decay_rate_rho_triple_prime': {'lower': 0.0, 'upper': np.inf},
-    #     }
+    def get_model_parameters_bounds_maximal(self) -> Dict:
+        """
+        There are no upper bounds. The branch points t_in_isoscalar and t_in_isovector
+        must lie above the values of t_0_isoscalar and t_0_isovector, respectively.
+        Decay rates must be non-negative and squared masses must lie above their respective t_0 treshold.
 
-    def get_ordered_values(self):
+        """
+        lower_mass_bound_isoscalar = math.sqrt(self.t_0_isoscalar)
+        lower_mass_bound_isovector = math.sqrt(self.t_0_isovector)
+        return {
+            't_in_isoscalar': {'lower': self.t_0_isoscalar, 'upper': np.inf},
+            't_in_isovector': {'lower': self.t_0_isovector, 'upper': np.inf},
+            'a_omega': {'lower': -np.inf, 'upper': np.inf},
+            'mass_omega': {'lower': lower_mass_bound_isoscalar, 'upper': np.inf},
+            'decay_rate_omega': {'lower': 0.0, 'upper': np.inf},
+            'a_omega_prime': {'lower': -np.inf, 'upper': np.inf},
+            'mass_omega_prime': {'lower': lower_mass_bound_isoscalar, 'upper': np.inf},
+            'decay_rate_omega_prime': {'lower': 0.0, 'upper': np.inf},
+            'a_omega_double_prime': {'lower': -np.inf, 'upper': np.inf},
+            'mass_omega_double_prime': {'lower': lower_mass_bound_isoscalar, 'upper': np.inf},
+            'decay_rate_omega_double_prime': {'lower': 0.0, 'upper': np.inf},
+            'a_phi': {'lower': -np.inf, 'upper': np.inf},
+            'mass_phi': {'lower': lower_mass_bound_isoscalar, 'upper': np.inf},
+            'decay_rate_phi': {'lower': 0.0, 'upper': np.inf},
+            'a_phi_prime': {'lower': -np.inf, 'upper': np.inf},
+            'mass_phi_prime': {'lower': lower_mass_bound_isoscalar, 'upper': np.inf},
+            'decay_rate_phi_prime': {'lower': 0.0, 'upper': np.inf},
+            'mass_phi_double_prime': {'lower': lower_mass_bound_isoscalar, 'upper': np.inf},
+            'decay_rate_phi_double_prime': {'lower': 0.0, 'upper': np.inf},
+            'a_rho': {'lower': -np.inf, 'upper': np.inf},
+            'mass_rho': {'lower': lower_mass_bound_isovector, 'upper': np.inf},
+            'decay_rate_rho': {'lower': 0.0, 'upper': np.inf},
+            'a_rho_prime': {'lower': -np.inf, 'upper': np.inf},
+            'mass_rho_prime': {'lower': lower_mass_bound_isovector, 'upper': np.inf},
+            'decay_rate_rho_prime': {'lower': 0.0, 'upper': np.inf},
+            'a_rho_double_prime': {'lower': -np.inf, 'upper': np.inf},
+            'mass_rho_double_prime': {'lower': lower_mass_bound_isovector, 'upper': np.inf},
+            'decay_rate_rho_double_prime': {'lower': 0.0, 'upper': np.inf},
+            'mass_rho_triple_prime': {'lower': lower_mass_bound_isovector, 'upper': np.inf},
+            'decay_rate_rho_triple_prime': {'lower': 0.0, 'upper': np.inf},
+        }
+
+    def get_ordered_values(self) -> List[float]:
         """
         Print the values in the order:
           t_in_isoscalar
@@ -299,7 +317,11 @@ class ModelParameters:
         return [self[name].value for name in names]
 
     @classmethod
-    def from_ordered_values(cls, list_of_values, t_0_isoscalar, t_0_isovector):
+    def from_ordered_values(
+            cls,
+            list_of_values: List[float],
+            t_0_isoscalar: float,
+            t_0_isovector: float) -> 'ModelParameters':
         names = [
             't_in_isoscalar',
             't_in_isovector',
