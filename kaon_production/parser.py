@@ -19,5 +19,5 @@ def report(directory, filename='grep.txt'):
 
 
 if __name__ == '__main__':
-    directory = '/home/lukas/reports/fixedmasses11'
+    directory = '/home/lukas/reports/fixedmasses12'
     print(report(directory))

@@ -2,21 +2,25 @@ from typing import List, Type
 import os.path
 
 from kaon_production.ModelParameters import ModelParameters
-from kaon_production.Task import Task
+from kaon_production.Task import Task, Datapoint
 
 
 class Pipeline:
 
     def __init__(self, name: str, parameters: ModelParameters, tasks: List[Type[Task]],
-                 t_values: List[float], cross_sections: List[float], errors: List[float],
+                 t_values_charged: List[float], cross_sections_charged: List[float], errors_charged: List[float],
+                 t_values_neutral: List[float], cross_sections_neutral: List[float], errors_neutral: List[float],
                  k_meson_mass: float, alpha: float, hc_squared: float,
                  t_0_isoscalar: float, t_0_isovector: float, reports_dir: str, plot: bool = True) -> None:
         self.name = name
         self.parameters = parameters
         self.tasks = tasks
-        self.t_values = t_values
-        self.cross_sections = cross_sections
-        self.errors = errors
+        self.t_values_charged = t_values_charged
+        self.cross_sections_charged = cross_sections_charged
+        self.errors_charged = errors_charged
+        self.t_values_neutral = t_values_neutral
+        self.cross_sections_neutral = cross_sections_neutral
+        self.errors_neutral = errors_neutral
         self.k_meson_mass = k_meson_mass
         self.alpha = alpha
         self.hc_squared = hc_squared
@@ -24,6 +28,11 @@ class Pipeline:
         self.t_0_isovector = t_0_isovector
         self.reports_dir = os.path.join(reports_dir, name)
         self.plot = plot
+
+        self.ts = None
+        self.errors = None
+        self.cross_sections = None
+        self._prepare_data()
 
         self._report = f'Report {name}:\n'
         self._set_up_reports_directory()
@@ -35,13 +44,14 @@ class Pipeline:
             self._log(f'Initializing Task#{i}. Parameters: {self.parameters.to_list()}')
             task_name = f'Task#{i}:{task_class.__name__}'
             task = task_class(
-                task_name, self.parameters, self.t_values, self.cross_sections, self.errors,
+                task_name, self.parameters,
+                self.ts, self.cross_sections, self.errors,
                 self.k_meson_mass, self.alpha, self.hc_squared,
                 self.t_0_isoscalar, self.t_0_isovector, self.reports_dir, self.plot
             )
 
             self._log(f'Running {task_name}')
-            res = task.run()
+            task.run()
             self._log(f'{task_name} report: {task.report}')
             self._update_best_fit(task)
 
@@ -62,7 +72,7 @@ class Pipeline:
         os.mkdir(self.reports_dir)
 
     def _flush_report(self) -> None:
-        filepath = os.path.join(self.reports_dir,'report.txt')
+        filepath = os.path.join(self.reports_dir, 'report.txt')
         with open(filepath, 'a') as f:
             f.write(self._report)
         self._report = '\n'
@@ -79,3 +89,18 @@ class Pipeline:
                 'parameters': task.parameters.to_list(),
                 'parameters_list': task.parameters.get_ordered_values(),
             }
+
+    def _prepare_data(self):
+        self.ts = [Datapoint(t, True) for t in self.t_values_charged]
+        self.cross_sections = list(self.cross_sections_charged)
+        self.errors = list(self.errors_charged)
+        self.ts += [Datapoint(t, False) for t in self.t_values_neutral]
+        self.cross_sections += list(self.cross_sections_neutral)
+        self.errors += list(self.errors_neutral)
+
+        self.ts, self.cross_sections, self.errors = zip(
+            *sorted(
+                zip(self.ts, self.cross_sections, self.errors),
+                key=lambda tup: tup[0].t,
+            )
+        )

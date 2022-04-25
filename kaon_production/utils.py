@@ -97,7 +97,7 @@ def perturb_model_parameters(
         else:
             return old_value
 
-    bounds = parameters.get_model_parameters_bounds()
+    bounds = parameters.get_model_parameters_bounds_handpicked()
     for p in parameters:
         if respect_fixed and p.is_fixed:
             continue
