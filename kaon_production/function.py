@@ -161,9 +161,9 @@ def function_cross_section(
     results = []
     for datapoint in ts:
         if isinstance(datapoint, Datapoint):
-            cross_section_model.form_factor.charged = datapoint.is_charged
+            cross_section_model.form_factor.charged_variant = datapoint.is_charged
             results.append(cross_section_model(datapoint.t))
         else:
-            cross_section_model.form_factor.charged = bool(datapoint[1])
+            cross_section_model.form_factor.charged_variant = bool(datapoint[1])
             results.append(cross_section_model(datapoint[0]))
     return results
