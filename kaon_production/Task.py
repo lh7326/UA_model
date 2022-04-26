@@ -83,9 +83,6 @@ class Task:
         chi_squared = (
             sum([r2 / (err ** 2) for r2, err in zip(r_squared, errors)])
         ) / len(r_squared)
-        sqrt_sum_chi_squared = math.sqrt(
-            sum([r2 / (err ** 2) for r2, err in zip(r_squared, errors)])
-        )
 
         # only charged data points
         cs_charged, fit_charged, errors_charged = zip(*[

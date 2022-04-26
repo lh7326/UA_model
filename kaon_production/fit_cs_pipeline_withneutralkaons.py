@@ -58,8 +58,8 @@ def make_pipeline_fast_some_masses_fixed(
 
     task_list = [
         TaskFixedResonancesFit,
-        TaskOnlyThresholdsFit,
         TaskFixedCouplingConstantsAndMassesOfSelectedResonances,
+        TaskFixedResonancesFit,
         TaskFixMassesOfSelectedResonancesFit,
         TaskFullFit,
         TaskFullFitOnlyCharged,
@@ -93,7 +93,7 @@ if __name__ == '__main__':
 
         initial_parameters = perturb_model_parameters(
             initial_parameters,
-            perturbation_size=0.7, perturbation_size_resonances=0.5,
+            perturbation_size=0.7, perturbation_size_resonances=0.7,
             respect_fixed=True,
             use_handpicked_bounds=True,
         )
@@ -106,7 +106,7 @@ if __name__ == '__main__':
 
     final_results = []
     with Pool(processes=10) as pool:
-        results = [pool.apply_async(f, (f'pool2_{i}',)) for i in range(220)]
+        results = [pool.apply_async(f, (f'pool4_{i}',)) for i in range(100)]
         pool.close()
         pool.join()
         best_fit = {'chi_squared': None, 'name': None, 'parameters': None}
