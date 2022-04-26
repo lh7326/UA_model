@@ -15,7 +15,8 @@ class Task:
     def __init__(self, name: str, parameters: ModelParameters,
                  ts: List[Datapoint], css: List[float], errors: List[float],
                  k_meson_mass: float, alpha: float, hc_squared: float,
-                 t_0_isoscalar: float, t_0_isovector: float, reports_dir: str, plot: bool=True):
+                 t_0_isoscalar: float, t_0_isovector: float, reports_dir: str,
+                 plot: bool=True, use_handpicked_bounds: bool=True):
         self.name = name
         self.parameters = parameters
         self.partial_f = None  # prepared in the _setup method
@@ -32,6 +33,7 @@ class Task:
         self.t_0_isovector = t_0_isovector
         self.reports_dir = reports_dir
         self.should_plot = plot
+        self.use_handpicked_bounds = use_handpicked_bounds
         self.report = {
             'name': self.name,
             'initial_parameters': self.parameters.to_list(),
@@ -61,7 +63,7 @@ class Task:
                 p0=self.parameters.get_free_values(),
                 sigma=self.errors_fit,
                 absolute_sigma=False,
-                bounds=self.parameters.get_bounds_for_free_parameters(),
+                bounds=self.parameters.get_bounds_for_free_parameters(handpicked=self.use_handpicked_bounds),
                 maxfev=10000,
             )
         except RuntimeError as err:

@@ -54,7 +54,7 @@ def make_pipeline_fast_some_masses_fixed(
         ts_charged, cross_section_values_charged, errors_charged,
         ts_neutral, cross_section_values_neutral, errors_neutral,
         k_meson_mass, alpha, hc_squared, t_0_isoscalar, t_0_isovector, initial_params,
-        reports_dir, name='fast_fixsome_masses'):
+        reports_dir, name='fast_fixsome_masses', handpicked=True):
 
     task_list = [
         TaskFixedResonancesFit,
@@ -68,7 +68,7 @@ def make_pipeline_fast_some_masses_fixed(
                     ts_charged, cross_section_values_charged, errors_charged,
                     ts_neutral, cross_section_values_neutral, errors_neutral,
                     k_meson_mass, alpha, hc_squared,
-                    t_0_isoscalar, t_0_isovector, reports_dir, plot=False)
+                    t_0_isoscalar, t_0_isovector, reports_dir, plot=False, use_handpicked_bounds=handpicked)
 
 
 if __name__ == '__main__':
@@ -95,12 +95,13 @@ if __name__ == '__main__':
             initial_parameters,
             perturbation_size=0.7, perturbation_size_resonances=0.5,
             respect_fixed=True,
+            use_handpicked_bounds=True,
         )
         pipeline = make_pipeline_fast_some_masses_fixed(
             charged_ts, charged_cross_sections_values, charged_errors,
             neutral_ts, neutral_cross_sections_values, neutral_errors,
             kaon_mass, alpha, hc_squared, t_0_isoscalar, t_0_isovector,
-            initial_parameters, path_to_reports, name=name)
+            initial_parameters, path_to_reports, name=name, handpicked=True)
         return pipeline.run()
 
     final_results = []
