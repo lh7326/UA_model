@@ -88,9 +88,11 @@ class Pipeline:
         if not best_so_far or current < best_so_far:
             self._best_fit = {
                 'chi_squared': current,
-                'name': task.name,
+                'name': f'{self.name}:{task.name}',
                 'parameters': task.parameters.to_list(),
                 'parameters_list': task.parameters.get_ordered_values(),
+                'covariance_matrix': task.report.get('covariance_matrix'),
+                'parameter_errors': task.report.get('parameter_errors'),
             }
 
     def _prepare_data(self):

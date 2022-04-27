@@ -1,5 +1,6 @@
 from collections import namedtuple
 import math
+import numpy as np
 from scipy.optimize import curve_fit
 from typing import List
 
@@ -41,28 +42,30 @@ class Task:
             'r2': None,
             'chi_squared': None,
             'sqrt_sum_chi_squared': None,
+            'covariance_matrix': None,
+            'parameter_errors': None,
             'status': 'started',
             'error_message': None,
         }
 
     def run(self):
         self._set_up()
-        opt_params = self._fit()
+        opt_params, covariance_matrix = self._fit()
         if opt_params is not None:  # opt_params are None if the fit ends in runtime error
             self.parameters.update_free_values(opt_params)  # type: ignore
-            self._update_report(opt_params)
+            self._update_report(opt_params, covariance_matrix)
             self._plot(opt_params)
         return self.parameters
 
     def _fit(self):
         try:
-            opt_params, _ = curve_fit(
+            opt_params, covariance_matrix = curve_fit(
                 f=self.partial_f,
                 xdata=self.ts_fit,
                 ydata=self.css_fit,
                 p0=self.parameters.get_free_values(),
                 sigma=self.errors_fit,
-                absolute_sigma=False,
+                absolute_sigma=True,
                 bounds=self.parameters.get_bounds_for_free_parameters(handpicked=self.use_handpicked_bounds),
                 maxfev=10000,
             )
@@ -70,13 +73,14 @@ class Task:
             self.report['status'] = 'failed'
             self.report['error_message'] = str(err)  # type: ignore
             opt_params = None
-        return opt_params
+            covariance_matrix = None
+        return opt_params, covariance_matrix
 
     def _plot(self, opt_params):
         plot_cs_fit_neutral_plus_charged(self.ts, self.css, self.errors, self.partial_f,
                                          opt_params, self.name, show=self.should_plot, save_dir=self.reports_dir)
 
-    def _update_report(self, opt_parameters):
+    def _update_report(self, opt_parameters, covariance_matrix):
         fit_ys = self.partial_f(self.ts, *opt_parameters)
         r_squared = [(data - fit) ** 2 for data, fit in zip(self.css, fit_ys)]
         errors = self.errors
@@ -101,6 +105,8 @@ class Task:
             chi_squared=chi_squared_charged,
             chi_squared_together_with_neutral=chi_squared,
             sqrt_sum_chi_squared=sqrt_sum_chi_squared_charged,
+            covariance_matrix=covariance_matrix,
+            parameter_errors=np.sqrt(np.diag(covariance_matrix)),
             status='finished',
         )
 

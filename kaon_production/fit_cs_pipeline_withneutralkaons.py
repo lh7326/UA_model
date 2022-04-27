@@ -93,7 +93,7 @@ if __name__ == '__main__':
 
         initial_parameters = perturb_model_parameters(
             initial_parameters,
-            perturbation_size=0.7, perturbation_size_resonances=0.7,
+            perturbation_size=0.9, perturbation_size_resonances=0.2,
             respect_fixed=True,
             use_handpicked_bounds=True,
         )
@@ -105,8 +105,8 @@ if __name__ == '__main__':
         return pipeline.run()
 
     final_results = []
-    with Pool(processes=10) as pool:
-        results = [pool.apply_async(f, (f'pool4_{i}',)) for i in range(100)]
+    with Pool(processes=7) as pool:
+        results = [pool.apply_async(f, (f'pool7_{i}',)) for i in range(9)]
         pool.close()
         pool.join()
         best_fit = {'chi_squared': None, 'name': None, 'parameters': None}
