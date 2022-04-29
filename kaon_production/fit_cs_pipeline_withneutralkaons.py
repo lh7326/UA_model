@@ -5,10 +5,10 @@ from multiprocessing import Pool
 from kaon_production.data import read_cross_section_data
 from kaon_production.ModelParameters import ModelParameters
 from kaon_production.tasks import (
-    TaskFullFit, TaskFullFitOnlyCharged, TaskFixedResonancesFit, TaskFixedResonancesFitOnlyCharged,
-    TaskFixedCouplingConstantsAndMassesOfSelectedResonances, TaskFixMassesOfSelectedResonancesFit,
-    TaskFixedCouplingConstantsOnlyCharged,
-    TaskOnlyThresholdsFit, TaskFixedResonancesAndThresholdsFit)
+    TaskFullFit, TaskFullFitOnlyCharged, TaskFixedResonancesFit, TaskFixMassesOfSelectedResonancesFit,
+    TaskFixedCouplingConstantsOnlyCharged, TaskFixedNearlyAllResonancesFit,
+    TaskFixedCouplingConstantsAndNearlyAllResonancesFit, TaskFixedNearlyAllResonancesFitOnlyCharged,
+    TaskOnlyThresholdsFit, TaskFixedResonancesAndThresholdsFit, TaskFixedResonancesFitOnlyCharged)
 from kaon_production.Pipeline import Pipeline
 from kaon_production.utils import perturb_model_parameters
 
@@ -50,19 +50,18 @@ def make_initial_parameters(t_0_isoscalar, t_0_isovector):
     )
 
 
-def make_pipeline_fast_some_masses_fixed(
+def make_pipeline_restricted(
         ts_charged, cross_section_values_charged, errors_charged,
         ts_neutral, cross_section_values_neutral, errors_neutral,
         k_meson_mass, alpha, hc_squared, t_0_isoscalar, t_0_isovector, initial_params,
-        reports_dir, name='fast_fixsome_masses', handpicked=True):
+        reports_dir, name='restricted', handpicked=False):
 
     task_list = [
         TaskFixedResonancesFit,
-        TaskFixedCouplingConstantsAndMassesOfSelectedResonances,
-        TaskFixedResonancesFit,
-        TaskFixMassesOfSelectedResonancesFit,
-        TaskFullFit,
-        TaskFullFitOnlyCharged,
+        TaskFixedCouplingConstantsAndNearlyAllResonancesFit,
+        TaskFixedNearlyAllResonancesFit,
+        TaskFixedNearlyAllResonancesFitOnlyCharged,
+        #TaskFixedResonancesFitOnlyCharged,
     ]
     return Pipeline(name, initial_params, task_list,
                     ts_charged, cross_section_values_charged, errors_charged,
@@ -89,15 +88,19 @@ if __name__ == '__main__':
 
     def f(name):
         initial_parameters = make_initial_parameters(t_0_isoscalar, t_0_isovector)
-        initial_parameters.fix_parameters(['mass_phi', 'mass_omega', 'mass_rho'])
+        initial_parameters.fix_parameters([
+            'mass_omega', 'decay_rate_omega', 'mass_omega_prime', 'decay_rate_omega_prime',
+            'mass_phi', 'decay_rate_phi', 'mass_phi_prime', 'decay_rate_phi_prime',
+            'mass_rho', 'decay_rate_rho', 'mass_rho_prime', 'decay_rate_rho_prime',
+        ])
 
         initial_parameters = perturb_model_parameters(
             initial_parameters,
-            perturbation_size=0.9, perturbation_size_resonances=0.2,
+            perturbation_size=0.8, perturbation_size_resonances=0.5,
             respect_fixed=True,
             use_handpicked_bounds=True,
         )
-        pipeline = make_pipeline_fast_some_masses_fixed(
+        pipeline = make_pipeline_restricted(
             charged_ts, charged_cross_sections_values, charged_errors,
             neutral_ts, neutral_cross_sections_values, neutral_errors,
             kaon_mass, alpha, hc_squared, t_0_isoscalar, t_0_isovector,
@@ -105,8 +108,8 @@ if __name__ == '__main__':
         return pipeline.run()
 
     final_results = []
-    with Pool(processes=7) as pool:
-        results = [pool.apply_async(f, (f'pool7_{i}',)) for i in range(9)]
+    with Pool(processes=12) as pool:
+        results = [pool.apply_async(f, (f'pool10_{i}',)) for i in range(50)]
         pool.close()
         pool.join()
         best_fit = {'chi_squared': None, 'name': None, 'parameters': None}
