@@ -3,6 +3,7 @@ from typing import List
 
 from ua_model.KaonUAModel import KaonUAModel
 from cross_section.ScalarMesonProductionTotalCrossSection import ScalarMesonProductionTotalCrossSection
+from Task import Datapoint
 
 
 def function_form_factor(
@@ -79,7 +80,7 @@ def function_form_factor(
 
 
 def function_cross_section(
-        ts: List[complex],
+        ts: List[Datapoint],
         k_meson_mass: float,
         alpha: float,
         hc_squared: float,
@@ -157,4 +158,12 @@ def function_cross_section(
     config['constants'] = {'alpha': alpha, 'hc_squared': hc_squared}
     cross_section_model = ScalarMesonProductionTotalCrossSection(k_meson_mass, ff_model, config)
 
-    return [cross_section_model(t) for t in ts]
+    results = []
+    for datapoint in ts:
+        if isinstance(datapoint, Datapoint):
+            cross_section_model.form_factor.charged_variant = datapoint.is_charged
+            results.append(cross_section_model(datapoint.t))
+        else:
+            cross_section_model.form_factor.charged_variant = bool(datapoint[1])
+            results.append(cross_section_model(datapoint[0]))
+    return results

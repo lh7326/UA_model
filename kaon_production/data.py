@@ -5,7 +5,7 @@ from typing import Tuple, List
 DIR_NAME = '../data'
 
 
-def read_cross_section_data(file_name: str = 'kaon.csv') -> Tuple[List[float], List[float], List[float]]:
+def read_cross_section_data(file_name: str = 'charged_kaon.csv') -> Tuple[List[float], List[float], List[float]]:
     ts = []
     form_factors = []
     sigmas = []

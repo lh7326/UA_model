@@ -73,6 +73,7 @@ def perturb_model_parameters(
         perturbation_size: float = 0.2,
         perturbation_size_resonances: Optional[float] = None,
         respect_fixed: bool = False,
+        use_handpicked_bounds: bool = True,
         ) -> ModelParameters:
     if perturbation_size_resonances is None:
         perturbation_size_resonances = perturbation_size
@@ -97,7 +98,11 @@ def perturb_model_parameters(
         else:
             return old_value
 
-    bounds = parameters.get_model_parameters_bounds()
+    if use_handpicked_bounds:
+        bounds = parameters.get_model_parameters_bounds_handpicked()
+    else:
+        bounds = parameters.get_model_parameters_bounds_maximal()
+
     for p in parameters:
         if respect_fixed and p.is_fixed:
             continue
