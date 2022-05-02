@@ -8,7 +8,7 @@ Parameter = namedtuple('Parameter', 'name value is_fixed')
 
 class ModelParameters(ABC):
 
-    def __init__(self, *args, always_fixed: Tuple[str, ...] = (), **kwargs):
+    def __init__(self, *args, always_fixed: Tuple[str, ...] = (), **kwargs) -> None:
         self._always_fixed = always_fixed
         self._data = self._setup_data(*args, **kwargs)
 
