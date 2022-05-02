@@ -62,6 +62,7 @@ class Pipeline:
             self.parameters = task.parameters
             self.parameters.release_all_parameters()
             self._flush_report()
+            self._save_report(str(i), task.report)
         self._log(f'Best fit: {self._best_fit}')
         self._flush_report()
         return self._best_fit
@@ -80,6 +81,12 @@ class Pipeline:
         with open(filepath, 'a') as f:
             f.write(self._report)
         self._report = '\n'
+
+    def _save_report(self, name: str, report: dict) -> None:
+        filename = f'report_{name}.txt'
+        filepath = os.path.join(self.reports_dir, filename)
+        with open(filepath, 'w') as f:
+            f.write(str(report))
 
     def _update_best_fit(self, task: Task) -> None:
         if not task.report['chi_squared']:
