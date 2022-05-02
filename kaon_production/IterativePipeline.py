@@ -68,7 +68,8 @@ class IterativePipeline(Pipeline):
         return self._best_fit
 
     def _randomly_freeze_parameters(self, number_of_free_parameters):
-        names = [par.name for par in self.parameters]
+        self.parameters.release_all_parameters()  # this allows us to identify which parameters cannot be released
+        names = [par.name for par in self.parameters if not par.is_fixed]
         chosen_names = sample(names, k=number_of_free_parameters)
         self.parameters.fix_all_parameters()
         self.parameters.release_parameters(chosen_names)
