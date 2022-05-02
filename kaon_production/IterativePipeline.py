@@ -45,6 +45,7 @@ class IterativePipeline(Pipeline):
 
             self.parameters = task.parameters
             self._flush_report()
+            self._save_report(str(i), task.report)
 
         self._log(f'Initializing Task#{len(self.free_params_numbers)}. Full fit.')
         task_name = f'Task#{len(self.free_params_numbers)}:{TaskFullFitOnlyCharged.__name__}'
@@ -64,6 +65,7 @@ class IterativePipeline(Pipeline):
 
         self._log(f'Best fit: {self._best_fit}')
         self._flush_report()
+        self._save_report(str(len(self.free_params_numbers)), task.report)
         return self._best_fit
 
     def _randomly_freeze_parameters(self, number_of_free_parameters):
