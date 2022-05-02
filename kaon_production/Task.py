@@ -5,7 +5,7 @@ from scipy.optimize import curve_fit
 from typing import List
 
 from plotting.plot_fit import plot_cs_fit_neutral_plus_charged
-from kaon_production.ModelParameters import ModelParameters
+from model_parameters.KaonParameters import KaonParameters
 
 
 Datapoint = namedtuple('Datapoint', 't is_charged')
@@ -13,7 +13,7 @@ Datapoint = namedtuple('Datapoint', 't is_charged')
 
 class Task:
 
-    def __init__(self, name: str, parameters: ModelParameters,
+    def __init__(self, name: str, parameters: KaonParameters,
                  ts: List[Datapoint], css: List[float], errors: List[float],
                  k_meson_mass: float, alpha: float, hc_squared: float,
                  t_0_isoscalar: float, t_0_isovector: float, reports_dir: str,

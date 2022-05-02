@@ -1,7 +1,7 @@
 import math
 import random
 
-from kaon_production.ModelParameters import ModelParameters
+from model_parameters.KaonParameters import KaonParameters
 from kaon_production.Task import Task
 from kaon_production.utils import make_partial_cross_section_for_parameters
 
@@ -198,7 +198,7 @@ class TaskFixMassesOfSelectedResonancesFit(Task):
 
 class TaskFitLowEnergies(Task):
 
-    def __init__(self, name: str, parameters: ModelParameters, ts, css, errors,
+    def __init__(self, name: str, parameters: KaonParameters, ts, css, errors,
                  t_0_isoscalar, t_0_isovector, reports_dir, plot=True, threshold=1.2):
         super().__init__(name, parameters, ts, css, errors, t_0_isoscalar, t_0_isovector, reports_dir, plot)
         assert threshold > 0
@@ -234,7 +234,7 @@ class TaskFitLowEnergies(Task):
 
 class TaskFitHighEnergies(Task):
 
-    def __init__(self, name: str, parameters: ModelParameters, ts, css, errors,
+    def __init__(self, name: str, parameters: KaonParameters, ts, css, errors,
                  t_0_isoscalar, t_0_isovector, reports_dir, plot=True, threshold=1.2):
         super().__init__(name, parameters, ts, css, errors, t_0_isoscalar, t_0_isovector, reports_dir, plot)
         assert threshold > 0

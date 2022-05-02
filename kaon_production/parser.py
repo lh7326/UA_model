@@ -1,5 +1,4 @@
 import os.path
-from ModelParameters import Parameter
 
 
 def report(directory, filename='grep.txt'):

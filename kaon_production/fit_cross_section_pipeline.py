@@ -3,18 +3,17 @@ from configparser import ConfigParser
 from multiprocessing import Pool
 
 from kaon_production.data import read_cross_section_data
-from kaon_production.ModelParameters import ModelParameters
+from model_parameters.KaonParameters import KaonParameters
 from kaon_production.tasks import (
     TaskFullFit, TaskFixedResonancesFit, TaskFixedCouplingConstants,
     TaskFixedCouplingConstantsAndMassesOfSelectedResonances, TaskFixMassesOfSelectedResonancesFit,
-    TaskFitLowEnergies, TaskFitHighEnergies, TaskFitOnRandomSubsetOfData,
-    TaskOnlyThresholdsFit, TaskFixedResonancesAndThresholdsFit)
+    TaskOnlyThresholdsFit)
 from kaon_production.Pipeline import Pipeline
 from kaon_production.utils import perturb_model_parameters
 
 
 def make_initial_parameters(t_0_isoscalar, t_0_isovector):
-    return ModelParameters(
+    return KaonParameters(
         t_0_isoscalar=t_0_isoscalar,
         t_0_isovector=t_0_isovector,
         t_in_isoscalar=1.0,

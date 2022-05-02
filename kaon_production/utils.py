@@ -5,10 +5,10 @@ from typing import Optional, Callable, Tuple
 import numpy as np
 
 from kaon_production.function import function_form_factor, function_cross_section
-from kaon_production.ModelParameters import ModelParameters
+from model_parameters.KaonParameters import KaonParameters
 
 
-def make_partial_form_factor_for_parameters(parameters: ModelParameters) -> Callable:
+def make_partial_form_factor_for_parameters(parameters: KaonParameters) -> Callable:
     def _build_parameters_scheme():
         argument_index = 0
         scheme = []
@@ -33,7 +33,7 @@ def make_partial_form_factor_for_parameters(parameters: ModelParameters) -> Call
 
 
 def make_partial_cross_section_for_parameters(k_meson_mass: float, alpha: float, hc_squared: float,
-                                              parameters: ModelParameters) -> Callable:
+                                              parameters: KaonParameters) -> Callable:
     def _build_parameters_scheme():
         argument_index = 0
         scheme = []
@@ -69,12 +69,12 @@ def _read_config(path_to_config: str) -> Tuple[float, float]:
 
 
 def perturb_model_parameters(
-        parameters: ModelParameters,
+        parameters: KaonParameters,
         perturbation_size: float = 0.2,
         perturbation_size_resonances: Optional[float] = None,
         respect_fixed: bool = False,
         use_handpicked_bounds: bool = True,
-        ) -> ModelParameters:
+        ) -> KaonParameters:
     if perturbation_size_resonances is None:
         perturbation_size_resonances = perturbation_size
 
