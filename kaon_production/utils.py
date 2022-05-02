@@ -1,11 +1,13 @@
 from configparser import ConfigParser
 import random
-from typing import Optional, Callable, Tuple
+from typing import Optional, Callable, Tuple, Union
 
 import numpy as np
 
-from kaon_production.function import function_form_factor, function_cross_section
+from kaon_production.function import function_form_factor, function_cross_section, function_cross_section_simplified
+from model_parameters.ModelParameters import ModelParameters
 from model_parameters.KaonParameters import KaonParameters
+from model_parameters.KaonParametersSimplified import KaonParametersSimplified
 
 
 def make_partial_form_factor_for_parameters(parameters: KaonParameters) -> Callable:
@@ -25,15 +27,13 @@ def make_partial_form_factor_for_parameters(parameters: KaonParameters) -> Calla
     def partial_f(ts, *args):
         assert len(args) == args_length
         evaluated_scheme = [val(args) for val in scheme]
-        return function_form_factor(
-            ts, parameters.t_0_isoscalar, parameters.t_0_isovector, *evaluated_scheme
-        )
+        return function_form_factor(ts, *evaluated_scheme)
 
     return partial_f
 
 
 def make_partial_cross_section_for_parameters(k_meson_mass: float, alpha: float, hc_squared: float,
-                                              parameters: KaonParameters) -> Callable:
+                                              parameters: ModelParameters) -> Callable:
     def _build_parameters_scheme():
         argument_index = 0
         scheme = []
@@ -46,14 +46,17 @@ def make_partial_cross_section_for_parameters(k_meson_mass: float, alpha: float,
         return scheme, argument_index
 
     scheme, args_length = _build_parameters_scheme()
+    if isinstance(parameters, KaonParameters):
+        f = function_cross_section
+    elif isinstance(parameters, KaonParametersSimplified):
+        f = function_cross_section_simplified
+    else:
+        raise TypeError('Unexpected parameters type: ' + type(parameters).__name__)
 
     def partial_f(ts, *args):
         assert len(args) == args_length
         evaluated_scheme = [val(args) for val in scheme]
-        return function_cross_section(
-            ts, k_meson_mass, alpha, hc_squared,
-            parameters.t_0_isoscalar, parameters.t_0_isovector, *evaluated_scheme
-        )
+        return f(ts, k_meson_mass, alpha, hc_squared, *evaluated_scheme)
 
     return partial_f
 
@@ -69,7 +72,7 @@ def _read_config(path_to_config: str) -> Tuple[float, float]:
 
 
 def perturb_model_parameters(
-        parameters: KaonParameters,
+        parameters: Union[KaonParameters, KaonParametersSimplified],
         perturbation_size: float = 0.2,
         perturbation_size_resonances: Optional[float] = None,
         respect_fixed: bool = False,
