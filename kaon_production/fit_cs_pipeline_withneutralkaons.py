@@ -10,6 +10,7 @@ from kaon_production.tasks import (
     TaskFixedCouplingConstantsAndNearlyAllResonancesFit, TaskFixedNearlyAllResonancesFitOnlyCharged,
     TaskOnlyThresholdsFit, TaskFixedResonancesAndThresholdsFit, TaskFixedResonancesFitOnlyCharged)
 from kaon_production.Pipeline import Pipeline
+from kaon_production.IterativePipeline import IterativePipeline
 from kaon_production.utils import perturb_model_parameters
 
 
@@ -86,13 +87,29 @@ if __name__ == '__main__':
     charged_ts, charged_cross_sections_values, charged_errors = read_cross_section_data('charged_kaon.csv')
     neutral_ts, neutral_cross_sections_values, neutral_errors = read_cross_section_data('neutral_kaon.csv')
 
+    # def f(name):
+    #     initial_parameters = make_initial_parameters(t_0_isoscalar, t_0_isovector)
+    #     initial_parameters.fix_parameters([
+    #         'mass_omega', 'decay_rate_omega', 'mass_omega_prime', 'decay_rate_omega_prime',
+    #         'mass_phi', 'decay_rate_phi', 'mass_phi_prime', 'decay_rate_phi_prime',
+    #         'mass_rho', 'decay_rate_rho', 'mass_rho_prime', 'decay_rate_rho_prime',
+    #     ])
+    #
+    #     initial_parameters = perturb_model_parameters(
+    #         initial_parameters,
+    #         perturbation_size=0.8, perturbation_size_resonances=0.5,
+    #         respect_fixed=True,
+    #         use_handpicked_bounds=True,
+    #     )
+    #     pipeline = make_pipeline_restricted(
+    #         charged_ts, charged_cross_sections_values, charged_errors,
+    #         neutral_ts, neutral_cross_sections_values, neutral_errors,
+    #         kaon_mass, alpha, hc_squared, t_0_isoscalar, t_0_isovector,
+    #         initial_parameters, path_to_reports, name=name, handpicked=True)
+    #     return pipeline.run()
+
     def f(name):
         initial_parameters = make_initial_parameters(t_0_isoscalar, t_0_isovector)
-        initial_parameters.fix_parameters([
-            'mass_omega', 'decay_rate_omega', 'mass_omega_prime', 'decay_rate_omega_prime',
-            'mass_phi', 'decay_rate_phi', 'mass_phi_prime', 'decay_rate_phi_prime',
-            'mass_rho', 'decay_rate_rho', 'mass_rho_prime', 'decay_rate_rho_prime',
-        ])
 
         initial_parameters = perturb_model_parameters(
             initial_parameters,
@@ -100,16 +117,19 @@ if __name__ == '__main__':
             respect_fixed=True,
             use_handpicked_bounds=True,
         )
-        pipeline = make_pipeline_restricted(
+        pipeline = IterativePipeline(
+            name, initial_parameters,
             charged_ts, charged_cross_sections_values, charged_errors,
             neutral_ts, neutral_cross_sections_values, neutral_errors,
             kaon_mass, alpha, hc_squared, t_0_isoscalar, t_0_isovector,
-            initial_parameters, path_to_reports, name=name, handpicked=True)
+            path_to_reports, plot=False, use_handpicked_bounds=True,
+            nr_free_params=[5], nr_iterations=[300],
+        )
         return pipeline.run()
 
     final_results = []
-    with Pool(processes=12) as pool:
-        results = [pool.apply_async(f, (f'pool10_{i}',)) for i in range(50)]
+    with Pool(processes=8) as pool:
+        results = [pool.apply_async(f, (f'iterative2_{i}',)) for i in range(22)]
         pool.close()
         pool.join()
         best_fit = {'chi_squared': None, 'name': None, 'parameters': None}
