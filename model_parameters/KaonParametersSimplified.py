@@ -289,3 +289,12 @@ class KaonParametersSimplified(ModelParameters):
             Parameter('t_0_isovector', t_0_isovector, True),
         ])
         return cls.from_list(pars)
+
+    def fix_resonances(self):
+        self.fix_parameters(['mass_rho_prime', 'mass_rho_double_prime', 'mass_rho_triple_prime',
+                             'decay_rate_rho_prime', 'decay_rate_rho_double_prime', 'decay_rate_rho_triple_prime',
+                             'mass_phi', 'mass_omega_prime', 'mass_omega_double_prime',
+                             'mass_phi_prime', 'mass_phi_double_prime', 'decay_rate_phi',
+                             'decay_rate_omega_prime', 'decay_rate_omega_double_prime',
+                             'decay_rate_phi_prime', 'decay_rate_phi_double_prime',
+                             ])
