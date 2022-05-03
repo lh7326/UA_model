@@ -3,6 +3,7 @@ from typing import List, Tuple, Union
 
 from ua_model.KaonUAModel import KaonUAModel
 from ua_model.KaonUAModelSimplified import KaonUAModelSimplified
+from model_parameters import KaonParameters, KaonParametersSimplified
 from cross_section.ScalarMesonProductionTotalCrossSection import ScalarMesonProductionTotalCrossSection
 from kaon_production.Task import Datapoint
 

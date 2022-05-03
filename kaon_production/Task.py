@@ -5,8 +5,7 @@ from scipy.optimize import curve_fit
 from typing import List, Union
 
 from plotting.plot_fit import plot_cs_fit_neutral_plus_charged
-from model_parameters.KaonParameters import KaonParameters
-from model_parameters.KaonParametersSimplified import KaonParametersSimplified
+from model_parameters import KaonParameters, KaonParametersSimplified
 
 
 Datapoint = namedtuple('Datapoint', 't is_charged')

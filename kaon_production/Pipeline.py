@@ -1,8 +1,7 @@
 from typing import List, Type, Union
 import os.path
 
-from model_parameters.KaonParameters import KaonParameters
-from model_parameters.KaonParametersSimplified import KaonParametersSimplified
+from model_parameters import KaonParameters, KaonParametersSimplified
 from kaon_production.Task import Task, Datapoint
 
 
