@@ -4,37 +4,24 @@ from typing import Optional, Callable, Tuple, Union
 
 import numpy as np
 
-from kaon_production.function import function_cross_section, function_cross_section_simplified
-from model_parameters.ModelParameters import ModelParameters
-from model_parameters.KaonParameters import KaonParameters
-from model_parameters.KaonParametersSimplified import KaonParametersSimplified
+from kaon_production.function import function_cross_section
+from model_parameters import KaonParameters, KaonParametersSimplified
 
 
 def make_partial_cross_section_for_parameters(k_meson_mass: float, alpha: float, hc_squared: float,
-                                              parameters: ModelParameters) -> Callable:
-    def _build_parameters_scheme():
-        argument_index = 0
-        scheme = []
-        for parameter in parameters:
-            if parameter.is_fixed:
-                scheme.append(lambda _, p=parameter: p.value)
-            else:
-                scheme.append(lambda args, i=argument_index: args[i])
-                argument_index += 1
-        return scheme, argument_index
+                                              parameters: Union[KaonParameters, KaonParametersSimplified]) -> Callable:
 
-    scheme, args_length = _build_parameters_scheme()
+    # create a local copy of the parameters
     if isinstance(parameters, KaonParameters):
-        f = function_cross_section
+        parameters = KaonParameters.from_list(parameters.to_list())
     elif isinstance(parameters, KaonParametersSimplified):
-        f = function_cross_section_simplified
+        parameters = KaonParametersSimplified.from_list(parameters.to_list())
     else:
-        raise TypeError('Unexpected parameters type: ' + type(parameters).__name__)
+        TypeError('Unexpected parameters type: ' + type(parameters).__name__)
 
     def partial_f(ts, *args):
-        assert len(args) == args_length
-        evaluated_scheme = [val(args) for val in scheme]
-        return f(ts, k_meson_mass, alpha, hc_squared, *evaluated_scheme)
+        parameters.update_free_values(list(args))
+        return function_cross_section(ts, k_meson_mass, alpha, hc_squared, parameters)
 
     return partial_f
 
