@@ -4,32 +4,10 @@ from typing import Optional, Callable, Tuple, Union
 
 import numpy as np
 
-from kaon_production.function import function_form_factor, function_cross_section, function_cross_section_simplified
+from kaon_production.function import function_cross_section, function_cross_section_simplified
 from model_parameters.ModelParameters import ModelParameters
 from model_parameters.KaonParameters import KaonParameters
 from model_parameters.KaonParametersSimplified import KaonParametersSimplified
-
-
-def make_partial_form_factor_for_parameters(parameters: KaonParameters) -> Callable:
-    def _build_parameters_scheme():
-        argument_index = 0
-        scheme = []
-        for parameter in parameters:
-            if parameter.is_fixed:
-                scheme.append(lambda _, p=parameter: p.value)
-            else:
-                scheme.append(lambda args, i=argument_index: args[i])
-                argument_index += 1
-        return scheme, argument_index
-
-    scheme, args_length = _build_parameters_scheme()
-
-    def partial_f(ts, *args):
-        assert len(args) == args_length
-        evaluated_scheme = [val(args) for val in scheme]
-        return function_form_factor(ts, *evaluated_scheme)
-
-    return partial_f
 
 
 def make_partial_cross_section_for_parameters(k_meson_mass: float, alpha: float, hc_squared: float,
