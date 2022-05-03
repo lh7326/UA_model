@@ -1,14 +1,14 @@
 from configparser import ConfigParser
-from typing import List
+from typing import List, Tuple, Union
 
 from ua_model.KaonUAModel import KaonUAModel
 from ua_model.KaonUAModelSimplified import KaonUAModelSimplified
 from cross_section.ScalarMesonProductionTotalCrossSection import ScalarMesonProductionTotalCrossSection
-from Task import Datapoint
+from kaon_production.Task import Datapoint
 
 
 def function_cross_section(
-        ts: List[Datapoint],
+        ts: List[Union[Datapoint, Tuple[float, float]]],
         k_meson_mass: float,
         alpha: float,
         hc_squared: float,
