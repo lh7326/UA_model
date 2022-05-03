@@ -1,13 +1,13 @@
 from unittest import TestCase
 import numpy as np
 
-from kaon_production.ModelParameters import ModelParameters, Parameter
+from model_parameters.KaonParameters import KaonParameters, Parameter
 
 
 class TestModelParameters(TestCase):
 
     def setUp(self):
-        self.parameters = ModelParameters(
+        self.parameters = KaonParameters(
             0.5, 0.6, 0.7, 0.8,
             0.1, 0.78266, 0.00868,
             0.2, 1.410, 0.29,
@@ -85,7 +85,7 @@ class TestModelParameters(TestCase):
         self.parameters.fix_parameters(['a_omega_double_prime', 'mass_rho_prime', 't_in_isovector'])
         self.assertListEqual(
             self.parameters.get_fixed_values(),
-            [0.8, 0.15, 1.465],
+            [0.5, 0.6, 0.8, 0.15, 1.465],
         )
 
     def test_get_free_values(self):
@@ -107,7 +107,7 @@ class TestModelParameters(TestCase):
     def test_get_all_values(self):
         self.assertListEqual(
             self.parameters.get_all_values(),
-            [0.7, 0.8, 0.1, 0.78266, 0.00868, 0.2, 1.410, 0.29,
+            [0.5, 0.6, 0.7, 0.8, 0.1, 0.78266, 0.00868, 0.2, 1.410, 0.29,
              0.15, 1.67, 0.315, 0.3, 1.019461, 0.004249, 0.35, 1.680, 0.150,
              2.159, 0.137, 0.12, 0.77526, 0.1474, 0.13, 1.465, 0.4,
              0.14, 1.720, 0.25, 2.15, 0.3],
@@ -203,12 +203,12 @@ class TestModelParameters(TestCase):
             Parameter(name='mass_rho_triple_prime', value=3.463509700968759, is_fixed=False),
             Parameter(name='decay_rate_rho_triple_prime', value=1.4560004801176234, is_fixed=False),
         ]
-        model_parameters = ModelParameters.from_list(list_of_parameters)
-        self.assertIsInstance(model_parameters, ModelParameters)
+        model_parameters = KaonParameters.from_list(list_of_parameters)
+        self.assertIsInstance(model_parameters, KaonParameters)
         self.assertListEqual(list_of_parameters, model_parameters.to_list())
 
     def test_to_list_from_list_consistency(self):
-        recreated = ModelParameters.from_list(self.parameters.to_list())
+        recreated = KaonParameters.from_list(self.parameters.to_list())
         self.assertEqual(
             recreated['a_rho_double_prime'].value,
             self.parameters['a_rho_double_prime'].value,
@@ -218,6 +218,6 @@ class TestModelParameters(TestCase):
             self.parameters['mass_omega'].value,
         )
         self.assertEqual(
-            recreated.t_0_isovector,
-            self.parameters.t_0_isovector,
+            recreated['t_0_isovector'].value,
+            self.parameters['t_0_isovector'].value,
         )
