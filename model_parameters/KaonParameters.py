@@ -125,7 +125,11 @@ class KaonParameters(ModelParameters):
     @classmethod
     def from_list(cls, list_of_parameters: List[Parameter]) -> 'KaonParameters':
         kwargs = {par.name: par.value for par in list_of_parameters}
-        return cls(**kwargs)
+        instance = cls(**kwargs)
+        parameters_to_fix = [p.name for p in list_of_parameters if p.is_fixed]
+        instance.release_all_parameters()
+        instance.fix_parameters(parameters_to_fix)
+        return instance
 
     def get_bounds_for_free_parameters(self, handpicked: bool = True) -> Tuple[List[float], List[float]]:
         if handpicked:

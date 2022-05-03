@@ -2,8 +2,7 @@ from typing import List, Tuple, Union
 from random import sample
 
 from kaon_production.Pipeline import Pipeline
-from model_parameters.KaonParameters import KaonParameters
-from model_parameters.KaonParametersSimplified import KaonParametersSimplified
+from model_parameters import KaonParameters, KaonParametersSimplified
 from kaon_production.tasks import TaskFixAccordingToParametersFit, TaskFullFitOnlyCharged
 
 

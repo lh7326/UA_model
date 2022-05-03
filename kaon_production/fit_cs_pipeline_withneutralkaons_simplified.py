@@ -60,7 +60,7 @@ if __name__ == '__main__':
 
         initial_parameters = perturb_model_parameters(
             initial_parameters,
-            perturbation_size=0.8, perturbation_size_resonances=0.5,
+            perturbation_size=0.8, perturbation_size_resonances=0.2,
             use_handpicked_bounds=True,
         )
         numbers = (3, 5, 4, 6, 2, 8, 4, 10, 17, 5)
@@ -77,8 +77,8 @@ if __name__ == '__main__':
         return pipeline.run()
 
     final_results = []
-    with Pool(processes=10) as pool:
-        results = [pool.apply_async(f, (f'iterative5_{i}',)) for i in range(8)]
+    with Pool(processes=6) as pool:
+        results = [pool.apply_async(f, (f'iterative6_{i}',)) for i in range(20)]
         pool.close()
         pool.join()
         best_fit = {'chi_squared': None, 'name': None, 'parameters': None}

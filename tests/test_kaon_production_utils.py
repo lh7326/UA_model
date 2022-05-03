@@ -3,8 +3,7 @@ import cmath
 
 from kaon_production.Task import Datapoint
 from kaon_production.utils import make_partial_cross_section_for_parameters
-from model_parameters.KaonParameters import KaonParameters
-from model_parameters.KaonParametersSimplified import KaonParametersSimplified
+from model_parameters import KaonParameters, KaonParametersSimplified
 
 
 class TestKaonProductionUtils(TestCase):

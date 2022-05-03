@@ -1,13 +1,14 @@
 from unittest import TestCase
 import cmath
 
-from kaon_production.function import function_cross_section, function_cross_section_simplified
+from kaon_production.function import function_cross_section
 from kaon_production.Task import Datapoint
+from model_parameters import KaonParameters, KaonParametersSimplified
 
 
 class TestKaonProductionFunction(TestCase):
 
-    def test_function_cross_section(self):
+    def test_function_cross_section__with_kaon_parameters(self):
 
         ts = [
             Datapoint(t=1.1230, is_charged=True),
@@ -23,11 +24,7 @@ class TestKaonProductionFunction(TestCase):
         ]
 
         m_pion = 0.13957039
-        actual_values = function_cross_section(
-            ts,
-            k_meson_mass=0.493677,
-            alpha=0.0072973525693,
-            hc_squared=389379.3721,
+        parameters = KaonParameters(
             t_0_isoscalar=(9 * m_pion ** 2),
             t_0_isovector=(4 * m_pion ** 2),
             t_in_isoscalar=1.35,
@@ -62,6 +59,14 @@ class TestKaonProductionFunction(TestCase):
             decay_rate_rho_triple_prime=0.25,
         )
 
+        actual_values = function_cross_section(
+            ts,
+            k_meson_mass=0.493677,
+            alpha=0.0072973525693,
+            hc_squared=389379.3721,
+            parameters=parameters,
+        )
+
         expected_values = [
             1.422899583299445,
             7.322169806015914+5.145404160322535j,
@@ -79,7 +84,7 @@ class TestKaonProductionFunction(TestCase):
             with self.subTest(msg=f't={t}'):
                 self.assertTrue(cmath.isclose(actual, expected, abs_tol=1e-15))
 
-    def test_function_cross_section_simplified(self):
+    def test_function_cross_section__with_kaon_parameters_simplified(self):
 
         ts = [
             Datapoint(t=1.1230, is_charged=True),
@@ -95,11 +100,7 @@ class TestKaonProductionFunction(TestCase):
         ]
 
         m_pion = 0.13957039
-        actual_values = function_cross_section_simplified(
-            ts,
-            k_meson_mass=0.493677,
-            alpha=0.0072973525693,
-            hc_squared=389379.3721,
+        parameters = KaonParametersSimplified(
             t_0_isoscalar=(9 * m_pion ** 2),
             t_0_isovector=(4 * m_pion ** 2),
             t_in_isoscalar=1.35,
@@ -126,6 +127,13 @@ class TestKaonProductionFunction(TestCase):
             decay_rate_rho_double_prime=0.144,
             mass_rho_triple_prime=1.720,
             decay_rate_rho_triple_prime=0.25,
+        )
+        actual_values = function_cross_section(
+            ts,
+            k_meson_mass=0.493677,
+            alpha=0.0072973525693,
+            hc_squared=389379.3721,
+            parameters=parameters,
         )
 
         expected_values = [

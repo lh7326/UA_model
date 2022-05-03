@@ -188,7 +188,7 @@ class TestModelParameters(TestCase):
             Parameter(name='decay_rate_phi', value=0.007187927884885847, is_fixed=False),
             Parameter(name='a_phi_prime', value=0.049186367861031886, is_fixed=False),
             Parameter(name='mass_phi_prime', value=1.798584035817393, is_fixed=False),
-            Parameter(name='decay_rate_phi_prime', value=0.18684970951346638, is_fixed=False),
+            Parameter(name='decay_rate_phi_prime', value=0.18684970951346638, is_fixed=True),
             Parameter(name='mass_phi_double_prime', value=2.1701948878602404, is_fixed=False),
             Parameter(name='decay_rate_phi_double_prime', value=0.018584914300650075, is_fixed=False),
             Parameter(name='a_rho', value=0.769926083031994, is_fixed=False),
@@ -196,11 +196,11 @@ class TestModelParameters(TestCase):
             Parameter(name='decay_rate_rho', value=0.1244368079469832, is_fixed=False),
             Parameter(name='a_rho_prime', value=-0.26856897443026406, is_fixed=False),
             Parameter(name='mass_rho_prime', value=1.6384823897203615, is_fixed=False),
-            Parameter(name='decay_rate_rho_prime', value=0.13857062014248653, is_fixed=False),
+            Parameter(name='decay_rate_rho_prime', value=0.13857062014248653, is_fixed=True),
             Parameter(name='a_rho_double_prime', value=-0.004875792606689498, is_fixed=False),
             Parameter(name='mass_rho_double_prime', value=2.245836486713978, is_fixed=False),
             Parameter(name='decay_rate_rho_double_prime', value=0.1035328301790177, is_fixed=False),
-            Parameter(name='mass_rho_triple_prime', value=3.463509700968759, is_fixed=False),
+            Parameter(name='mass_rho_triple_prime', value=3.463509700968759, is_fixed=True),
             Parameter(name='decay_rate_rho_triple_prime', value=1.4560004801176234, is_fixed=False),
         ]
         model_parameters = KaonParameters.from_list(list_of_parameters)
