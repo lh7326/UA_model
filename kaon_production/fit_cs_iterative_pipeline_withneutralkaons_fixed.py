@@ -70,7 +70,7 @@ if __name__ == '__main__':
             use_handpicked_bounds=True,
         )
         numbers = (5, 4, 6, 2, 8, 4, 10, 17, 5)
-        repetitions = (10, 20, 20, 10, 40, 10, 30, 10, 10)
+        repetitions = (5, 20, 20, 10, 30, 10, 30, 10, 10)
         pipeline = IterativePipeline(
             name, initial_parameters,
             charged_ts, charged_cross_sections_values, charged_errors,
@@ -78,13 +78,13 @@ if __name__ == '__main__':
             kaon_mass, alpha, hc_squared, t_0_isoscalar, t_0_isovector,
             path_to_reports, plot=False, use_handpicked_bounds=True,
             nr_free_params=numbers, nr_iterations=repetitions,
-            nr_initial_rounds_with_fixed_resonances=10,
+            nr_initial_rounds_with_fixed_resonances=5,
         )
         return pipeline.run()
 
     final_results = []
     with Pool(processes=6) as pool:
-        results = [pool.apply_async(f, (f'iterative9_{i}',)) for i in range(10)]
+        results = [pool.apply_async(f, (f'iterative10_{i}',)) for i in range(10)]
         pool.close()
         pool.join()
         best_fit = {'chi_squared': None, 'name': None, 'parameters': None}
