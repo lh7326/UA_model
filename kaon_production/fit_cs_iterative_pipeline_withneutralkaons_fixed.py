@@ -3,17 +3,20 @@ from configparser import ConfigParser
 from multiprocessing import Pool
 
 from kaon_production.data import read_cross_section_data
-from model_parameters.KaonParametersSimplified import KaonParametersSimplified
+from model_parameters import KaonParametersFixedRhoOmega
 from kaon_production.IterativePipeline import IterativePipeline
 from kaon_production.utils import perturb_model_parameters
 
 
 def make_initial_parameters(t_0_isoscalar, t_0_isovector):
-    return KaonParametersSimplified(
+    return KaonParametersFixedRhoOmega(
         t_0_isoscalar=t_0_isoscalar,
         t_0_isovector=t_0_isovector,
         t_in_isoscalar=1.0,
         t_in_isovector=1.0,
+        a_omega=0.0,
+        mass_omega=0.78266,
+        decay_rate_omega=0.00868,
         a_omega_prime=0.025,
         mass_omega_prime=1.410,
         decay_rate_omega_prime=0.29,
@@ -28,6 +31,9 @@ def make_initial_parameters(t_0_isoscalar, t_0_isovector):
         decay_rate_phi_prime=0.150,
         mass_phi_double_prime=2.159,
         decay_rate_phi_double_prime=0.137,
+        a_rho=0.0,
+        mass_rho=0.77526,
+        decay_rate_rho=0.1474,
         a_rho_prime=1.0/6,
         mass_rho_prime=1.34231,
         decay_rate_rho_prime=0.49217,
@@ -64,7 +70,7 @@ if __name__ == '__main__':
             use_handpicked_bounds=True,
         )
         numbers = (5, 4, 6, 2, 8, 4, 10, 17, 5)
-        repetitions = (5, 20, 20, 10, 40, 10, 20, 20, 10)
+        repetitions = (10, 20, 20, 10, 40, 10, 30, 10, 10)
         pipeline = IterativePipeline(
             name, initial_parameters,
             charged_ts, charged_cross_sections_values, charged_errors,
@@ -72,13 +78,13 @@ if __name__ == '__main__':
             kaon_mass, alpha, hc_squared, t_0_isoscalar, t_0_isovector,
             path_to_reports, plot=False, use_handpicked_bounds=True,
             nr_free_params=numbers, nr_iterations=repetitions,
-            nr_initial_rounds_with_fixed_resonances=5,
+            nr_initial_rounds_with_fixed_resonances=10,
         )
         return pipeline.run()
 
     final_results = []
     with Pool(processes=6) as pool:
-        results = [pool.apply_async(f, (f'iterative10_{i}',)) for i in range(7)]
+        results = [pool.apply_async(f, (f'iterative9_{i}',)) for i in range(10)]
         pool.close()
         pool.join()
         best_fit = {'chi_squared': None, 'name': None, 'parameters': None}
