@@ -2,7 +2,7 @@ from unittest import TestCase
 import cmath
 
 from kaon_production.function import function_cross_section
-from kaon_production.Task import Datapoint
+from kaon_production.data import Datapoint
 from model_parameters import KaonParameters, KaonParametersSimplified
 
 

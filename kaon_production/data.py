@@ -1,6 +1,10 @@
 import csv
 import os.path
+from collections import namedtuple
 from typing import Tuple, List
+
+
+Datapoint = namedtuple('Datapoint', 't is_charged')
 
 DIR_NAME = '../data'
 
@@ -19,3 +23,4 @@ def read_cross_section_data(file_name: str = 'charged_kaon.csv') -> Tuple[List[f
             sigmas.append(float(sigma))
 
     return ts, form_factors, sigmas
+

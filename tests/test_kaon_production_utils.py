@@ -1,7 +1,7 @@
 from unittest import TestCase
 import cmath
 
-from kaon_production.Task import Datapoint
+from kaon_production.data import Datapoint
 from kaon_production.utils import make_partial_cross_section_for_parameters
 from model_parameters import KaonParameters, KaonParametersSimplified
 

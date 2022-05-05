@@ -5,7 +5,7 @@ from ua_model.KaonUAModel import KaonUAModel
 from ua_model.KaonUAModelSimplified import KaonUAModelSimplified
 from model_parameters import KaonParameters, KaonParametersSimplified, KaonParametersFixedRhoOmega
 from cross_section.ScalarMesonProductionTotalCrossSection import ScalarMesonProductionTotalCrossSection
-from kaon_production.Task import Datapoint
+from kaon_production.data import Datapoint
 
 
 def function_cross_section(

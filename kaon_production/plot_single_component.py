@@ -1,10 +1,9 @@
 from configparser import ConfigParser
 from typing import Callable, List, Union, Tuple
 
-from kaon_production.data import read_cross_section_data
+from kaon_production.data import read_cross_section_data, Datapoint
 from cross_section.ScalarMesonProductionTotalCrossSection import ScalarMesonProductionTotalCrossSection
 from ua_model.SingleComponentModel import SingleComponentModel
-from kaon_production.Task import Datapoint
 from plotting.plot_fit import plot_cs_fit_neutral_plus_charged
 
 
