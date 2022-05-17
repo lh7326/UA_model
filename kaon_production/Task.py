@@ -65,7 +65,7 @@ class Task:
                 sigma=self.errors_fit,
                 absolute_sigma=True,
                 bounds=self.parameters.get_bounds_for_free_parameters(handpicked=self.use_handpicked_bounds),
-                maxfev=10000,
+                maxfev=7000,
             )
         except RuntimeError as err:
             self.report['status'] = 'failed'
@@ -84,7 +84,7 @@ class Task:
         errors = self.errors
         chi_squared = (
             sum([r2 / (err ** 2) for r2, err in zip(r_squared, errors)])
-        ) / len(r_squared)
+        ) / (len(r_squared) - len(opt_parameters))
 
         # only charged data points
         cs_charged, fit_charged, errors_charged = zip(*[
@@ -93,7 +93,7 @@ class Task:
         r_squared_charged = [(data - fit) ** 2 for data, fit in zip(cs_charged, fit_charged)]
         chi_squared_charged = (
             sum([r2 / (err ** 2) for r2, err in zip(r_squared_charged, errors_charged)])
-        ) / len(r_squared_charged)
+        ) / (len(r_squared_charged) - len(opt_parameters))
         sqrt_sum_chi_squared_charged = math.sqrt(
             sum([r2 / (err ** 2) for r2, err in zip(r_squared_charged, errors_charged)])
         )

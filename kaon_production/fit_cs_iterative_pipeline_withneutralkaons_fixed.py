@@ -58,33 +58,36 @@ if __name__ == '__main__':
 
     path_to_reports = '/home/lukas/reports'
 
-    charged_ts, charged_cross_sections_values, charged_errors = read_cross_section_data('charged_kaon.csv')
-    neutral_ts, neutral_cross_sections_values, neutral_errors = read_cross_section_data('neutral_kaon.csv')
+    charged_ts, charged_cross_sections_values, charged_errors = read_cross_section_data(
+        'charged_new_data.csv')
+    neutral_ts, neutral_cross_sections_values, neutral_errors = read_cross_section_data(
+        'neutral_kaon.csv')
+    neutral_errors = [err * 5 for err in neutral_errors]
 
     def f(name):
         initial_parameters = make_initial_parameters(t_0_isoscalar, t_0_isovector)
 
         initial_parameters = perturb_model_parameters(
             initial_parameters,
-            perturbation_size=0.5, perturbation_size_resonances=0.2,
-            use_handpicked_bounds=True,
+            perturbation_size=0.8, perturbation_size_resonances=0.05,
+            use_handpicked_bounds=False,
         )
-        numbers = (5, 4, 6, 2, 8, 4, 10, 17, 5)
-        repetitions = (5, 20, 20, 10, 30, 10, 30, 10, 10)
+        numbers = (10, 4, 6, 2, 8, 4, 10, 15)
+        repetitions = (10, 40, 20, 5, 15, 20, 20, 20)
         pipeline = IterativePipeline(
             name, initial_parameters,
             charged_ts, charged_cross_sections_values, charged_errors,
             neutral_ts, neutral_cross_sections_values, neutral_errors,
             kaon_mass, alpha, hc_squared, t_0_isoscalar, t_0_isovector,
-            path_to_reports, plot=False, use_handpicked_bounds=True,
+            path_to_reports, plot=False, use_handpicked_bounds=False,
             nr_free_params=numbers, nr_iterations=repetitions,
-            nr_initial_rounds_with_fixed_resonances=5,
+            nr_initial_rounds_with_fixed_resonances=10,
         )
         return pipeline.run()
 
     final_results = []
-    with Pool(processes=6) as pool:
-        results = [pool.apply_async(f, (f'iterative10_{i}',)) for i in range(10)]
+    with Pool(processes=5) as pool:
+        results = [pool.apply_async(f, (f'newdata6_{i}',)) for i in range(15)]
         pool.close()
         pool.join()
         best_fit = {'chi_squared': None, 'name': None, 'parameters': None}
