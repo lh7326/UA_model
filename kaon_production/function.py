@@ -3,7 +3,8 @@ from typing import List, Tuple, Union
 
 from ua_model.KaonUAModel import KaonUAModel
 from ua_model.KaonUAModelSimplified import KaonUAModelSimplified
-from model_parameters import KaonParameters, KaonParametersSimplified, KaonParametersFixedRhoOmega
+from model_parameters import (KaonParameters, KaonParametersSimplified,
+                              KaonParametersFixedRhoOmega, KaonParametersFixedSelected)
 from cross_section.ScalarMesonProductionTotalCrossSection import ScalarMesonProductionTotalCrossSection
 from kaon_production.data import Datapoint
 
@@ -13,7 +14,8 @@ def function_cross_section(
         k_meson_mass: float,
         alpha: float,
         hc_squared: float,
-        parameters: Union[KaonParameters, KaonParametersSimplified, KaonParametersFixedRhoOmega],
+        parameters: Union[
+            KaonParameters, KaonParametersSimplified, KaonParametersFixedRhoOmega, KaonParametersFixedSelected],
         ) -> List[complex]:
 
     if isinstance(parameters, KaonParameters):
@@ -21,6 +23,8 @@ def function_cross_section(
     elif isinstance(parameters, KaonParametersSimplified):
         ff_model = KaonUAModelSimplified(charged_variant=True, **{p.name: p.value for p in parameters})
     elif isinstance(parameters, KaonParametersFixedRhoOmega):
+        ff_model = KaonUAModel(charged_variant=True, **{p.name: p.value for p in parameters})
+    elif isinstance(parameters, KaonParametersFixedSelected):
         ff_model = KaonUAModel(charged_variant=True, **{p.name: p.value for p in parameters})
     else:
         raise TypeError('Unexpected parameters type: ' + type(parameters).__name__)

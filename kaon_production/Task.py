@@ -6,16 +6,25 @@ from typing import List, Union
 
 from kaon_production.data import Datapoint
 from plotting.plot_fit import plot_cs_fit_neutral_plus_charged
-from model_parameters import KaonParameters, KaonParametersSimplified
+from model_parameters import KaonParameters, KaonParametersSimplified, KaonParametersFixedSelected
 
 
 class Task:
 
-    def __init__(self, name: str, parameters: Union[KaonParameters, KaonParametersSimplified],
-                 ts: List[Datapoint], css: List[float], errors: List[float],
-                 k_meson_mass: float, alpha: float, hc_squared: float,
-                 t_0_isoscalar: float, t_0_isovector: float, reports_dir: str,
-                 plot: bool=True, use_handpicked_bounds: bool=True):
+    def __init__(self,
+                 name: str,
+                 parameters: Union[KaonParameters, KaonParametersSimplified, KaonParametersFixedSelected],
+                 ts: List[Datapoint],
+                 css: List[float],
+                 errors: List[float],
+                 k_meson_mass: float,
+                 alpha: float,
+                 hc_squared: float,
+                 t_0_isoscalar: float,
+                 t_0_isovector: float,
+                 reports_dir: str,
+                 plot: bool=True,
+                 use_handpicked_bounds: bool=True):
         self.name = name
         self.parameters = parameters
         self.partial_f = None  # prepared in the _setup method

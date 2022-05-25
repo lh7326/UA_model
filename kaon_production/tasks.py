@@ -85,3 +85,17 @@ class TaskFixAccordingToParametersFit(Task):
         self.partial_f = make_partial_cross_section_for_parameters(
             self.k_meson_mass, self.alpha, self.hc_squared, self.parameters
         )
+
+
+class TaskFixAccordingToParametersFitOnlyCharged(Task):
+
+    def _set_up(self):
+        self.partial_f = make_partial_cross_section_for_parameters(
+            self.k_meson_mass, self.alpha, self.hc_squared, self.parameters
+        )
+
+        self.ts_fit, self.css_fit, self.errors_fit = zip(
+            *filter(lambda t: t[0].is_charged,
+                    zip(self.ts_fit, self.css_fit, self.errors_fit),
+                    )
+        )
