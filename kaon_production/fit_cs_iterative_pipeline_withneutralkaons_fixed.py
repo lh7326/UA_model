@@ -78,7 +78,7 @@ if __name__ == '__main__':
             name, initial_parameters,
             charged_ts, charged_cross_sections_values, charged_errors,
             neutral_ts, neutral_cross_sections_values, neutral_errors,
-            kaon_mass, alpha, hc_squared, t_0_isoscalar, t_0_isovector,
+            kaon_mass, alpha, hc_squared,
             path_to_reports, plot=False, use_handpicked_bounds=False,
             nr_free_params=numbers, nr_iterations=repetitions,
             nr_initial_rounds_with_fixed_resonances=10,

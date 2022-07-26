@@ -2,7 +2,7 @@ from configparser import ConfigParser
 
 from kaon_production.data import read_cross_section_data, Datapoint
 from model_parameters import KaonParameters
-from kaon_production.tasks import TaskFullFitOnlyCharged, TaskFixAccordingToParametersFitOnlyCharged
+from task.cross_section_tasks import TaskFixAccordingToParametersFitOnlyCharged
 
 
 def make_parameters(t_0_isoscalar, t_0_isovector, list_of_values):

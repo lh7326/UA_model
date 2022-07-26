@@ -1,8 +1,8 @@
-from kaon_production.Task import Task
+from task.CrossSectionTask import CrossSectionTask
 from kaon_production.utils import make_partial_cross_section_for_parameters
 
 
-class TaskFullFit(Task):
+class TaskFullFit(CrossSectionTask):
 
     def _set_up(self):
         self.parameters.release_all_parameters()
@@ -11,7 +11,7 @@ class TaskFullFit(Task):
         )
 
 
-class TaskFullFitOnlyCharged(Task):
+class TaskFullFitOnlyCharged(CrossSectionTask):
 
     def _set_up(self):
         self.parameters.release_all_parameters()
@@ -19,14 +19,14 @@ class TaskFullFitOnlyCharged(Task):
             self.k_meson_mass, self.alpha, self.hc_squared, self.parameters
         )
 
-        self.ts_fit, self.css_fit, self.errors_fit = zip(
+        self.ts_fit, self.ys_fit, self.errors_fit = zip(
             *filter(lambda t: t[0].is_charged,
-                    zip(self.ts_fit, self.css_fit, self.errors_fit),
+                    zip(self.ts_fit, self.ys_fit, self.errors_fit),
                     )
         )
 
 
-class TaskFixedResonancesFit(Task):
+class TaskFixedResonancesFit(CrossSectionTask):
 
     def _set_up(self):
         self.parameters.release_all_parameters()
@@ -36,7 +36,7 @@ class TaskFixedResonancesFit(Task):
         )
 
 
-class TaskFixedResonancesFitOnlyCharged(Task):
+class TaskFixedResonancesFitOnlyCharged(CrossSectionTask):
 
     def _set_up(self):
         self.parameters.release_all_parameters()
@@ -44,14 +44,14 @@ class TaskFixedResonancesFitOnlyCharged(Task):
         self.partial_f = make_partial_cross_section_for_parameters(
             self.k_meson_mass, self.alpha, self.hc_squared, self.parameters
         )
-        self.ts_fit, self.css_fit, self.errors_fit = zip(
+        self.ts_fit, self.ys_fit, self.errors_fit = zip(
             *filter(lambda t: t[0].is_charged,
-                    zip(self.ts_fit, self.css_fit, self.errors_fit),
+                    zip(self.ts_fit, self.ys_fit, self.errors_fit),
                     )
         )
 
 
-class TaskFixedCouplingConstants(Task):
+class TaskFixedCouplingConstants(CrossSectionTask):
 
     def _set_up(self):
         self.parameters.release_all_parameters()
@@ -62,7 +62,7 @@ class TaskFixedCouplingConstants(Task):
         )
 
 
-class TaskFixedCouplingConstantsOnlyCharged(Task):
+class TaskFixedCouplingConstantsOnlyCharged(CrossSectionTask):
 
     def _set_up(self):
         self.parameters.release_all_parameters()
@@ -72,14 +72,14 @@ class TaskFixedCouplingConstantsOnlyCharged(Task):
             self.k_meson_mass, self.alpha, self.hc_squared, self.parameters
         )
 
-        self.ts_fit, self.css_fit, self.errors_fit = zip(
+        self.ts_fit, self.ys_fit, self.errors_fit = zip(
             *filter(lambda t: t[0].is_charged,
-                    zip(self.ts_fit, self.css_fit, self.errors_fit),
+                    zip(self.ts_fit, self.ys_fit, self.errors_fit),
                     )
         )
 
 
-class TaskFixAccordingToParametersFit(Task):
+class TaskFixAccordingToParametersFit(CrossSectionTask):
 
     def _set_up(self):
         self.partial_f = make_partial_cross_section_for_parameters(
@@ -87,15 +87,15 @@ class TaskFixAccordingToParametersFit(Task):
         )
 
 
-class TaskFixAccordingToParametersFitOnlyCharged(Task):
+class TaskFixAccordingToParametersFitOnlyCharged(CrossSectionTask):
 
     def _set_up(self):
         self.partial_f = make_partial_cross_section_for_parameters(
             self.k_meson_mass, self.alpha, self.hc_squared, self.parameters
         )
 
-        self.ts_fit, self.css_fit, self.errors_fit = zip(
+        self.ts_fit, self.ys_fit, self.errors_fit = zip(
             *filter(lambda t: t[0].is_charged,
-                    zip(self.ts_fit, self.css_fit, self.errors_fit),
+                    zip(self.ts_fit, self.ys_fit, self.errors_fit),
                     )
         )

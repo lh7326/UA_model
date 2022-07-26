@@ -3,7 +3,7 @@ from random import sample
 
 from kaon_production.Pipeline import Pipeline
 from model_parameters import KaonParameters, KaonParametersSimplified, KaonParametersFixedSelected
-from kaon_production.tasks import TaskFixAccordingToParametersFit, TaskFullFitOnlyCharged
+from task.cross_section_tasks import TaskFixAccordingToParametersFit, TaskFullFitOnlyCharged
 
 
 class IterativePipeline(Pipeline):
@@ -13,15 +13,14 @@ class IterativePipeline(Pipeline):
                  t_values_charged: List[float], cross_sections_charged: List[float], errors_charged: List[float],
                  t_values_neutral: List[float], cross_sections_neutral: List[float], errors_neutral: List[float],
                  k_meson_mass: float, alpha: float, hc_squared: float,
-                 t_0_isoscalar: float, t_0_isovector: float, reports_dir: str,
-                 plot: bool = True, use_handpicked_bounds: bool = True,
+                 reports_dir: str, plot: bool = True, use_handpicked_bounds: bool = True,
                  nr_free_params: Tuple[int, ...] = (3, 5, 7, 10),
                  nr_iterations: Tuple[int, ...] = (10, 20, 20, 10),
                  nr_initial_rounds_with_fixed_resonances: int = 0) -> None:
 
         super().__init__(name, parameters, [], t_values_charged, cross_sections_charged, errors_charged,
                          t_values_neutral, cross_sections_neutral, errors_neutral, k_meson_mass, alpha, hc_squared,
-                         t_0_isoscalar, t_0_isovector, reports_dir, plot, use_handpicked_bounds)
+                         reports_dir, plot, use_handpicked_bounds)
 
         self.free_params_numbers = []
         for free_pars, repetitions in zip(nr_free_params, nr_iterations):
@@ -39,7 +38,6 @@ class IterativePipeline(Pipeline):
                 task_name, self.parameters,
                 self.ts, self.cross_sections, self.errors,
                 self.k_meson_mass, self.alpha, self.hc_squared,
-                self.t_0_isoscalar, self.t_0_isovector,
                 self.reports_dir, self.plot, self.use_handpicked_bounds
             )
 
@@ -58,7 +56,6 @@ class IterativePipeline(Pipeline):
             task_name, self.parameters,
             self.ts, self.cross_sections, self.errors,
             self.k_meson_mass, self.alpha, self.hc_squared,
-            self.t_0_isoscalar, self.t_0_isovector,
             self.reports_dir, self.plot, self.use_handpicked_bounds
         )
 

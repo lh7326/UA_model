@@ -2,18 +2,18 @@ from typing import List, Type, Union
 import os.path
 
 from model_parameters import KaonParameters, KaonParametersSimplified, KaonParametersFixedSelected
-from kaon_production.Task import Task
+from task.CrossSectionTask import CrossSectionTask
 from kaon_production.data import Datapoint
 
 
 class Pipeline:
 
     def __init__(self, name: str,
-                 parameters: Union[KaonParameters, KaonParametersSimplified, KaonParametersFixedSelected], tasks: List[Type[Task]],
+                 parameters: Union[KaonParameters, KaonParametersSimplified, KaonParametersFixedSelected],
+                 tasks: List[Type[CrossSectionTask]],
                  t_values_charged: List[float], cross_sections_charged: List[float], errors_charged: List[float],
                  t_values_neutral: List[float], cross_sections_neutral: List[float], errors_neutral: List[float],
-                 k_meson_mass: float, alpha: float, hc_squared: float,
-                 t_0_isoscalar: float, t_0_isovector: float, reports_dir: str,
+                 k_meson_mass: float, alpha: float, hc_squared: float, reports_dir: str,
                  plot: bool = True, use_handpicked_bounds: bool = True) -> None:
         self.name = name
         self.parameters = parameters
@@ -27,8 +27,6 @@ class Pipeline:
         self.k_meson_mass = k_meson_mass
         self.alpha = alpha
         self.hc_squared = hc_squared
-        self.t_0_isoscalar = t_0_isoscalar
-        self.t_0_isovector = t_0_isovector
         self.reports_dir = os.path.join(reports_dir, name)
         self.plot = plot
         self.use_handpicked_bounds = use_handpicked_bounds
@@ -51,7 +49,6 @@ class Pipeline:
                 task_name, self.parameters,
                 self.ts, self.cross_sections, self.errors,
                 self.k_meson_mass, self.alpha, self.hc_squared,
-                self.t_0_isoscalar, self.t_0_isovector,
                 self.reports_dir, self.plot, self.use_handpicked_bounds
             )
 
@@ -89,7 +86,7 @@ class Pipeline:
         with open(filepath, 'w') as f:
             f.write(str(report))
 
-    def _update_best_fit(self, task: Task) -> None:
+    def _update_best_fit(self, task: CrossSectionTask) -> None:
         if not task.report['chi_squared']:
             return None
         current = task.report['chi_squared']

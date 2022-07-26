@@ -4,9 +4,7 @@ from multiprocessing import Pool
 
 from kaon_production.data import read_cross_section_data
 from model_parameters import KaonParametersSimplified
-from kaon_production.tasks import (
-    TaskFixedResonancesFit, TaskFixedNearlyAllResonancesFit,
-    TaskFixedCouplingConstantsAndNearlyAllResonancesFit, TaskFixedNearlyAllResonancesFitOnlyCharged)
+from task.cross_section_tasks import TaskFixedResonancesFit
 from kaon_production.Pipeline import Pipeline
 from kaon_production.utils import perturb_model_parameters
 
@@ -45,21 +43,17 @@ def make_initial_parameters(t_0_isoscalar, t_0_isovector):
 def make_pipeline_restricted(
         ts_charged, cross_section_values_charged, errors_charged,
         ts_neutral, cross_section_values_neutral, errors_neutral,
-        k_meson_mass, alpha, hc_squared, t_0_isoscalar, t_0_isovector, initial_params,
+        k_meson_mass, alpha, hc_squared, initial_params,
         reports_dir, name='restricted', handpicked=False):
 
     task_list = [
         TaskFixedResonancesFit,
-        TaskFixedCouplingConstantsAndNearlyAllResonancesFit,
-        TaskFixedNearlyAllResonancesFit,
-        TaskFixedNearlyAllResonancesFitOnlyCharged,
-        #TaskFixedResonancesFitOnlyCharged,
     ]
     return Pipeline(name, initial_params, task_list,
                     ts_charged, cross_section_values_charged, errors_charged,
                     ts_neutral, cross_section_values_neutral, errors_neutral,
                     k_meson_mass, alpha, hc_squared,
-                    t_0_isoscalar, t_0_isovector, reports_dir, plot=False, use_handpicked_bounds=handpicked)
+                    reports_dir, plot=False, use_handpicked_bounds=handpicked)
 
 
 if __name__ == '__main__':
@@ -94,7 +88,7 @@ if __name__ == '__main__':
         pipeline = make_pipeline_restricted(
             charged_ts, charged_cross_sections_values, charged_errors,
             neutral_ts, neutral_cross_sections_values, neutral_errors,
-            kaon_mass, alpha, hc_squared, t_0_isoscalar, t_0_isovector,
+            kaon_mass, alpha, hc_squared,
             initial_parameters, path_to_reports, name=name, handpicked=True)
         return pipeline.run()
 
