@@ -2,13 +2,14 @@ from typing import List, Tuple, Union
 from random import sample
 
 from kaon_production.Pipeline import Pipeline
-from model_parameters import KaonParameters, KaonParametersSimplified
+from model_parameters import KaonParameters, KaonParametersSimplified, KaonParametersFixedSelected
 from kaon_production.tasks import TaskFixAccordingToParametersFit, TaskFullFitOnlyCharged
 
 
 class IterativePipeline(Pipeline):
 
-    def __init__(self, name: str, parameters: Union[KaonParameters, KaonParametersSimplified],
+    def __init__(self, name: str,
+                 parameters: Union[KaonParameters, KaonParametersSimplified, KaonParametersFixedSelected],
                  t_values_charged: List[float], cross_sections_charged: List[float], errors_charged: List[float],
                  t_values_neutral: List[float], cross_sections_neutral: List[float], errors_neutral: List[float],
                  k_meson_mass: float, alpha: float, hc_squared: float,

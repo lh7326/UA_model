@@ -4,20 +4,27 @@ import numpy as np
 from scipy.optimize import curve_fit
 from typing import List, Union
 
+from kaon_production.data import Datapoint
 from plotting.plot_fit import plot_cs_fit_neutral_plus_charged
-from model_parameters import KaonParameters, KaonParametersSimplified
-
-
-Datapoint = namedtuple('Datapoint', 't is_charged')
+from model_parameters import KaonParameters, KaonParametersSimplified, KaonParametersFixedSelected
 
 
 class Task:
 
-    def __init__(self, name: str, parameters: Union[KaonParameters, KaonParametersSimplified],
-                 ts: List[Datapoint], css: List[float], errors: List[float],
-                 k_meson_mass: float, alpha: float, hc_squared: float,
-                 t_0_isoscalar: float, t_0_isovector: float, reports_dir: str,
-                 plot: bool=True, use_handpicked_bounds: bool=True):
+    def __init__(self,
+                 name: str,
+                 parameters: Union[KaonParameters, KaonParametersSimplified, KaonParametersFixedSelected],
+                 ts: List[Datapoint],
+                 css: List[float],
+                 errors: List[float],
+                 k_meson_mass: float,
+                 alpha: float,
+                 hc_squared: float,
+                 t_0_isoscalar: float,
+                 t_0_isovector: float,
+                 reports_dir: str,
+                 plot: bool=True,
+                 use_handpicked_bounds: bool=True):
         self.name = name
         self.parameters = parameters
         self.partial_f = None  # prepared in the _setup method
@@ -67,7 +74,7 @@ class Task:
                 sigma=self.errors_fit,
                 absolute_sigma=True,
                 bounds=self.parameters.get_bounds_for_free_parameters(handpicked=self.use_handpicked_bounds),
-                maxfev=10000,
+                maxfev=7000,
             )
         except RuntimeError as err:
             self.report['status'] = 'failed'
@@ -86,7 +93,7 @@ class Task:
         errors = self.errors
         chi_squared = (
             sum([r2 / (err ** 2) for r2, err in zip(r_squared, errors)])
-        ) / len(r_squared)
+        ) / (len(r_squared) - len(opt_parameters))
 
         # only charged data points
         cs_charged, fit_charged, errors_charged = zip(*[
@@ -95,7 +102,7 @@ class Task:
         r_squared_charged = [(data - fit) ** 2 for data, fit in zip(cs_charged, fit_charged)]
         chi_squared_charged = (
             sum([r2 / (err ** 2) for r2, err in zip(r_squared_charged, errors_charged)])
-        ) / len(r_squared_charged)
+        ) / (len(r_squared_charged) - len(opt_parameters))
         sqrt_sum_chi_squared_charged = math.sqrt(
             sum([r2 / (err ** 2) for r2, err in zip(r_squared_charged, errors_charged)])
         )

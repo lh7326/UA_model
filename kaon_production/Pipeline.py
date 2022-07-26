@@ -1,13 +1,15 @@
 from typing import List, Type, Union
 import os.path
 
-from model_parameters import KaonParameters, KaonParametersSimplified
-from kaon_production.Task import Task, Datapoint
+from model_parameters import KaonParameters, KaonParametersSimplified, KaonParametersFixedSelected
+from kaon_production.Task import Task
+from kaon_production.data import Datapoint
 
 
 class Pipeline:
 
-    def __init__(self, name: str, parameters: Union[KaonParameters, KaonParametersSimplified], tasks: List[Type[Task]],
+    def __init__(self, name: str,
+                 parameters: Union[KaonParameters, KaonParametersSimplified, KaonParametersFixedSelected], tasks: List[Type[Task]],
                  t_values_charged: List[float], cross_sections_charged: List[float], errors_charged: List[float],
                  t_values_neutral: List[float], cross_sections_neutral: List[float], errors_neutral: List[float],
                  k_meson_mass: float, alpha: float, hc_squared: float,

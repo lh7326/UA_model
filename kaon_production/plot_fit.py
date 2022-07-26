@@ -1,9 +1,8 @@
 from configparser import ConfigParser
 
-from kaon_production.data import read_cross_section_data
+from kaon_production.data import read_cross_section_data, Datapoint
 from kaon_production.utils import make_partial_cross_section_for_parameters
 from model_parameters import KaonParameters, KaonParametersSimplified, Parameter
-from kaon_production.Task import Datapoint
 from plotting.plot_fit import plot_cs_fit_neutral_plus_charged
 
 

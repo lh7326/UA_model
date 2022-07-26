@@ -5,12 +5,14 @@ from typing import Optional, Callable, Tuple, Union
 import numpy as np
 
 from kaon_production.function import function_cross_section
-from model_parameters import KaonParameters, KaonParametersSimplified, KaonParametersFixedRhoOmega
+from model_parameters import (KaonParameters, KaonParametersSimplified,
+                              KaonParametersFixedRhoOmega, KaonParametersFixedSelected)
 
 
 def make_partial_cross_section_for_parameters(
         k_meson_mass: float, alpha: float, hc_squared: float,
-        parameters: Union[KaonParameters, KaonParametersSimplified, KaonParametersFixedRhoOmega]
+        parameters: Union[
+            KaonParameters, KaonParametersSimplified, KaonParametersFixedRhoOmega, KaonParametersFixedSelected]
 ) -> Callable:
 
     # create a local copy of the parameters
@@ -20,6 +22,8 @@ def make_partial_cross_section_for_parameters(
         parameters = KaonParametersSimplified.from_list(parameters.to_list())
     elif isinstance(parameters, KaonParametersFixedRhoOmega):
         parameters = KaonParametersFixedRhoOmega.from_list(parameters.to_list())
+    elif isinstance(parameters, KaonParametersFixedSelected):
+        parameters = KaonParametersFixedSelected.from_list(parameters.to_list())
     else:
         TypeError('Unexpected parameters type: ' + type(parameters).__name__)
 
@@ -41,7 +45,8 @@ def _read_config(path_to_config: str) -> Tuple[float, float]:
 
 
 def perturb_model_parameters(
-        parameters: Union[KaonParameters, KaonParametersSimplified, KaonParametersFixedRhoOmega],
+        parameters: Union[
+            KaonParameters, KaonParametersSimplified, KaonParametersFixedRhoOmega, KaonParametersFixedSelected],
         perturbation_size: float = 0.2,
         perturbation_size_resonances: Optional[float] = None,
         use_handpicked_bounds: bool = True,
