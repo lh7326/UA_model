@@ -4,7 +4,7 @@ from typing import Optional, Callable, Tuple, Union
 
 import numpy as np
 
-from kaon_production.function import function_cross_section
+from kaon_production.function import function_cross_section, function_form_factor
 from model_parameters import (KaonParameters, KaonParametersSimplified,
                               KaonParametersFixedRhoOmega, KaonParametersFixedSelected)
 
@@ -30,6 +30,30 @@ def make_partial_cross_section_for_parameters(
     def partial_f(ts, *args):
         parameters.update_free_values(list(args))
         return function_cross_section(ts, k_meson_mass, alpha, hc_squared, parameters)
+
+    return partial_f
+
+
+def make_partial_form_factor_for_parameters(
+        parameters: Union[
+            KaonParameters, KaonParametersSimplified, KaonParametersFixedRhoOmega, KaonParametersFixedSelected]
+) -> Callable:
+
+    # create a local copy of the parameters
+    if isinstance(parameters, KaonParameters):
+        parameters = KaonParameters.from_list(parameters.to_list())
+    elif isinstance(parameters, KaonParametersSimplified):
+        parameters = KaonParametersSimplified.from_list(parameters.to_list())
+    elif isinstance(parameters, KaonParametersFixedRhoOmega):
+        parameters = KaonParametersFixedRhoOmega.from_list(parameters.to_list())
+    elif isinstance(parameters, KaonParametersFixedSelected):
+        parameters = KaonParametersFixedSelected.from_list(parameters.to_list())
+    else:
+        TypeError('Unexpected parameters type: ' + type(parameters).__name__)
+
+    def partial_f(ts, *args):
+        parameters.update_free_values(list(args))
+        return function_form_factor(ts, parameters)
 
     return partial_f
 

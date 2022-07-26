@@ -3,8 +3,8 @@ from configparser import ConfigParser
 from multiprocessing import Pool
 
 from kaon_production.data import read_cross_section_data
-from model_parameters import KaonParametersFixedRhoOmega, KaonParametersFixedSelected
-from kaon_production.IterativePipeline import IterativePipeline
+from model_parameters import KaonParametersFixedSelected
+from pipeline.CrossSectionIterativePipeline import CrossSectionIterativePipeline
 from kaon_production.utils import perturb_model_parameters
 
 
@@ -74,7 +74,7 @@ if __name__ == '__main__':
         )
         numbers = (5, 3, 5, 2, 7, 5, 10, 15)
         repetitions = (10, 40, 20, 5, 25, 20, 30, 20)
-        pipeline = IterativePipeline(
+        pipeline = CrossSectionIterativePipeline(
             name, initial_parameters,
             charged_ts, charged_cross_sections_values, charged_errors,
             neutral_ts, neutral_cross_sections_values, neutral_errors,

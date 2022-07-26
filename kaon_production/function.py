@@ -9,6 +9,29 @@ from cross_section.ScalarMesonProductionTotalCrossSection import ScalarMesonProd
 from kaon_production.data import Datapoint
 
 
+def _get_ff_model(
+        parameters: Union[KaonParameters, KaonParametersSimplified,
+                          KaonParametersFixedRhoOmega, KaonParametersFixedSelected],
+) -> Union[KaonUAModel, KaonUAModelSimplified]:
+    if isinstance(parameters, KaonParameters):
+        return KaonUAModel(charged_variant=True, **{p.name: p.value for p in parameters})
+    elif isinstance(parameters, KaonParametersSimplified):
+        return KaonUAModelSimplified(charged_variant=True, **{p.name: p.value for p in parameters})
+    elif isinstance(parameters, KaonParametersFixedRhoOmega):
+        return KaonUAModel(charged_variant=True, **{p.name: p.value for p in parameters})
+    elif isinstance(parameters, KaonParametersFixedSelected):
+        return KaonUAModel(charged_variant=True, **{p.name: p.value for p in parameters})
+    else:
+        raise TypeError('Unexpected parameters type: ' + type(parameters).__name__)
+
+
+def _read_datapoint(datapoint: Union[Datapoint, Tuple[float, float]]) -> Tuple[float, bool]:
+    if isinstance(datapoint, Datapoint):
+        return datapoint.t, datapoint.is_charged
+    else:
+        return float(datapoint[0]), bool(datapoint[1])
+
+
 def function_cross_section(
         ts: List[Union[Datapoint, Tuple[float, float]]],
         k_meson_mass: float,
@@ -18,16 +41,7 @@ def function_cross_section(
             KaonParameters, KaonParametersSimplified, KaonParametersFixedRhoOmega, KaonParametersFixedSelected],
         ) -> List[complex]:
 
-    if isinstance(parameters, KaonParameters):
-        ff_model = KaonUAModel(charged_variant=True, **{p.name: p.value for p in parameters})
-    elif isinstance(parameters, KaonParametersSimplified):
-        ff_model = KaonUAModelSimplified(charged_variant=True, **{p.name: p.value for p in parameters})
-    elif isinstance(parameters, KaonParametersFixedRhoOmega):
-        ff_model = KaonUAModel(charged_variant=True, **{p.name: p.value for p in parameters})
-    elif isinstance(parameters, KaonParametersFixedSelected):
-        ff_model = KaonUAModel(charged_variant=True, **{p.name: p.value for p in parameters})
-    else:
-        raise TypeError('Unexpected parameters type: ' + type(parameters).__name__)
+    ff_model = _get_ff_model(parameters)
 
     config = ConfigParser()
     config['constants'] = {'alpha': alpha, 'hc_squared': hc_squared}
@@ -35,10 +49,25 @@ def function_cross_section(
 
     results = []
     for datapoint in ts:
-        if isinstance(datapoint, Datapoint):
-            cross_section_model.form_factor.charged_variant = datapoint.is_charged
-            results.append(cross_section_model(datapoint.t))
-        else:
-            cross_section_model.form_factor.charged_variant = bool(datapoint[1])
-            results.append(cross_section_model(datapoint[0]))
+        t, is_charged = _read_datapoint(datapoint)
+        cross_section_model.form_factor.charged_variant = is_charged
+        results.append(cross_section_model(t))
+
+    return results
+
+
+def function_form_factor(
+        ts: List[Union[Datapoint, Tuple[float, float]]],
+        parameters: Union[
+            KaonParameters, KaonParametersSimplified, KaonParametersFixedRhoOmega, KaonParametersFixedSelected],
+        ) -> List[complex]:
+
+    ff_model = _get_ff_model(parameters)
+
+    results = []
+    for datapoint in ts:
+        t, is_charged = _read_datapoint(datapoint)
+        ff_model.charged_variant = is_charged
+        results.append(ff_model(t))
+
     return results

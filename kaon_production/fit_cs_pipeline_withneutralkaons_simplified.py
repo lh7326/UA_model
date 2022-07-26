@@ -5,7 +5,7 @@ from multiprocessing import Pool
 from kaon_production.data import read_cross_section_data
 from model_parameters import KaonParametersSimplified
 from task.cross_section_tasks import TaskFixedResonancesFit
-from kaon_production.Pipeline import Pipeline
+from pipeline.CrossSectionPipeline import CrossSectionPipeline
 from kaon_production.utils import perturb_model_parameters
 
 
@@ -49,11 +49,11 @@ def make_pipeline_restricted(
     task_list = [
         TaskFixedResonancesFit,
     ]
-    return Pipeline(name, initial_params, task_list,
-                    ts_charged, cross_section_values_charged, errors_charged,
-                    ts_neutral, cross_section_values_neutral, errors_neutral,
-                    k_meson_mass, alpha, hc_squared,
-                    reports_dir, plot=False, use_handpicked_bounds=handpicked)
+    return CrossSectionPipeline(name, initial_params, task_list,
+                                ts_charged, cross_section_values_charged, errors_charged,
+                                ts_neutral, cross_section_values_neutral, errors_neutral,
+                                k_meson_mass, alpha, hc_squared,
+                                reports_dir, plot=False, use_handpicked_bounds=handpicked)
 
 
 if __name__ == '__main__':

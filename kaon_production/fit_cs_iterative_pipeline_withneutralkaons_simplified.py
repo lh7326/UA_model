@@ -4,7 +4,7 @@ from multiprocessing import Pool
 
 from kaon_production.data import read_cross_section_data
 from model_parameters.KaonParametersSimplified import KaonParametersSimplified
-from kaon_production.IterativePipeline import IterativePipeline
+from pipeline.CrossSectionIterativePipeline import CrossSectionIterativePipeline
 from kaon_production.utils import perturb_model_parameters
 
 
@@ -65,7 +65,7 @@ if __name__ == '__main__':
         )
         numbers = (5, 4, 6, 2, 8, 4, 10, 17, 5)
         repetitions = (5, 20, 20, 10, 40, 10, 20, 20, 10)
-        pipeline = IterativePipeline(
+        pipeline = CrossSectionIterativePipeline(
             name, initial_parameters,
             charged_ts, charged_cross_sections_values, charged_errors,
             neutral_ts, neutral_cross_sections_values, neutral_errors,
