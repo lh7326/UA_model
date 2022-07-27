@@ -117,23 +117,37 @@ def plot_ff_fit_neutral_plus_charged(
             neutral_errors.append(errors[i])
             neutral_fit.append(fit_ffs[i])
 
-    fig, (ax1, ax2) = plt.subplots(2, 1)
+    nr_subplots = 0
+    if charged_ts:
+        nr_subplots += 1
+    if neutral_ts:
+        nr_subplots += 1
 
-    ax1.set_title(f'{title}: Charged')
-    ax1.set_xlabel('t [GeV^2]')
-    ax1.set_ylabel('Form Factor [1]')
-    ax1.errorbar(charged_ts, charged_ffs, yerr=charged_errors, ecolor='black', color='black', fmt='x')
-    ax1.scatter(charged_ts, charged_fit, color='red')
-    ax1.set_xscale('log')
-    ax1.set_yscale('log')
+    fig, axes = plt.subplots(nr_subplots, 1)
+    if nr_subplots == 1:
+        axes = [axes]
+    else:
+        axes = list(axes)
 
-    ax2.set_title(f'{title}: Neutral')
-    ax2.set_xlabel('t [GeV^2]')
-    ax2.set_ylabel('Form Factor [1]')
-    ax2.errorbar(neutral_ts, neutral_ffs, yerr=neutral_errors, ecolor='black', color='black', fmt='x')
-    ax2.scatter(neutral_ts, neutral_fit, color='red')
-    ax2.set_xscale('log')
-    ax2.set_yscale('log')
+    if charged_ts:
+        ax1 = axes.pop()
+        ax1.set_title(f'{title}: Charged')
+        ax1.set_xlabel('t [GeV^2]')
+        ax1.set_ylabel('Form Factor [1]')
+        ax1.errorbar(charged_ts, charged_ffs, yerr=charged_errors, ecolor='black', color='black', fmt='x')
+        ax1.scatter(charged_ts, charged_fit, color='red')
+        ax1.set_xscale('log')
+        ax1.set_yscale('log')
+
+    if neutral_ts:
+        ax2 = axes.pop()
+        ax2.set_title(f'{title}: Neutral')
+        ax2.set_xlabel('t [GeV^2]')
+        ax2.set_ylabel('Form Factor [1]')
+        ax2.errorbar(neutral_ts, neutral_ffs, yerr=neutral_errors, ecolor='black', color='black', fmt='x')
+        ax2.scatter(neutral_ts, neutral_fit, color='red')
+        ax2.set_xscale('log')
+        ax2.set_yscale('log')
 
     if show:
         plt.show()

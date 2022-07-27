@@ -6,7 +6,7 @@ import numpy as np
 
 from kaon_production.function import function_cross_section, function_form_factor
 from model_parameters import (KaonParameters, KaonParametersSimplified,
-                              KaonParametersFixedRhoOmega, KaonParametersFixedSelected)
+                              KaonParametersFixedRhoOmega, KaonParametersFixedSelected, KaonParametersB)
 
 
 def make_partial_cross_section_for_parameters(
@@ -36,14 +36,14 @@ def make_partial_cross_section_for_parameters(
 
 def make_partial_form_factor_for_parameters(
         parameters: Union[
-            KaonParameters, KaonParametersSimplified, KaonParametersFixedRhoOmega, KaonParametersFixedSelected]
+            KaonParameters, KaonParametersB, KaonParametersFixedRhoOmega, KaonParametersFixedSelected]
 ) -> Callable:
 
     # create a local copy of the parameters
     if isinstance(parameters, KaonParameters):
         parameters = KaonParameters.from_list(parameters.to_list())
-    elif isinstance(parameters, KaonParametersSimplified):
-        parameters = KaonParametersSimplified.from_list(parameters.to_list())
+    elif isinstance(parameters, KaonParametersB):
+        parameters = KaonParametersB.from_list(parameters.to_list())
     elif isinstance(parameters, KaonParametersFixedRhoOmega):
         parameters = KaonParametersFixedRhoOmega.from_list(parameters.to_list())
     elif isinstance(parameters, KaonParametersFixedSelected):

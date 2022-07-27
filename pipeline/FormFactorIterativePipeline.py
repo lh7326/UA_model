@@ -12,7 +12,6 @@ class FormFactorIterativePipeline(FormFactorPipeline):
                  parameters: Union[KaonParameters, KaonParametersSimplified, KaonParametersFixedSelected],
                  t_values_charged: List[float], form_factors_charged: List[float], errors_charged: List[float],
                  t_values_neutral: List[float], form_factors_neutral: List[float], errors_neutral: List[float],
-                 k_meson_mass: float, alpha: float, hc_squared: float,
                  reports_dir: str, plot: bool = True, use_handpicked_bounds: bool = True,
                  nr_free_params: Tuple[int, ...] = (3, 5, 7, 10),
                  nr_iterations: Tuple[int, ...] = (10, 20, 20, 10),

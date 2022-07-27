@@ -3,18 +3,21 @@ from typing import List, Tuple, Union
 
 from ua_model.KaonUAModel import KaonUAModel
 from ua_model.KaonUAModelSimplified import KaonUAModelSimplified
-from model_parameters import (KaonParameters, KaonParametersSimplified,
+from ua_model.KaonUAModelB import KaonUAModelB
+from model_parameters import (KaonParameters, KaonParametersB, KaonParametersSimplified,
                               KaonParametersFixedRhoOmega, KaonParametersFixedSelected)
 from cross_section.ScalarMesonProductionTotalCrossSection import ScalarMesonProductionTotalCrossSection
 from kaon_production.data import Datapoint
 
 
 def _get_ff_model(
-        parameters: Union[KaonParameters, KaonParametersSimplified,
+        parameters: Union[KaonParameters, KaonParametersB, KaonParametersSimplified,
                           KaonParametersFixedRhoOmega, KaonParametersFixedSelected],
-) -> Union[KaonUAModel, KaonUAModelSimplified]:
+) -> Union[KaonUAModel, KaonUAModelB, KaonUAModelSimplified]:
     if isinstance(parameters, KaonParameters):
         return KaonUAModel(charged_variant=True, **{p.name: p.value for p in parameters})
+    elif isinstance(parameters, KaonParametersB):
+        return KaonUAModelB(charged_variant=True, **{p.name: p.value for p in parameters})
     elif isinstance(parameters, KaonParametersSimplified):
         return KaonUAModelSimplified(charged_variant=True, **{p.name: p.value for p in parameters})
     elif isinstance(parameters, KaonParametersFixedRhoOmega):
@@ -59,7 +62,7 @@ def function_cross_section(
 def function_form_factor(
         ts: List[Union[Datapoint, Tuple[float, float]]],
         parameters: Union[
-            KaonParameters, KaonParametersSimplified, KaonParametersFixedRhoOmega, KaonParametersFixedSelected],
+            KaonParameters, KaonParametersB, KaonParametersFixedRhoOmega, KaonParametersFixedSelected],
         ) -> List[complex]:
 
     ff_model = _get_ff_model(parameters)
@@ -68,6 +71,6 @@ def function_form_factor(
     for datapoint in ts:
         t, is_charged = _read_datapoint(datapoint)
         ff_model.charged_variant = is_charged
-        results.append(ff_model(t))
+        results.append(abs(ff_model(t)))
 
     return results
