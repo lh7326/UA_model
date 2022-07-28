@@ -1,6 +1,6 @@
 from configparser import ConfigParser
 
-from kaon_production.data import read_cross_section_data
+from kaon_production.data import read_data
 from model_parameters import KaonParametersFixedSelected
 from pipeline.FormFactorIterativePipeline import FormFactorIterativePipeline
 from kaon_production.utils import perturb_model_parameters
@@ -52,11 +52,7 @@ if __name__ == '__main__':
 
     path_to_reports = '/home/lukas/reports/ff'
 
-    charged_ts, charged_cross_sections_values, charged_errors = read_cross_section_data(
-        'charged_new_data2.csv')
-    #neutral_ts, neutral_cross_sections_values, neutral_errors = read_cross_section_data(
-    #    'neutral_kaon.csv')
-    #neutral_errors = [err * 4 for err in neutral_errors]
+    charged_ts, charged_ff_values, charged_errors = read_data('charged_ff_2.csv')
 
     def f(name):
         initial_parameters = make_initial_parameters(t_0_isoscalar, t_0_isovector)
@@ -70,7 +66,7 @@ if __name__ == '__main__':
         repetitions = (10, 40, 20, 5, 25, 20, 30, 20)
         pipeline = FormFactorIterativePipeline(
             name, initial_parameters,
-            charged_ts, charged_cross_sections_values, charged_errors,
+            charged_ts, charged_ff_values, charged_errors,
             [], [], [],  # TODO: move data (charged/neutral) outside this functionality!
             path_to_reports, plot=False, use_handpicked_bounds=False,
             nr_free_params=numbers, nr_iterations=repetitions,

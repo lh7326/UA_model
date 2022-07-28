@@ -2,7 +2,7 @@ from configparser import ConfigParser
 
 from multiprocessing import Pool
 
-from kaon_production.data import read_cross_section_data
+from kaon_production.data import read_data
 from model_parameters import KaonParametersFixedSelected
 from pipeline.CrossSectionIterativePipeline import CrossSectionIterativePipeline
 from kaon_production.utils import perturb_model_parameters
@@ -58,9 +58,9 @@ if __name__ == '__main__':
 
     path_to_reports = '/home/lukas/reports'
 
-    charged_ts, charged_cross_sections_values, charged_errors = read_cross_section_data(
+    charged_ts, charged_cross_sections_values, charged_errors = read_data(
         'charged_new_data2.csv')
-    neutral_ts, neutral_cross_sections_values, neutral_errors = read_cross_section_data(
+    neutral_ts, neutral_cross_sections_values, neutral_errors = read_data(
         'neutral_kaon.csv')
     neutral_errors = [err * 4 for err in neutral_errors]
 

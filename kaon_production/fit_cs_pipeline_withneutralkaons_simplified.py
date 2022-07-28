@@ -2,7 +2,7 @@ from configparser import ConfigParser
 
 from multiprocessing import Pool
 
-from kaon_production.data import read_cross_section_data
+from kaon_production.data import read_data
 from model_parameters import KaonParametersSimplified
 from task.cross_section_tasks import TaskFixedResonancesFit
 from pipeline.CrossSectionPipeline import CrossSectionPipeline
@@ -69,8 +69,8 @@ if __name__ == '__main__':
 
     path_to_reports = '/home/lukas/reports'
 
-    charged_ts, charged_cross_sections_values, charged_errors = read_cross_section_data('charged_kaon.csv')
-    neutral_ts, neutral_cross_sections_values, neutral_errors = read_cross_section_data('neutral_kaon.csv')
+    charged_ts, charged_cross_sections_values, charged_errors = read_data('charged_kaon.csv')
+    neutral_ts, neutral_cross_sections_values, neutral_errors = read_data('neutral_kaon.csv')
 
     def f(name):
         initial_parameters = make_initial_parameters(t_0_isoscalar, t_0_isovector)

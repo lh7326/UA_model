@@ -1,6 +1,6 @@
 from configparser import ConfigParser
 
-from kaon_production.data import read_cross_section_data, Datapoint
+from kaon_production.data import read_data, Datapoint
 from kaon_production.utils import make_partial_cross_section_for_parameters
 from model_parameters import KaonParameters, KaonParametersSimplified, Parameter
 from plotting.plot_fit import plot_cs_fit_neutral_plus_charged
@@ -34,8 +34,8 @@ if __name__ == '__main__':
     alpha = config.getfloat('constants', 'alpha')
     hc_squared = config.getfloat('constants', 'hc_squared')
 
-    charged_ts, charged_cross_sections_values, charged_errors = read_cross_section_data('charged_kaon.csv')
-    neutral_ts, neutral_cross_sections_values, neutral_errors = read_cross_section_data('neutral_kaon.csv')
+    charged_ts, charged_cross_sections_values, charged_errors = read_data('charged_kaon.csv')
+    neutral_ts, neutral_cross_sections_values, neutral_errors = read_data('neutral_kaon.csv')
     ts, css, errs = prepare_data(charged_ts, charged_cross_sections_values,charged_errors,
                                  neutral_ts, neutral_cross_sections_values, neutral_errors)
 
