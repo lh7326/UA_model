@@ -207,30 +207,30 @@ class KaonParametersB(ModelParameters):
     def get_ordered_values(self) -> List[float]:
         """
         Print the values in the order:
-          t_in_isoscalar
-          t_in_isovector
-          mass_rho
-          mass_rho_prime
-          mass_rho_double_prime
-          decay_rate_rho
-          decay_rate_rho_prime
-          decay_rate_rho_double_prime
-          a_rho
-          a_rho_prime
-          mass_phi
-          mass_omega
-          mass_omega_double_prime
-          mass_phi_prime
-          mass_phi_double_prime
-          decay_rate_phi
-          decay_rate_omega
-          decay_rate_omega_double_prime
-          decay_rate_phi_prime
-          decay_rate_phi_double_prime
-          a_phi
-          a_omega
-          a_omega_double_prime
-          a_phi_prime
+            t_in_isoscalar
+            t_in_isovector
+            mass_rho
+            mass_rho_prime
+            mass_rho_double_prime
+            decay_rate_rho
+            decay_rate_rho_prime
+            decay_rate_rho_double_prime
+            a_rho
+            a_rho_prime
+            mass_omega
+            mass_phi
+            mass_omega_double_prime
+            mass_phi_prime
+            mass_phi_double_prime
+            decay_rate_omega
+            decay_rate_phi
+            decay_rate_omega_double_prime
+            decay_rate_phi_prime
+            decay_rate_phi_double_prime
+            a_omega
+            a_phi
+            a_omega_double_prime
+            a_phi_prime
 
         Returns: the ordered list of parameter values
 
@@ -246,18 +246,18 @@ class KaonParametersB(ModelParameters):
             'decay_rate_rho_double_prime',
             'a_rho',
             'a_rho_prime',
-            'mass_phi',
             'mass_omega',
+            'mass_phi',
             'mass_omega_double_prime',
             'mass_phi_prime',
             'mass_phi_double_prime',
-            'decay_rate_phi',
             'decay_rate_omega',
+            'decay_rate_phi',
             'decay_rate_omega_double_prime',
             'decay_rate_phi_prime',
             'decay_rate_phi_double_prime',
-            'a_phi',
             'a_omega',
+            'a_phi',
             'a_omega_double_prime',
             'a_phi_prime',
         ]
@@ -280,18 +280,18 @@ class KaonParametersB(ModelParameters):
             'decay_rate_rho_double_prime',
             'a_rho',
             'a_rho_prime',
-            'mass_phi',
             'mass_omega',
+            'mass_phi',
             'mass_omega_double_prime',
             'mass_phi_prime',
             'mass_phi_double_prime',
-            'decay_rate_phi',
             'decay_rate_omega',
+            'decay_rate_phi',
             'decay_rate_omega_double_prime',
             'decay_rate_phi_prime',
             'decay_rate_phi_double_prime',
-            'a_phi',
             'a_omega',
+            'a_phi',
             'a_omega_double_prime',
             'a_phi_prime',
         ]

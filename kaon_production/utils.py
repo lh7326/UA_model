@@ -12,12 +12,14 @@ from model_parameters import (KaonParameters, KaonParametersSimplified,
 def make_partial_cross_section_for_parameters(
         k_meson_mass: float, alpha: float, hc_squared: float,
         parameters: Union[
-            KaonParameters, KaonParametersSimplified, KaonParametersFixedRhoOmega, KaonParametersFixedSelected]
+            KaonParameters, KaonParametersB, KaonParametersSimplified, KaonParametersFixedRhoOmega, KaonParametersFixedSelected]
 ) -> Callable:
 
     # create a local copy of the parameters
     if isinstance(parameters, KaonParameters):
         parameters = KaonParameters.from_list(parameters.to_list())
+    elif isinstance(parameters, KaonParametersB):
+        parameters = KaonParametersB.from_list(parameters.to_list())
     elif isinstance(parameters, KaonParametersSimplified):
         parameters = KaonParametersSimplified.from_list(parameters.to_list())
     elif isinstance(parameters, KaonParametersFixedRhoOmega):
@@ -70,7 +72,8 @@ def _read_config(path_to_config: str) -> Tuple[float, float]:
 
 def perturb_model_parameters(
         parameters: Union[
-            KaonParameters, KaonParametersSimplified, KaonParametersFixedRhoOmega, KaonParametersFixedSelected],
+            KaonParameters, KaonParametersB, KaonParametersSimplified, KaonParametersFixedRhoOmega,
+            KaonParametersFixedSelected],
         perturbation_size: float = 0.2,
         perturbation_size_resonances: Optional[float] = None,
         use_handpicked_bounds: bool = True,

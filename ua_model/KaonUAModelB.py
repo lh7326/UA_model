@@ -11,8 +11,6 @@ class KaonUAModelB:
 
     Note: Used for fitting the charged kaon form factor.
 
-    # TODO: add a test!
-
     """
     def __init__(
             self,
