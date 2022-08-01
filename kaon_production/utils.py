@@ -6,7 +6,8 @@ import numpy as np
 
 from kaon_production.function import function_cross_section, function_form_factor
 from model_parameters import (KaonParameters, KaonParametersSimplified,
-                              KaonParametersFixedRhoOmega, KaonParametersFixedSelected, KaonParametersB)
+                              KaonParametersFixedRhoOmega, KaonParametersFixedSelected, KaonParametersB,
+                              ETGMRModelParameters, TwoPolesModelParameters)
 
 
 def make_partial_cross_section_for_parameters(
@@ -38,9 +39,12 @@ def make_partial_cross_section_for_parameters(
 
 def make_partial_form_factor_for_parameters(
         parameters: Union[
-            KaonParameters, KaonParametersB, KaonParametersFixedRhoOmega, KaonParametersFixedSelected]
+            KaonParameters, KaonParametersB, KaonParametersFixedRhoOmega, KaonParametersFixedSelected,
+            ETGMRModelParameters, TwoPolesModelParameters,
+        ]
 ) -> Callable:
 
+    # TODO: implement a copy method on the level of ModelParameters
     # create a local copy of the parameters
     if isinstance(parameters, KaonParameters):
         parameters = KaonParameters.from_list(parameters.to_list())
@@ -50,6 +54,10 @@ def make_partial_form_factor_for_parameters(
         parameters = KaonParametersFixedRhoOmega.from_list(parameters.to_list())
     elif isinstance(parameters, KaonParametersFixedSelected):
         parameters = KaonParametersFixedSelected.from_list(parameters.to_list())
+    elif isinstance(parameters, ETGMRModelParameters):
+        parameters = ETGMRModelParameters.from_list(parameters.to_list())
+    elif isinstance(parameters, TwoPolesModelParameters):
+        parameters = TwoPolesModelParameters.from_list(parameters.to_list())
     else:
         TypeError('Unexpected parameters type: ' + type(parameters).__name__)
 
@@ -73,7 +81,7 @@ def _read_config(path_to_config: str) -> Tuple[float, float]:
 def perturb_model_parameters(
         parameters: Union[
             KaonParameters, KaonParametersB, KaonParametersSimplified, KaonParametersFixedRhoOmega,
-            KaonParametersFixedSelected],
+            KaonParametersFixedSelected, ETGMRModelParameters, TwoPolesModelParameters],
         perturbation_size: float = 0.2,
         perturbation_size_resonances: Optional[float] = None,
         use_handpicked_bounds: bool = True,

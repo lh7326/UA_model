@@ -4,3 +4,5 @@ from .KaonParametersSimplified import KaonParametersSimplified
 from .KaonParametersFixedRhoOmega import KaonParametersFixedRhoOmega
 from .KaonParametersFixedSelected import KaonParametersFixedSelected
 from .KaonParametersB import KaonParametersB
+from .ETGMRModelParameters import ETGMRModelParameters
+from .TwoPolesModelParameters import TwoPolesModelParameters

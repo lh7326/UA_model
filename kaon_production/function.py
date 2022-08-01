@@ -4,8 +4,10 @@ from typing import List, Tuple, Union
 from ua_model.KaonUAModel import KaonUAModel
 from ua_model.KaonUAModelSimplified import KaonUAModelSimplified
 from ua_model.KaonUAModelB import KaonUAModelB
+from other_models import ETGMRModel, TwoPolesModel
 from model_parameters import (KaonParameters, KaonParametersB, KaonParametersSimplified,
-                              KaonParametersFixedRhoOmega, KaonParametersFixedSelected)
+                              KaonParametersFixedRhoOmega, KaonParametersFixedSelected,
+                              ETGMRModelParameters, TwoPolesModelParameters)
 from cross_section.ScalarMesonProductionTotalCrossSection import ScalarMesonProductionTotalCrossSection
 from kaon_production.data import Datapoint
 
@@ -13,7 +15,7 @@ from kaon_production.data import Datapoint
 def _get_ff_model(
         parameters: Union[KaonParameters, KaonParametersB, KaonParametersSimplified,
                           KaonParametersFixedRhoOmega, KaonParametersFixedSelected],
-) -> Union[KaonUAModel, KaonUAModelB, KaonUAModelSimplified]:
+) -> Union[KaonUAModel, KaonUAModelB, KaonUAModelSimplified, ETGMRModel, TwoPolesModel]:
     if isinstance(parameters, KaonParameters):
         return KaonUAModel(charged_variant=True, **{p.name: p.value for p in parameters})
     elif isinstance(parameters, KaonParametersB):
@@ -24,6 +26,10 @@ def _get_ff_model(
         return KaonUAModel(charged_variant=True, **{p.name: p.value for p in parameters})
     elif isinstance(parameters, KaonParametersFixedSelected):
         return KaonUAModel(charged_variant=True, **{p.name: p.value for p in parameters})
+    elif isinstance(parameters, ETGMRModelParameters):
+        return ETGMRModel(a=parameters['a'].value, m_a=parameters['m_a'].value)
+    elif isinstance(parameters, TwoPolesModelParameters):
+        return TwoPolesModel(a=parameters['a'].value, m_1=parameters['m_1'].value, m_2=parameters['m_2'].value)
     else:
         raise TypeError('Unexpected parameters type: ' + type(parameters).__name__)
 

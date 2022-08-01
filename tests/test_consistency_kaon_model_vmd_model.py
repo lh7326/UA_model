@@ -1,7 +1,7 @@
 from unittest import TestCase
 import cmath
 
-from ua_model.VMDModel import VMDModel
+from other_models import VMDModel
 from ua_model.KaonUAModel import KaonUAModel
 
 
