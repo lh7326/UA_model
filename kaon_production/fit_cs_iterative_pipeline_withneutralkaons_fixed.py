@@ -2,9 +2,9 @@ from configparser import ConfigParser
 
 from multiprocessing import Pool
 
-from kaon_production.data import read_cross_section_data
-from model_parameters import KaonParametersFixedRhoOmega, KaonParametersFixedSelected
-from kaon_production.IterativePipeline import IterativePipeline
+from kaon_production.data import read_data
+from model_parameters import KaonParametersFixedSelected
+from pipeline.CrossSectionIterativePipeline import CrossSectionIterativePipeline
 from kaon_production.utils import perturb_model_parameters
 
 
@@ -58,9 +58,9 @@ if __name__ == '__main__':
 
     path_to_reports = '/home/lukas/reports'
 
-    charged_ts, charged_cross_sections_values, charged_errors = read_cross_section_data(
+    charged_ts, charged_cross_sections_values, charged_errors = read_data(
         'charged_new_data2.csv')
-    neutral_ts, neutral_cross_sections_values, neutral_errors = read_cross_section_data(
+    neutral_ts, neutral_cross_sections_values, neutral_errors = read_data(
         'neutral_kaon.csv')
     neutral_errors = [err * 4 for err in neutral_errors]
 
@@ -74,11 +74,11 @@ if __name__ == '__main__':
         )
         numbers = (5, 3, 5, 2, 7, 5, 10, 15)
         repetitions = (10, 40, 20, 5, 25, 20, 30, 20)
-        pipeline = IterativePipeline(
+        pipeline = CrossSectionIterativePipeline(
             name, initial_parameters,
             charged_ts, charged_cross_sections_values, charged_errors,
             neutral_ts, neutral_cross_sections_values, neutral_errors,
-            kaon_mass, alpha, hc_squared, t_0_isoscalar, t_0_isovector,
+            kaon_mass, alpha, hc_squared,
             path_to_reports, plot=False, use_handpicked_bounds=False,
             nr_free_params=numbers, nr_iterations=repetitions,
             nr_initial_rounds_with_fixed_resonances=10,

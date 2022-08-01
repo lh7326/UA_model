@@ -4,20 +4,22 @@ from typing import Optional, Callable, Tuple, Union
 
 import numpy as np
 
-from kaon_production.function import function_cross_section
+from kaon_production.function import function_cross_section, function_form_factor
 from model_parameters import (KaonParameters, KaonParametersSimplified,
-                              KaonParametersFixedRhoOmega, KaonParametersFixedSelected)
+                              KaonParametersFixedRhoOmega, KaonParametersFixedSelected, KaonParametersB)
 
 
 def make_partial_cross_section_for_parameters(
         k_meson_mass: float, alpha: float, hc_squared: float,
         parameters: Union[
-            KaonParameters, KaonParametersSimplified, KaonParametersFixedRhoOmega, KaonParametersFixedSelected]
+            KaonParameters, KaonParametersB, KaonParametersSimplified, KaonParametersFixedRhoOmega, KaonParametersFixedSelected]
 ) -> Callable:
 
     # create a local copy of the parameters
     if isinstance(parameters, KaonParameters):
         parameters = KaonParameters.from_list(parameters.to_list())
+    elif isinstance(parameters, KaonParametersB):
+        parameters = KaonParametersB.from_list(parameters.to_list())
     elif isinstance(parameters, KaonParametersSimplified):
         parameters = KaonParametersSimplified.from_list(parameters.to_list())
     elif isinstance(parameters, KaonParametersFixedRhoOmega):
@@ -34,6 +36,30 @@ def make_partial_cross_section_for_parameters(
     return partial_f
 
 
+def make_partial_form_factor_for_parameters(
+        parameters: Union[
+            KaonParameters, KaonParametersB, KaonParametersFixedRhoOmega, KaonParametersFixedSelected]
+) -> Callable:
+
+    # create a local copy of the parameters
+    if isinstance(parameters, KaonParameters):
+        parameters = KaonParameters.from_list(parameters.to_list())
+    elif isinstance(parameters, KaonParametersB):
+        parameters = KaonParametersB.from_list(parameters.to_list())
+    elif isinstance(parameters, KaonParametersFixedRhoOmega):
+        parameters = KaonParametersFixedRhoOmega.from_list(parameters.to_list())
+    elif isinstance(parameters, KaonParametersFixedSelected):
+        parameters = KaonParametersFixedSelected.from_list(parameters.to_list())
+    else:
+        TypeError('Unexpected parameters type: ' + type(parameters).__name__)
+
+    def partial_f(ts, *args):
+        parameters.update_free_values(list(args))
+        return function_form_factor(ts, parameters)
+
+    return partial_f
+
+
 def _read_config(path_to_config: str) -> Tuple[float, float]:
     config = ConfigParser(inline_comment_prefixes='#')
     config.read(path_to_config)
@@ -46,7 +72,8 @@ def _read_config(path_to_config: str) -> Tuple[float, float]:
 
 def perturb_model_parameters(
         parameters: Union[
-            KaonParameters, KaonParametersSimplified, KaonParametersFixedRhoOmega, KaonParametersFixedSelected],
+            KaonParameters, KaonParametersB, KaonParametersSimplified, KaonParametersFixedRhoOmega,
+            KaonParametersFixedSelected],
         perturbation_size: float = 0.2,
         perturbation_size_resonances: Optional[float] = None,
         use_handpicked_bounds: bool = True,

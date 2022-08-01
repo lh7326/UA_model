@@ -1,8 +1,8 @@
 from configparser import ConfigParser
 
-from kaon_production.data import read_cross_section_data, Datapoint
+from kaon_production.data import read_data, Datapoint
 from model_parameters import KaonParameters
-from kaon_production.tasks import TaskFullFitOnlyCharged, TaskFixAccordingToParametersFitOnlyCharged
+from task.cross_section_tasks import TaskFixAccordingToParametersFitOnlyCharged
 
 
 def make_parameters(t_0_isoscalar, t_0_isovector, list_of_values):
@@ -38,8 +38,8 @@ if __name__ == '__main__':
 
     path_to_reports = '/home/lukas/reports'
 
-    charged_ts, charged_cross_sections_values, charged_errors = read_cross_section_data('charged_new_data2.csv')
-    neutral_ts, neutral_cross_sections_values, neutral_errors = read_cross_section_data('neutral_kaon.csv')
+    charged_ts, charged_cross_sections_values, charged_errors = read_data('charged_new_data2.csv')
+    neutral_ts, neutral_cross_sections_values, neutral_errors = read_data('neutral_kaon.csv')
 
     parameters = make_parameters(
         t_0_isoscalar, t_0_isovector,

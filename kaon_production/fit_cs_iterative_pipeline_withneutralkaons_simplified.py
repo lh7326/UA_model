@@ -2,9 +2,9 @@ from configparser import ConfigParser
 
 from multiprocessing import Pool
 
-from kaon_production.data import read_cross_section_data
+from kaon_production.data import read_data
 from model_parameters.KaonParametersSimplified import KaonParametersSimplified
-from kaon_production.IterativePipeline import IterativePipeline
+from pipeline.CrossSectionIterativePipeline import CrossSectionIterativePipeline
 from kaon_production.utils import perturb_model_parameters
 
 
@@ -52,8 +52,8 @@ if __name__ == '__main__':
 
     path_to_reports = '/home/lukas/reports'
 
-    charged_ts, charged_cross_sections_values, charged_errors = read_cross_section_data('charged_kaon.csv')
-    neutral_ts, neutral_cross_sections_values, neutral_errors = read_cross_section_data('neutral_kaon.csv')
+    charged_ts, charged_cross_sections_values, charged_errors = read_data('charged_kaon.csv')
+    neutral_ts, neutral_cross_sections_values, neutral_errors = read_data('neutral_kaon.csv')
 
     def f(name):
         initial_parameters = make_initial_parameters(t_0_isoscalar, t_0_isovector)
@@ -65,11 +65,11 @@ if __name__ == '__main__':
         )
         numbers = (5, 4, 6, 2, 8, 4, 10, 17, 5)
         repetitions = (5, 20, 20, 10, 40, 10, 20, 20, 10)
-        pipeline = IterativePipeline(
+        pipeline = CrossSectionIterativePipeline(
             name, initial_parameters,
             charged_ts, charged_cross_sections_values, charged_errors,
             neutral_ts, neutral_cross_sections_values, neutral_errors,
-            kaon_mass, alpha, hc_squared, t_0_isoscalar, t_0_isovector,
+            kaon_mass, alpha, hc_squared,
             path_to_reports, plot=False, use_handpicked_bounds=True,
             nr_free_params=numbers, nr_iterations=repetitions,
             nr_initial_rounds_with_fixed_resonances=5,

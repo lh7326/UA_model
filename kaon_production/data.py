@@ -9,18 +9,18 @@ Datapoint = namedtuple('Datapoint', 't is_charged')
 DIR_NAME = '../data'
 
 
-def read_cross_section_data(file_name: str = 'charged_kaon.csv') -> Tuple[List[float], List[float], List[float]]:
-    ts = []
-    form_factors = []
-    sigmas = []
+def read_data(file_name: str = 'charged_kaon.csv') -> Tuple[List[float], List[float], List[float]]:
+    xs = []
+    ys = []
+    errs = []
 
     filepath = os.path.join(DIR_NAME, file_name)
     with open(filepath, 'r') as f:
         reader = csv.reader(f, delimiter=' ')
-        for t, form_factor, sigma in reader:
-            ts.append(float(t))
-            form_factors.append(float(form_factor))
-            sigmas.append(float(sigma))
+        for x, y, err in reader:
+            xs.append(float(x))
+            ys.append(float(y))
+            errs.append(float(err))
 
-    return ts, form_factors, sigmas
+    return xs, ys, errs
 

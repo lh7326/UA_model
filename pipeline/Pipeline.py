@@ -1,41 +1,36 @@
+from abc import ABC, abstractmethod
 from typing import List, Type, Union
 import os.path
 
 from model_parameters import KaonParameters, KaonParametersSimplified, KaonParametersFixedSelected
-from kaon_production.Task import Task
+from task.Task import Task
 from kaon_production.data import Datapoint
 
 
-class Pipeline:
+class Pipeline(ABC):
 
     def __init__(self, name: str,
-                 parameters: Union[KaonParameters, KaonParametersSimplified, KaonParametersFixedSelected], tasks: List[Type[Task]],
-                 t_values_charged: List[float], cross_sections_charged: List[float], errors_charged: List[float],
-                 t_values_neutral: List[float], cross_sections_neutral: List[float], errors_neutral: List[float],
-                 k_meson_mass: float, alpha: float, hc_squared: float,
-                 t_0_isoscalar: float, t_0_isovector: float, reports_dir: str,
-                 plot: bool = True, use_handpicked_bounds: bool = True) -> None:
+                 parameters: Union[KaonParameters, KaonParametersSimplified, KaonParametersFixedSelected],
+                 tasks: List[Type[Task]],
+                 t_values_charged: List[float], ys_charged: List[float], errors_charged: List[float],
+                 t_values_neutral: List[float], ys_neutral: List[float], errors_neutral: List[float],
+                 reports_dir: str, plot: bool = True, use_handpicked_bounds: bool = True) -> None:
         self.name = name
         self.parameters = parameters
         self.tasks = tasks
         self.t_values_charged = t_values_charged
-        self.cross_sections_charged = cross_sections_charged
+        self.ys_charged = ys_charged
         self.errors_charged = errors_charged
         self.t_values_neutral = t_values_neutral
-        self.cross_sections_neutral = cross_sections_neutral
+        self.ys_neutral = ys_neutral
         self.errors_neutral = errors_neutral
-        self.k_meson_mass = k_meson_mass
-        self.alpha = alpha
-        self.hc_squared = hc_squared
-        self.t_0_isoscalar = t_0_isoscalar
-        self.t_0_isovector = t_0_isovector
         self.reports_dir = os.path.join(reports_dir, name)
         self.plot = plot
         self.use_handpicked_bounds = use_handpicked_bounds
 
         self.ts = None
         self.errors = None
-        self.cross_sections = None
+        self.ys = None
         self._prepare_data()
 
         self._report = f'Report {name}:\n'
@@ -47,13 +42,7 @@ class Pipeline:
         for i, task_class in enumerate(self.tasks):
             self._log(f'Initializing Task#{i}. Parameters: {self.parameters.to_list()}')
             task_name = f'Task#{i}:{task_class.__name__}'
-            task = task_class(
-                task_name, self.parameters,
-                self.ts, self.cross_sections, self.errors,
-                self.k_meson_mass, self.alpha, self.hc_squared,
-                self.t_0_isoscalar, self.t_0_isovector,
-                self.reports_dir, self.plot, self.use_handpicked_bounds
-            )
+            task = self._create_task(task_name, task_class)
 
             self._log(f'Running {task_name}')
             task.run()
@@ -106,15 +95,19 @@ class Pipeline:
 
     def _prepare_data(self):
         self.ts = [Datapoint(t, True) for t in self.t_values_charged]
-        self.cross_sections = list(self.cross_sections_charged)
+        self.ys = list(self.ys_charged)
         self.errors = list(self.errors_charged)
         self.ts += [Datapoint(t, False) for t in self.t_values_neutral]
-        self.cross_sections += list(self.cross_sections_neutral)
+        self.ys += list(self.ys_neutral)
         self.errors += list(self.errors_neutral)
 
-        self.ts, self.cross_sections, self.errors = zip(
+        self.ts, self.ys, self.errors = zip(
             *sorted(
-                zip(self.ts, self.cross_sections, self.errors),
+                zip(self.ts, self.ys, self.errors),
                 key=lambda tup: tup[0].t,
             )
         )
+
+    @abstractmethod
+    def _create_task(self, task_name: str, task_class: type(Task)) -> Task:
+        pass
