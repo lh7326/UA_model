@@ -28,11 +28,11 @@ def _get_ff_model(
         raise TypeError('Unexpected parameters type: ' + type(parameters).__name__)
 
 
-def _read_datapoint(datapoint: Union[Datapoint, Tuple[float, float]]) -> Tuple[float, bool]:
+def _read_datapoint(datapoint: Union[Datapoint, Tuple[complex, float]]) -> Tuple[complex, bool]:
     if isinstance(datapoint, Datapoint):
         return datapoint.t, datapoint.is_charged
     else:
-        return float(datapoint[0]), bool(datapoint[1])
+        return complex(datapoint[0]), bool(datapoint[1])
 
 
 def function_cross_section(

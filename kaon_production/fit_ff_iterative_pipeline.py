@@ -57,7 +57,7 @@ if __name__ == '__main__':
             use_handpicked_bounds=False,
         )
         numbers = (3, 3, 5, 2, 7, 5, 8, 12)
-        repetitions = (10, 40, 20, 10, 30, 30, 30, 20)
+        repetitions = (10, 40, 30, 20, 30, 40, 30, 30)
         pipeline = FormFactorIterativePipeline(
             name, initial_parameters,
             charged_ts, charged_ff_values, charged_errors,
@@ -70,8 +70,8 @@ if __name__ == '__main__':
 
     final_results = []
     best_fit = {'chi_squared': None, 'name': None, 'parameters': None}
-    for i in range(25):
-        result = f(f'iterative2_{i}')
+    for i in range(10):
+        result = f(f'iterative3_{i}')
         print(result)
         if result and result.get('chi_squared', None) is not None:
             final_results.append(result)
