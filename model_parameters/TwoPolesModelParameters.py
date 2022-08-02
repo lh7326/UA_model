@@ -60,3 +60,6 @@ class TwoPolesModelParameters(ModelParameters):
             'm_1': {'lower': 0.0, 'upper': np.inf},
             'm_2': {'lower': 0.0, 'upper': np.inf},
         }
+
+    def get_ordered_values(self):
+        return [self['a'].value, self['m_1'].value, self['m_2'].value]

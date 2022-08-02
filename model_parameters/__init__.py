@@ -1,4 +1,4 @@
-from .ModelParameters import Parameter
+from .ModelParameters import ModelParameters, Parameter
 from .KaonParameters import KaonParameters
 from .KaonParametersSimplified import KaonParametersSimplified
 from .KaonParametersFixedRhoOmega import KaonParametersFixedRhoOmega

@@ -57,3 +57,6 @@ class ETGMRModelParameters(ModelParameters):
             'a': {'lower': -np.inf, 'upper': np.inf},
             'm_a': {'lower': 0.0, 'upper': np.inf},
         }
+
+    def get_ordered_values(self):
+        return [self['a'].value, self['m_a'].value]

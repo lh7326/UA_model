@@ -70,8 +70,8 @@ if __name__ == '__main__':
 
     final_results = []
     best_fit = {'chi_squared': None, 'name': None, 'parameters': None}
-    for i in range(10):
-        result = f(f'iterative3_{i}')
+    for i in range(15):
+        result = f(f'iterative7_{i}')
         print(result)
         if result and result.get('chi_squared', None) is not None:
             final_results.append(result)
