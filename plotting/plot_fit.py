@@ -196,20 +196,20 @@ def plot_background_residuals_neutral_plus_charged(
     if charged_ts:
         ax1 = axes.pop()
         ax1.set_title(f'{title}: Charged')
-        ax1.set_xlabel('t [GeV^2]')
+        ax1.set_xlabel('p [GeV]')
         ax1.set_ylabel('Background Residues [1]')
         ax1.errorbar(charged_ts, charged_ys, yerr=charged_errors, ecolor='black', color='black', fmt='x')
         ax1.scatter(charged_ts, charged_fit, color='red')
-        ax1.set_xscale('log')
+        #ax1.set_xscale('log')
 
     if neutral_ts:
         ax2 = axes.pop()
         ax2.set_title(f'{title}: Neutral')
-        ax2.set_xlabel('t [GeV^2]')
+        ax2.set_xlabel('p [GeV]')
         ax2.set_ylabel('Background Residues [1]')
         ax2.errorbar(neutral_ts, neutral_ys, yerr=neutral_errors, ecolor='black', color='black', fmt='x')
         ax2.scatter(neutral_ts, neutral_fit, color='red')
-        ax2.set_xscale('log')
+        #ax2.set_xscale('log')
 
     if show:
         plt.show()

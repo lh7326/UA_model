@@ -1,3 +1,4 @@
+import math
 import numpy as np
 from typing import Dict, List, Tuple
 
@@ -100,7 +101,11 @@ class ResidualOscillationsTask(Task):
         background_ys = background_f(self.ts)
         self.ys_fit = self.ys = [y - b for y, b in zip(self.ys, background_ys)]
 
-        self.parameters = _OscillationsParameters(a=1.0, b=0.1, c=1.0, d=0.0)
+        self.map_ts_to_laboratory_system_momentum()
+        self.drop_large_momenta()
+
+        self.parameters = _OscillationsParameters(a=100.0, b=2.0, c=5.0, d=0.0)
+        #self.parameters = _OscillationsParameters(a=20.0, b=1.0, c=1.0, d=0.0)
 
         def partial(ts, *pars):
             parameters = _OscillationsParameters.from_list(self.parameters.to_list())
@@ -120,3 +125,18 @@ class ResidualOscillationsTask(Task):
 
             return results
         self.partial_f = partial
+
+    def map_ts_to_laboratory_system_momentum(self, m=0.493677):  # TODO: fix the hack with the mass
+        ps = [
+            Datapoint(t=math.sqrt(d.t * (d.t - 4*(m**2))) / (2 * m), is_charged=d.is_charged)
+            for d in self.ts
+        ]
+        self.ts_fit = self.ts = ps
+
+    def drop_large_momenta(self, m=0.493677):
+        threshold = m
+        nonrelativistic_momenta, vals, errs = zip(*[
+            (p, v, e) for p, v, e in zip(self.ts, self.ys, self.errors) if p.t < threshold])
+        self.ts_fit = self.ts = nonrelativistic_momenta
+        self.ys_fit = self.ys = vals
+        self.errors_fit = self.errors = errs

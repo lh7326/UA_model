@@ -68,7 +68,7 @@ if __name__ == '__main__':
     final_results = []
     best_fit = {'chi_squared': None, 'name': None, 'parameters': None}
     for i in range(1):
-        result = f(f'_1_{i}', model='etgmr')
+        result = f(f'_1_{i}', model='twopoles')
         print(result)
         if result and result.get('chi_squared', None) is not None:
             final_results.append(result)
