@@ -8,6 +8,8 @@ class NucleonUAModel:
     """
     The U&A model for the proton and neutron form factors.
 
+    WARN: The constraints fail to be satisfied once we insert non-zero decay rates here!
+
     """
     def __init__(
             self,
@@ -220,7 +222,7 @@ class NucleonUAModel:
             self.__setattr__(f'_{name}_component_' + resonance_name, component)
 
     def _initialize_isovector_components(self, name) -> None:
-        for resonance_name in ['rho', 'rho_prime', 'rho_double_prime', 'rho_triple_prime']:
+        for resonance_name in ['rho', 'rho_prime', 'rho_double_prime']:
             mass = self.__getattribute__('mass_' + resonance_name)
             decay_rate = self.__getattribute__('decay_rate_' + resonance_name)
             t_0 = self.__getattribute__(f't_0_{name}_isovector')
