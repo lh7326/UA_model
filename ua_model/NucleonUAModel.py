@@ -8,8 +8,6 @@ class NucleonUAModel:
     """
     The U&A model for the proton and neutron form factors.
 
-    WARN: The constraints fail to be satisfied once we insert non-zero decay rates here!
-
     """
     def __init__(
             self,
@@ -32,8 +30,8 @@ class NucleonUAModel:
             a_dirac_phi_prime: float,
             a_dirac_rho: float,
             a_pauli_omega: float,
-            a_pauli_omega_prime: float,
             a_pauli_phi: float,
+            a_pauli_phi_prime: float,
             mass_omega: float,
             decay_rate_omega: float,
             mass_omega_prime: float,
@@ -93,20 +91,14 @@ class NucleonUAModel:
         self.a_dirac_omega_prime = a_dirac_omega_prime
         self.a_dirac_phi = a_dirac_phi
         self.a_dirac_phi_prime = a_dirac_phi_prime
-        self._apply_constraints_dirac_isoscalar()
 
         # Dirac isovector form factor components' coupling constants
         self.a_dirac_rho = a_dirac_rho
-        self._apply_constraints_dirac_isovector()
 
         # Pauli isoscalar form factor components' coupling constants
         self.a_pauli_omega = a_pauli_omega
-        self.a_pauli_omega_prime = a_pauli_omega_prime
         self.a_pauli_phi = a_pauli_phi
-        self._apply_constraints_pauli_isoscalar()
-
-        # Pauli isovector form factor components' coupling constants
-        self._apply_constraints_pauli_isovector()
+        self.a_pauli_phi_prime = a_pauli_phi_prime
 
         self._t_to_W_dirac_isoscalar = MapFromTtoW(
             t_0=self.t_0_dirac_isoscalar,
@@ -169,43 +161,143 @@ class NucleonUAModel:
         else:
             return dirac_form_factor + pauli_form_factor
 
+    # TODO: refactor!
     def _eval_dirac_isoscalar_contribution(self, t: complex) -> complex:
         w = self._t_to_W_dirac_isoscalar(t)
         return (
-            self.a_dirac_omega * self._dirac_component_omega(w)
-            + self.a_dirac_omega_prime * self._dirac_component_omega_prime(w)
-            + self.a_dirac_omega_double_prime * self._dirac_component_omega_double_prime(w)
-            + self.a_dirac_phi * self._dirac_component_phi(w)
-            + self.a_dirac_phi_prime * self._dirac_component_phi_prime(w)
-            + self.a_dirac_phi_double_prime * self._dirac_component_phi_double_prime(w)
+            0.5 * self._dirac_component_omega_double_prime(w) * self._dirac_component_phi_double_prime(w) +
+            self.a_dirac_omega_prime * (
+                self._dirac_component_phi_double_prime(w) * self._dirac_component_omega_prime(w) *
+                (self.mass_phi_double_prime**2 - self.mass_omega_prime**2) / (
+                        self.mass_phi_double_prime**2 - self.mass_omega_double_prime**2) +
+                self._dirac_component_omega_double_prime(w) * self._dirac_component_omega_prime(w) *
+                (self.mass_omega_double_prime ** 2 - self.mass_omega_prime ** 2) / (
+                        self.mass_omega_double_prime ** 2 - self.mass_phi_double_prime ** 2) -
+                self._dirac_component_omega_double_prime(w) * self._dirac_component_phi_double_prime(w)
+            ) +
+            self.a_dirac_phi_prime * (
+                self._dirac_component_phi_double_prime(w) * self._dirac_component_phi_prime(w) *
+                (self.mass_phi_double_prime ** 2 - self.mass_phi_prime ** 2) / (
+                        self.mass_phi_double_prime ** 2 - self.mass_omega_double_prime ** 2) +
+                self._dirac_component_omega_double_prime(w) * self._dirac_component_phi_prime(w) *
+                (self.mass_omega_double_prime ** 2 - self.mass_phi_prime ** 2) / (
+                        self.mass_omega_double_prime ** 2 - self.mass_phi_double_prime ** 2) -
+                self._dirac_component_omega_double_prime(w) * self._dirac_component_phi_double_prime(w)
+            ) +
+            self.a_dirac_omega * (
+                self._dirac_component_phi_double_prime(w) * self._dirac_component_omega(w) *
+                (self.mass_phi_double_prime ** 2 - self.mass_omega ** 2) / (
+                        self.mass_phi_double_prime ** 2 - self.mass_omega_double_prime ** 2) +
+                self._dirac_component_omega_double_prime(w) * self._dirac_component_omega(w) *
+                (self.mass_omega_double_prime ** 2 - self.mass_omega ** 2) / (
+                        self.mass_omega_double_prime ** 2 - self.mass_phi_double_prime ** 2) -
+                self._dirac_component_omega_double_prime(w) * self._dirac_component_phi_double_prime(w)
+            ) +
+            self.a_dirac_phi * (
+                self._dirac_component_phi_double_prime(w) * self._dirac_component_phi(w) *
+                (self.mass_phi_double_prime ** 2 - self.mass_phi ** 2) / (
+                        self.mass_phi_double_prime ** 2 - self.mass_omega_double_prime ** 2) +
+                self._dirac_component_omega_double_prime(w) * self._dirac_component_phi(w) *
+                (self.mass_omega_double_prime ** 2 - self.mass_phi ** 2) / (
+                        self.mass_omega_double_prime ** 2 - self.mass_phi_double_prime ** 2) -
+                self._dirac_component_omega_double_prime(w) * self._dirac_component_phi_double_prime(w)
+            )
         )
 
     def _eval_dirac_isovector_contribution(self, t: complex) -> complex:
         w = self._t_to_W_dirac_isovector(t)
         return (
-            self.a_dirac_rho * self._dirac_component_rho(w)
-            + self.a_dirac_rho_prime * self._dirac_component_rho_prime(w)
-            + self.a_dirac_rho_double_prime * self._dirac_component_rho_double_prime(w)
+            0.5 * self._dirac_component_rho_prime(w) * self._dirac_component_rho_double_prime(w) +
+            self.a_dirac_rho * (
+                self._dirac_component_rho(w) * self._dirac_component_rho_prime(w) *
+                (self.mass_rho_prime**2 - self.mass_rho**2) / (
+                    self.mass_rho_prime**2 - self.mass_rho_double_prime**2) +
+                self._dirac_component_rho(w) * self._dirac_component_rho_double_prime(w) *
+                (self.mass_rho_double_prime ** 2 - self.mass_rho ** 2) / (
+                    self.mass_rho_double_prime ** 2 - self.mass_rho_prime ** 2) -
+                self._dirac_component_rho_prime(w) * self._dirac_component_rho_double_prime(w)
+            )
         )
 
     def _eval_pauli_isoscalar_contribution(self, t: complex) -> complex:
         w = self._t_to_W_pauli_isoscalar(t)
+        norm = 0.5 * (self.magnetic_moment_proton + self.magnetic_moment_neutron - 1.0)
         return (
-                self.a_pauli_omega * self._pauli_component_omega(w)
-                + self.a_pauli_omega_prime * self._pauli_component_omega_prime(w)
-                + self.a_pauli_omega_double_prime * self._pauli_component_omega_double_prime(w)
-                + self.a_pauli_phi * self._pauli_component_phi(w)
-                + self.a_pauli_phi_prime * self._pauli_component_phi_prime(w)
-                + self.a_pauli_phi_double_prime * self._pauli_component_phi_double_prime(w)
+            norm * self._pauli_component_omega_double_prime(w) * self._pauli_component_phi_double_prime(w) *
+            self._pauli_component_omega_prime(w) +
+            self.a_pauli_phi_prime * (
+                self._pauli_component_phi_double_prime(w) * self._pauli_component_phi_prime(w) *
+                self._pauli_component_omega_prime(w) *
+                ((self.mass_phi_double_prime**2 - self.mass_phi_prime**2) /
+                 (self.mass_phi_double_prime**2 - self.mass_omega_double_prime**2)) *
+                ((self.mass_omega_prime ** 2 - self.mass_phi_prime ** 2) /
+                 (self.mass_omega_prime ** 2 - self.mass_omega_double_prime ** 2)) +
+                self._pauli_component_omega_double_prime(w) * self._pauli_component_omega_prime(w) *
+                self._pauli_component_phi_prime(w) *
+                ((self.mass_omega_double_prime ** 2 - self.mass_phi_prime ** 2) /
+                 (self.mass_omega_double_prime ** 2 - self.mass_phi_double_prime ** 2)) *
+                ((self.mass_omega_prime ** 2 - self.mass_phi_prime ** 2) /
+                 (self.mass_omega_prime ** 2 - self.mass_phi_double_prime ** 2)) +
+                self._pauli_component_omega_double_prime(w) * self._pauli_component_phi_double_prime(w) *
+                self._pauli_component_phi_prime(w) *
+                ((self.mass_omega_double_prime ** 2 - self.mass_phi_prime ** 2) /
+                 (self.mass_omega_double_prime ** 2 - self.mass_omega_prime ** 2)) *
+                ((self.mass_phi_double_prime ** 2 - self.mass_phi_prime ** 2) /
+                 (self.mass_phi_double_prime ** 2 - self.mass_omega_prime ** 2)) -
+                self._pauli_component_omega_double_prime(w) * self._pauli_component_phi_double_prime(w) *
+                self._pauli_component_omega_prime(w)
+            ) +
+            self.a_pauli_omega * (
+                self._pauli_component_phi_double_prime(w) * self._pauli_component_omega_prime(w) *
+                self._pauli_component_omega(w) *
+                ((self.mass_phi_double_prime ** 2 - self.mass_omega ** 2) /
+                 (self.mass_phi_double_prime ** 2 - self.mass_omega_double_prime ** 2)) *
+                ((self.mass_omega_prime ** 2 - self.mass_omega ** 2) /
+                 (self.mass_omega_prime ** 2 - self.mass_omega_double_prime ** 2)) +
+                self._pauli_component_omega_double_prime(w) * self._pauli_component_omega_prime(w) *
+                self._pauli_component_omega(w) *
+                ((self.mass_omega_double_prime ** 2 - self.mass_omega ** 2) /
+                 (self.mass_omega_double_prime ** 2 - self.mass_phi_double_prime ** 2)) *
+                ((self.mass_omega_prime ** 2 - self.mass_omega ** 2) /
+                 (self.mass_omega_prime ** 2 - self.mass_phi_double_prime ** 2)) +
+                self._pauli_component_omega_double_prime(w) * self._pauli_component_phi_double_prime(w) *
+                self._pauli_component_omega(w) *
+                ((self.mass_omega_double_prime ** 2 - self.mass_omega ** 2) /
+                 (self.mass_omega_double_prime ** 2 - self.mass_omega_prime ** 2)) *
+                ((self.mass_phi_double_prime ** 2 - self.mass_omega ** 2) /
+                 (self.mass_phi_double_prime ** 2 - self.mass_omega_prime ** 2)) -
+                self._pauli_component_omega_double_prime(w) * self._pauli_component_phi_double_prime(w) *
+                self._pauli_component_omega_prime(w)
+            ) +
+            self.a_pauli_phi * (
+                self._pauli_component_phi_double_prime(w) * self._pauli_component_omega_prime(w) *
+                self._pauli_component_phi(w) *
+                ((self.mass_phi_double_prime ** 2 - self.mass_phi ** 2) /
+                 (self.mass_phi_double_prime ** 2 - self.mass_omega_double_prime ** 2)) *
+                ((self.mass_omega_prime ** 2 - self.mass_phi ** 2) /
+                 (self.mass_omega_prime ** 2 - self.mass_omega_double_prime ** 2)) +
+                self._pauli_component_omega_double_prime(w) * self._pauli_component_omega_prime(w) *
+                self._pauli_component_phi(w) *
+                ((self.mass_omega_double_prime ** 2 - self.mass_phi ** 2) /
+                 (self.mass_omega_double_prime ** 2 - self.mass_phi_double_prime ** 2)) *
+                ((self.mass_omega_prime ** 2 - self.mass_phi ** 2) /
+                 (self.mass_omega_prime ** 2 - self.mass_phi_double_prime ** 2)) +
+                self._pauli_component_omega_double_prime(w) * self._pauli_component_phi_double_prime(w) *
+                self._pauli_component_phi(w) *
+                ((self.mass_omega_double_prime ** 2 - self.mass_phi ** 2) /
+                 (self.mass_omega_double_prime ** 2 - self.mass_omega_prime ** 2)) *
+                ((self.mass_phi_double_prime ** 2 - self.mass_phi ** 2) /
+                 (self.mass_phi_double_prime ** 2 - self.mass_omega_prime ** 2)) -
+                self._pauli_component_omega_double_prime(w) * self._pauli_component_phi_double_prime(w) *
+                self._pauli_component_omega_prime(w)
+            )
         )
 
     def _eval_pauli_isovector_contribution(self, t: complex) -> complex:
         w = self._t_to_W_pauli_isovector(t)
-        return (
-                self.a_pauli_rho * self._pauli_component_rho(w)
-                + self.a_pauli_rho_prime * self._pauli_component_rho_prime(w)
-                + self.a_pauli_rho_double_prime * self._pauli_component_rho_double_prime(w)
-        )
+        norm = 0.5 * (self.magnetic_moment_proton - self.magnetic_moment_neutron - 1.0)
+        return (norm * self._pauli_component_rho(w) * self._pauli_component_rho_prime(w) *
+                self._pauli_component_rho_double_prime(w))
 
     def _initialize_isoscalar_components(self, name) -> None:
         # The construction below is perhaps a bit unfortunate, but it seems to me
@@ -244,118 +336,3 @@ class NucleonUAModel:
             return UAComponentVariantA(w_n, w_meson)
         else:
             return UAComponentVariantB(w_n, w_meson)
-
-    def _apply_constraints_dirac_isoscalar(self) -> None:
-        """
-        The form factor is normalized to have the value 0.5 at t=0
-        and its asymptotic behaviour should be that of ~1/t**2.
-
-        """
-        self.a_dirac_omega_double_prime = (0.5 - (
-                self.a_dirac_omega * (1.0 - self.mass_omega**2 / self.mass_phi_double_prime**2) +
-                self.a_dirac_omega_prime * (1.0 - self.mass_omega_prime**2 / self.mass_phi_double_prime**2) +
-                self.a_dirac_phi * (1.0 - self.mass_phi**2 / self.mass_phi_double_prime**2) +
-                self.a_dirac_phi_prime * (1.0 - self.mass_phi_prime**2 / self.mass_phi_double_prime**2)
-        )) / (1.0 - self.mass_omega_double_prime**2 / self.mass_phi_double_prime**2)
-
-        self.a_dirac_phi_double_prime = -1.0 * (
-                self.a_dirac_omega * self.mass_omega**2 +
-                self.a_dirac_omega_prime * self.mass_omega_prime**2 +
-                self.a_dirac_omega_double_prime * self.mass_omega_double_prime**2 +
-                self.a_dirac_phi * self.mass_phi**2 +
-                self.a_dirac_phi_prime * self.mass_phi_prime**2) / self.mass_phi_double_prime**2
-
-    def _apply_constraints_dirac_isovector(self) -> None:
-        """
-        The form factor is normalized to have the value 0.5 at t=0
-        and its asymptotic behaviour should be that of ~1/t**2.
-
-        """
-        self.a_dirac_rho_prime = (0.5 - (
-                self.a_dirac_rho * (1.0 - self.mass_rho ** 2 / self.mass_rho_double_prime ** 2)
-        )) / (1.0 - self.mass_rho_prime ** 2 / self.mass_rho_double_prime ** 2)
-
-        self.a_dirac_rho_double_prime = -1.0 * (
-                self.a_dirac_rho * self.mass_rho ** 2 +
-                self.a_dirac_rho_prime * self.mass_rho_prime ** 2
-        ) / self.mass_rho_double_prime ** 2
-
-    def _apply_constraints_pauli_isoscalar(self) -> None:
-        """
-        The form factor is normalized to have the value 0.5 * (mu_p + mu_n - 1) at t=0,
-        where mu_p (mu_n) is the magnetic moment of the proton (neutron).
-        Its asymptotic behaviour should be that of ~1/t**3.
-
-        """
-        norm = 0.5 * (self.magnetic_moment_proton + self.magnetic_moment_neutron - 1.0)
-
-        def mass_factor_1(m):
-            m_sq = m**2
-            m_1_sq = self.mass_phi_double_prime**2
-            m_2_sq = self.mass_omega_double_prime**2
-            r = m_sq * ((1.0 / m_2_sq) - (m_2_sq / m_1_sq**2))
-            r *= (m_1_sq - m_sq) / (m_1_sq - m_2_sq)
-            return 1 - r - m_sq**2 / m_1_sq**2
-
-        self.a_pauli_phi_prime = (norm - (
-            self.a_pauli_omega * mass_factor_1(self.mass_omega) +
-            self.a_pauli_omega_prime * mass_factor_1(self.mass_omega_prime) +
-            self.a_pauli_phi * mass_factor_1(self.mass_phi)
-        )) / mass_factor_1(self.mass_phi_prime)
-
-        def mass_factor_2(m):
-            m_sq = m**2
-            m_1_sq = self.mass_phi_double_prime ** 2
-            m_2_sq = self.mass_omega_double_prime ** 2
-            return (m_sq / m_2_sq) * (m_1_sq - m_sq) / (m_1_sq - m_2_sq)
-
-        self.a_pauli_omega_double_prime = - 1.0 * (
-            self.a_pauli_omega * mass_factor_2(self.mass_omega) +
-            self.a_pauli_omega_prime * mass_factor_2(self.mass_omega_prime) +
-            self.a_pauli_phi * mass_factor_2(self.mass_phi) +
-            self.a_pauli_phi_prime * mass_factor_2(self.mass_phi_prime))
-
-        def mass_factor_3(m):
-            return m**4 / self.mass_phi_double_prime**4
-
-        self.a_pauli_phi_double_prime = -1.0 * (
-            self.a_pauli_omega * mass_factor_3(self.mass_omega) +
-            self.a_pauli_omega_prime * mass_factor_3(self.mass_omega_prime) +
-            self.a_pauli_omega_double_prime * mass_factor_3(self.mass_omega_double_prime) +
-            self.a_pauli_phi * mass_factor_3(self.mass_phi) +
-            self.a_pauli_phi_prime * mass_factor_3(self.mass_phi_prime))
-
-    # TODO: refactor the constraints application
-    def _apply_constraints_pauli_isovector(self) -> None:
-        """
-        The form factor is normalized to have the value 0.5 * (mu_p - mu_n - 1) at t=0,
-        where mu_p (mu_n) is the magnetic moment of the proton (neutron).
-        Its asymptotic behaviour should be that of ~1/t**3.
-
-        """
-        norm = 0.5 * (self.magnetic_moment_proton - self.magnetic_moment_neutron - 1.0)
-
-        def mass_factor_1(m):
-            m_sq = m ** 2
-            m_1_sq = self.mass_rho_double_prime ** 2
-            m_2_sq = self.mass_rho_prime ** 2
-            r = m_sq * ((1.0 / m_2_sq) - (m_2_sq / m_1_sq ** 2))
-            r *= (m_1_sq - m_sq) / (m_1_sq - m_2_sq)
-            return 1 - r - m_sq ** 2 / m_1_sq ** 2
-
-        self.a_pauli_rho = norm / mass_factor_1(self.mass_rho)
-
-        def mass_factor_2(m):
-            m_sq = m ** 2
-            m_1_sq = self.mass_rho_double_prime ** 2
-            m_2_sq = self.mass_rho_prime ** 2
-            return (m_sq / m_2_sq) * (m_1_sq - m_sq) / (m_1_sq - m_2_sq)
-
-        self.a_pauli_rho_prime = - 1.0 * self.a_pauli_rho * mass_factor_2(self.mass_rho)
-
-        def mass_factor_3(m):
-            return m ** 4 / self.mass_rho_double_prime ** 4
-
-        self.a_pauli_rho_double_prime = -1.0 * (
-                self.a_pauli_rho * mass_factor_3(self.mass_rho) +
-                self.a_pauli_rho_prime * mass_factor_3(self.mass_rho_prime))

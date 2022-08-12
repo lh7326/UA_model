@@ -27,8 +27,8 @@ class TestNucleonUAModel(TestCase):
             a_dirac_phi_prime=0.07,
             a_dirac_rho=0.34,
             a_pauli_omega=-0.17,
-            a_pauli_omega_prime=0.09,
             a_pauli_phi=-0.42,
+            a_pauli_phi_prime=0.09,
             mass_omega=1.4,
             decay_rate_omega=0.001,
             mass_omega_prime=1.5,
@@ -77,80 +77,47 @@ class TestNucleonUAModel(TestCase):
             actual = nucleon_model(0.0)
             self.assertTrue(cmath.isclose(actual, expected, abs_tol=1e-15))
 
-        with self.subTest(msg='Test constraints --- dirac isoscalar'):
-            sum_alphas = (nucleon_model.a_dirac_omega + nucleon_model.a_dirac_omega_prime +
-                          nucleon_model.a_dirac_omega_double_prime + nucleon_model.a_dirac_phi +
-                          nucleon_model.a_dirac_phi_prime + nucleon_model.a_dirac_phi_double_prime)
-            sum_alphas_times_m_sq = (
-                    nucleon_model.a_dirac_omega * nucleon_model.mass_omega**2 +
-                    nucleon_model.a_dirac_omega_prime * nucleon_model.mass_omega_prime**2 +
-                    nucleon_model.a_dirac_omega_double_prime * nucleon_model.mass_omega_double_prime**2 +
-                    nucleon_model.a_dirac_phi * nucleon_model.mass_phi**2 +
-                    nucleon_model.a_dirac_phi_prime * nucleon_model.mass_phi_prime**2 +
-                    nucleon_model.a_dirac_phi_double_prime * nucleon_model.mass_phi_double_prime**2)
-            self.assertAlmostEqual(sum_alphas, 0.5)
-            self.assertAlmostEqual(sum_alphas_times_m_sq, 0.0)
+        with self.subTest(msg='Test asymptotic behaviour --- neutron magnetic'):
+            nucleon_model.electric = False
+            nucleon_model.proton = False
+            at_t = nucleon_model(10000)
+            at_2t = nucleon_model(20000)
+            self.assertAlmostEqual(4.0, abs(at_t) / abs(at_2t), delta=0.1)
 
-        with self.subTest(msg='Test constraints --- dirac isovector'):
-            sum_alphas = (nucleon_model.a_dirac_rho + nucleon_model.a_dirac_rho_prime +
-                          nucleon_model.a_dirac_rho_double_prime)
-            sum_alphas_times_m_sq = (
-                    nucleon_model.a_dirac_rho * nucleon_model.mass_rho ** 2 +
-                    nucleon_model.a_dirac_rho_prime * nucleon_model.mass_rho_prime ** 2 +
-                    nucleon_model.a_dirac_rho_double_prime * nucleon_model.mass_rho_double_prime ** 2)
-            self.assertAlmostEqual(sum_alphas, 0.5)
-            self.assertAlmostEqual(sum_alphas_times_m_sq, 0.0)
+        with self.subTest(msg='Test asymptotic behaviour --- proton magnetic'):
+            nucleon_model.electric = False
+            nucleon_model.proton = True
+            at_t = nucleon_model(10000)
+            at_2t = nucleon_model(20000)
+            self.assertAlmostEqual(4.0, abs(at_t) / abs(at_2t), delta=0.1)
 
-        with self.subTest(msg='Test constraints --- pauli isoscalar'):
-            sum_alphas = (nucleon_model.a_pauli_omega + nucleon_model.a_pauli_omega_prime +
-                          nucleon_model.a_pauli_omega_double_prime + nucleon_model.a_pauli_phi +
-                          nucleon_model.a_pauli_phi_prime + nucleon_model.a_pauli_phi_double_prime)
-            sum_alphas_times_m_sq = (
-                    nucleon_model.a_pauli_omega * nucleon_model.mass_omega**2 +
-                    nucleon_model.a_pauli_omega_prime * nucleon_model.mass_omega_prime**2 +
-                    nucleon_model.a_pauli_omega_double_prime * nucleon_model.mass_omega_double_prime**2 +
-                    nucleon_model.a_pauli_phi * nucleon_model.mass_phi**2 +
-                    nucleon_model.a_pauli_phi_prime * nucleon_model.mass_phi_prime**2 +
-                    nucleon_model.a_pauli_phi_double_prime * nucleon_model.mass_phi_double_prime**2)
-            sum_alphas_times_m_4 = (
-                    nucleon_model.a_pauli_omega * nucleon_model.mass_omega ** 4 +
-                    nucleon_model.a_pauli_omega_prime * nucleon_model.mass_omega_prime ** 4 +
-                    nucleon_model.a_pauli_omega_double_prime * nucleon_model.mass_omega_double_prime ** 4 +
-                    nucleon_model.a_pauli_phi * nucleon_model.mass_phi ** 4 +
-                    nucleon_model.a_pauli_phi_prime * nucleon_model.mass_phi_prime ** 4 +
-                    nucleon_model.a_pauli_phi_double_prime * nucleon_model.mass_phi_double_prime ** 4)
-            self.assertAlmostEqual(sum_alphas, 0.5)
-            self.assertAlmostEqual(sum_alphas_times_m_sq, 0.0)
-            self.assertAlmostEqual(sum_alphas_times_m_4, 0.0)
+        with self.subTest(msg='Test asymptotic behaviour --- neutron electric'):
+            nucleon_model.electric = True
+            nucleon_model.proton = False
+            at_t = nucleon_model(10000)
+            at_2t = nucleon_model(20000)
+            self.assertAlmostEqual(4.0, abs(at_t) / abs(at_2t), delta=0.1)
 
-        with self.subTest(msg='Test constraints --- pauli isovector'):
-            sum_alphas = (nucleon_model.a_pauli_rho + nucleon_model.a_pauli_rho_prime +
-                          nucleon_model.a_pauli_rho_double_prime)
-            sum_alphas_times_m_sq = (
-                    nucleon_model.a_pauli_rho * nucleon_model.mass_rho ** 2 +
-                    nucleon_model.a_pauli_rho_prime * nucleon_model.mass_rho_prime ** 2 +
-                    nucleon_model.a_pauli_rho_double_prime * nucleon_model.mass_rho_double_prime ** 2)
-            sum_alphas_times_m_4 = (
-                    nucleon_model.a_pauli_rho * nucleon_model.mass_rho ** 4 +
-                    nucleon_model.a_pauli_rho_prime * nucleon_model.mass_rho_prime ** 4 +
-                    nucleon_model.a_pauli_rho_double_prime * nucleon_model.mass_rho_double_prime ** 4)
-            self.assertAlmostEqual(sum_alphas, -1.2)
-            self.assertAlmostEqual(sum_alphas_times_m_sq, 0.0)
-            self.assertAlmostEqual(sum_alphas_times_m_4, 0.0)
+        with self.subTest(msg='Test asymptotic behaviour --- proton electric'):
+            nucleon_model.electric = True
+            nucleon_model.proton = True
+            at_t = nucleon_model(10000)
+            at_2t = nucleon_model(20000)
+            self.assertAlmostEqual(4.0, abs(at_t) / abs(at_2t), delta=0.1)
 
         test_cases = [
             {'t': 1.7, 'proton': True, 'electric': False,
-             'expected_value': 4.36717975188465+0.09514920657417147j},
+             'expected_value': 9.264041524614782+0.07288173635849036j},
             {'t': 1.7, 'proton': False, 'electric': True,
-             'expected_value': 4.290219270325238-0.053025055478032886j},
+             'expected_value': 6.36801456730032-0.05590379378968173j},
             {'t': 0.4+1.2j, 'proton': True, 'electric': True,
-             'expected_value': 0.8062489164241646+0.20344542716556585j},
+             'expected_value': 0.7782203362803921+0.1525683395543666j},
             {'t': 162.42-0.647j, 'proton': False, 'electric': False,
-             'expected_value': -0.014561505124673899-0.0002236384688640401j},
+             'expected_value': -0.002759958992972902-2.598171690422949e-05j},
             {'t': 84.1-9124.1j, 'proton': True, 'electric': True,
-             'expected_value': 0.26563707978916934+0.0004447372971235849j},
+             'expected_value': -5.1303718120553975e-06+7.795611633972505e-08j},
             {'t': 62.4j, 'proton': False, 'electric': False,
-             'expected_value': 0.019071884752262992+0.01373477520811673j},
+             'expected_value': 0.009671246342365719-0.009930048457120286j},
         ]
         for case in test_cases:
             with self.subTest(case=case):
