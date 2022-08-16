@@ -13,7 +13,7 @@ class NucleonUAModel:
             self,
             proton: bool,
             electric: bool,
-            mass: float,
+            nucleon_mass: float,
             magnetic_moment_proton: float,
             magnetic_moment_neutron: float,
             t_0_dirac_isoscalar: float,
@@ -53,7 +53,7 @@ class NucleonUAModel:
     ) -> None:
         self.proton = proton
         self.electric = electric
-        self.mass = mass
+        self.nucleon_mass = nucleon_mass
         self.magnetic_moment_proton = magnetic_moment_proton
         self.magnetic_moment_neutron = magnetic_moment_neutron
 
@@ -157,7 +157,7 @@ class NucleonUAModel:
             pauli_form_factor = pauli_isoscalar_contribution - pauli_isovector_contribution
 
         if self.electric:
-            return dirac_form_factor + (t / (4 * self.mass ** 2)) * pauli_form_factor
+            return dirac_form_factor + (t / (4 * self.nucleon_mass ** 2)) * pauli_form_factor
         else:
             return dirac_form_factor + pauli_form_factor
 

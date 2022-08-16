@@ -10,7 +10,7 @@ class TestNucleonUAModel(TestCase):
         nucleon_model = NucleonUAModel(
             proton=True,
             electric=True,
-            mass=1.0,
+            nucleon_mass=1.0,
             magnetic_moment_proton=0.3,
             magnetic_moment_neutron=1.7,
             t_0_dirac_isoscalar=1.0,

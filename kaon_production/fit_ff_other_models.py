@@ -1,10 +1,10 @@
-from kaon_production.data import read_data, Datapoint
+from kaon_production.data import read_data
 from model_parameters import ETGMRModelParameters, TwoPolesModelParameters
 from pipeline.FormFactorPipeline import FormFactorPipeline
 from task.ETGMRModelTask import ETGMRModelTask
 from task.TwoPolesModelTask import TwoPolesModelTask
 from task.ResidualOscillationsTask import ResidualOscillationsTask
-from kaon_production.utils import perturb_model_parameters
+from common.utils import perturb_model_parameters
 
 
 def make_initial_parameters(model: str='etgmr'):

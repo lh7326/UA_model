@@ -3,7 +3,7 @@ from random import sample
 
 from pipeline.FormFactorPipeline import FormFactorPipeline
 from model_parameters import KaonParameters, KaonParametersSimplified, KaonParametersFixedSelected
-from task.form_factor_tasks import TaskFixAccordingToParametersFit, TaskFullFitOnlyCharged
+from task.kaon_form_factor_tasks import TaskFixAccordingToParametersFit, TaskFullFitOnlyCharged
 
 
 class FormFactorIterativePipeline(FormFactorPipeline):

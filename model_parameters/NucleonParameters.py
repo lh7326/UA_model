@@ -8,6 +8,7 @@ from model_parameters.ModelParameters import Parameter, ModelParameters
 class NucleonParameters(ModelParameters):
 
     def __init__(self,
+                 nucleon_mass: float,
                  t_0_dirac_isoscalar: float,
                  t_0_dirac_isovector: float,
                  t_in_dirac_isoscalar: float,
@@ -43,8 +44,14 @@ class NucleonParameters(ModelParameters):
                  mass_rho_double_prime: float,
                  decay_rate_rho_double_prime: float) -> None:
 
+        always_fixed = (
+            'nucleon_mass',
+            't_0_dirac_isoscalar', 't_0_dirac_isovector',
+            't_0_pauli_isoscalar', 't_0_pauli_isovector',
+        )
+
         super().__init__(
-            t_0_dirac_isoscalar, t_0_dirac_isovector, t_in_dirac_isoscalar, t_in_dirac_isovector,
+            nucleon_mass, t_0_dirac_isoscalar, t_0_dirac_isovector, t_in_dirac_isoscalar, t_in_dirac_isovector,
             t_0_pauli_isoscalar, t_0_pauli_isovector, t_in_pauli_isoscalar, t_in_pauli_isovector,
             a_dirac_omega, a_pauli_omega, mass_omega, decay_rate_omega, a_dirac_omega_prime,
             mass_omega_prime, decay_rate_omega_prime, mass_omega_double_prime, decay_rate_omega_double_prime,
@@ -52,10 +59,11 @@ class NucleonParameters(ModelParameters):
             mass_phi_prime, decay_rate_phi_prime, mass_phi_double_prime, decay_rate_phi_double_prime,
             a_dirac_rho, mass_rho, decay_rate_rho, mass_rho_prime, decay_rate_rho_prime,
             mass_rho_double_prime, decay_rate_rho_double_prime,
-            always_fixed=('t_0_dirac_isoscalar', 't_0_dirac_isovector', 't_0_pauli_isoscalar', 't_0_pauli_isovector'),
+            always_fixed=always_fixed,
         )
 
     def _setup_data(self,
+                    nucleon_mass: float,
                     t_0_dirac_isoscalar: float,
                     t_0_dirac_isovector: float,
                     t_in_dirac_isoscalar: float,
@@ -92,6 +100,7 @@ class NucleonParameters(ModelParameters):
                     decay_rate_rho_double_prime: float) -> List[Parameter]:
 
         return [
+            Parameter(name='nucleon_mass', value=nucleon_mass, is_fixed=True),
             Parameter(name='t_0_dirac_isoscalar', value=t_0_dirac_isoscalar, is_fixed=True),
             Parameter(name='t_0_dirac_isovector', value=t_0_dirac_isovector, is_fixed=True),
             Parameter(name='t_in_dirac_isoscalar', value=t_in_dirac_isoscalar, is_fixed=False),

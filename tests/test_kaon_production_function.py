@@ -1,7 +1,7 @@
 from unittest import TestCase
 import cmath
 
-from kaon_production.function import function_cross_section
+from kaon_production.function import function_kaon_cross_section
 from kaon_production.data import Datapoint
 from model_parameters import KaonParameters, KaonParametersSimplified
 
@@ -59,7 +59,7 @@ class TestKaonProductionFunction(TestCase):
             decay_rate_rho_triple_prime=0.25,
         )
 
-        actual_values = function_cross_section(
+        actual_values = function_kaon_cross_section(
             ts,
             k_meson_mass=0.493677,
             alpha=0.0072973525693,
@@ -128,7 +128,7 @@ class TestKaonProductionFunction(TestCase):
             mass_rho_triple_prime=1.720,
             decay_rate_rho_triple_prime=0.25,
         )
-        actual_values = function_cross_section(
+        actual_values = function_kaon_cross_section(
             ts,
             k_meson_mass=0.493677,
             alpha=0.0072973525693,

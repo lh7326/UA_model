@@ -1,15 +1,15 @@
-from task.FormFactorTask import FormFactorTask
+from task.KaonFormFactorTask import KaonFormFactorTask
 from kaon_production.utils import make_partial_form_factor_for_parameters
 
 
-class TaskFullFit(FormFactorTask):
+class TaskFullFit(KaonFormFactorTask):
 
     def _set_up(self):
         self.parameters.release_all_parameters()
         self.partial_f = make_partial_form_factor_for_parameters(self.parameters)
 
 
-class TaskFullFitOnlyCharged(FormFactorTask):
+class TaskFullFitOnlyCharged(KaonFormFactorTask):
 
     def _set_up(self):
         self.parameters.release_all_parameters()
@@ -22,13 +22,13 @@ class TaskFullFitOnlyCharged(FormFactorTask):
         )
 
 
-class TaskFixAccordingToParametersFit(FormFactorTask):
+class TaskFixAccordingToParametersFit(KaonFormFactorTask):
 
     def _set_up(self):
         self.partial_f = make_partial_form_factor_for_parameters(self.parameters)
 
 
-class TaskFixAccordingToParametersFitOnlyCharged(FormFactorTask):
+class TaskFixAccordingToParametersFitOnlyCharged(KaonFormFactorTask):
 
     def _set_up(self):
         self.partial_f = make_partial_form_factor_for_parameters(self.parameters)

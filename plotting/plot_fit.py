@@ -216,3 +216,67 @@ def plot_background_residuals_neutral_plus_charged(
     if save_dir:
         plt.savefig(os.path.join(save_dir, f'{title.lower()}.png'))
     plt.close()
+
+
+def plot_ff_fit_electric_plus_magnetic(
+        ts, ffs, errors, f, pars, title='Form Factor Fit', show=True, save_dir=None):
+    fit_ffs = f(ts, *pars)
+
+    electric_ts = []
+    electric_ffs = []
+    electric_errors = []
+    electric_fit = []
+    magnetic_ts = []
+    magnetic_ffs = []
+    magnetic_errors = []
+    magnetic_fit = []
+    for i in range(len(ts)):
+        datapoint = ts[i]
+        if datapoint.electric:
+            electric_ts.append(datapoint.t)
+            electric_ffs.append(ffs[i])
+            electric_errors.append(errors[i])
+            electric_fit.append(fit_ffs[i])
+        else:
+            magnetic_ts.append(datapoint.t)
+            magnetic_ffs.append(ffs[i])
+            magnetic_errors.append(errors[i])
+            magnetic_fit.append(fit_ffs[i])
+
+    nr_subplots = 0
+    if electric_ts:
+        nr_subplots += 1
+    if magnetic_ts:
+        nr_subplots += 1
+
+    fig, axes = plt.subplots(nr_subplots, 1)
+    if nr_subplots == 1:
+        axes = [axes]
+    else:
+        axes = list(axes)
+
+    if electric_ts:
+        ax1 = axes.pop()
+        ax1.set_title(f'{title}: Electric FF')
+        ax1.set_xlabel('t [GeV^2]')
+        ax1.set_ylabel('Form Factor [1]')
+        ax1.errorbar(electric_ts, electric_ffs, yerr=electric_errors, ecolor='black', color='black', fmt='x')
+        ax1.scatter(electric_ts, electric_fit, color='red')
+        ax1.set_xscale('log')
+        ax1.set_yscale('log')
+
+    if magnetic_ts:
+        ax2 = axes.pop()
+        ax2.set_title(f'{title}: Magnetic FF')
+        ax2.set_xlabel('t [GeV^2]')
+        ax2.set_ylabel('Form Factor [1]')
+        ax2.errorbar(magnetic_ts, magnetic_ffs, yerr=magnetic_errors, ecolor='black', color='black', fmt='x')
+        ax2.scatter(magnetic_ts, magnetic_fit, color='red')
+        ax2.set_xscale('log')
+        ax2.set_yscale('log')
+
+    if show:
+        plt.show()
+    if save_dir:
+        plt.savefig(os.path.join(save_dir, f'{title.lower()}.png'))
+    plt.close()

@@ -1,9 +1,10 @@
 from abc import ABC, abstractmethod
 import numpy as np
 from scipy.optimize import curve_fit
-from typing import List
+from typing import List, Union
 
 from kaon_production.data import Datapoint
+from nucleon_production.data import NucleonDatapoint
 from model_parameters import ModelParameters
 
 
@@ -12,7 +13,7 @@ class Task(ABC):
     def __init__(self,
                  name: str,
                  parameters: ModelParameters,
-                 ts: List[Datapoint],
+                 ts: Union[List[Datapoint], List[NucleonDatapoint]],
                  ys: List[float],
                  errors: List[float],
                  reports_dir: str,

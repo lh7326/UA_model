@@ -3,15 +3,16 @@ from typing import List, Union
 
 from kaon_production.data import Datapoint
 from plotting.plot_fit import plot_ff_fit_neutral_plus_charged
-from model_parameters import KaonParameters, KaonParametersSimplified, KaonParametersFixedSelected
+from model_parameters import KaonParameters, KaonParametersB, KaonParametersSimplified, KaonParametersFixedSelected
 from task.Task import Task
 
 
-class FormFactorTask(Task, ABC):
+class KaonFormFactorTask(Task, ABC):
 
     def __init__(self,
                  name: str,
-                 parameters: Union[KaonParameters, KaonParametersSimplified, KaonParametersFixedSelected],
+                 parameters: Union[KaonParameters, KaonParametersB, KaonParametersSimplified,
+                                   KaonParametersFixedSelected],
                  ts: List[Datapoint],
                  ffs: List[float],
                  errors: List[float],
