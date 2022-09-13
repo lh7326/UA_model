@@ -6,15 +6,16 @@ from model_parameters.ModelParameters import Parameter, ModelParameters
 
 class ETGMRModelParameters(ModelParameters):
 
-    def __init__(self, a: float, m_a: float) -> None:
+    def __init__(self, a: float, m_a: float, m_d: float) -> None:
 
-        super().__init__(a, m_a, always_fixed=())
+        super().__init__(a, m_a, m_d, always_fixed=())
 
-    def _setup_data(self, a: float, m_a: float) -> List[Parameter]:
+    def _setup_data(self, a: float, m_a: float, m_d: float) -> List[Parameter]:
 
         return [
             Parameter(name='a', value=a, is_fixed=False),
             Parameter(name='m_a', value=m_a, is_fixed=False),
+            Parameter(name='m_d', value=m_d, is_fixed=False)
         ]
 
     @classmethod
@@ -49,6 +50,7 @@ class ETGMRModelParameters(ModelParameters):
         return {
             'a': {'lower': -np.inf, 'upper': np.inf},
             'm_a': {'lower': 0.1, 'upper': np.inf},
+            'm_d': {'lower': 0.1, 'upper': np.inf},
         }
 
     @staticmethod
@@ -56,6 +58,7 @@ class ETGMRModelParameters(ModelParameters):
         return {
             'a': {'lower': -np.inf, 'upper': np.inf},
             'm_a': {'lower': 0.0, 'upper': np.inf},
+            'm_d': {'lower': 0.0, 'upper': np.inf},
         }
 
     def get_ordered_values(self):

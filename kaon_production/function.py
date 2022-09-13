@@ -28,7 +28,7 @@ def _get_ff_model(
     elif isinstance(parameters, KaonParametersFixedSelected):
         return KaonUAModel(charged_variant=True, **{p.name: p.value for p in parameters})
     elif isinstance(parameters, ETGMRModelParameters):
-        return ETGMRModel(a=parameters['a'].value, m_a=parameters['m_a'].value)
+        return ETGMRModel(a=parameters['a'].value, m_a=parameters['m_a'].value, m_d=parameters['m_d'].value)
     elif isinstance(parameters, TwoPolesModelParameters):
         return TwoPolesModel(a=parameters['a'].value, m_1=parameters['m_1'].value, m_2=parameters['m_2'].value)
     else:

@@ -1,3 +1,5 @@
+import math
+
 from kaon_production.data import read_data
 from model_parameters import ETGMRModelParameters, TwoPolesModelParameters
 from pipeline.FormFactorPipeline import FormFactorPipeline
@@ -11,7 +13,8 @@ def make_initial_parameters(model: str='etgmr'):
     if model.lower() == 'etgmr':
         return ETGMRModelParameters(
             a=1.0,
-            m_a=15.0,
+            m_a=1.0,
+            m_d=math.sqrt(0.71),
         )
     elif model.lower() == 'twopoles':
         return TwoPolesModelParameters(
@@ -68,7 +71,7 @@ if __name__ == '__main__':
     final_results = []
     best_fit = {'chi_squared': None, 'name': None, 'parameters': None}
     for i in range(1):
-        result = f(f'_1_{i}', model='twopoles')
+        result = f(f'_1_{i}', model='etgmr')
         print(result)
         if result and result.get('chi_squared', None) is not None:
             final_results.append(result)
