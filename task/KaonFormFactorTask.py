@@ -1,7 +1,7 @@
 from abc import ABC
 from typing import List, Union
 
-from kaon_production.data import Datapoint
+from kaon_production.data import KaonDatapoint
 from plotting.plot_fit import plot_ff_fit_neutral_plus_charged
 from model_parameters import KaonParameters, KaonParametersB, KaonParametersSimplified, KaonParametersFixedSelected
 from task.Task import Task
@@ -13,7 +13,7 @@ class KaonFormFactorTask(Task, ABC):
                  name: str,
                  parameters: Union[KaonParameters, KaonParametersB, KaonParametersSimplified,
                                    KaonParametersFixedSelected],
-                 ts: List[Datapoint],
+                 ts: List[KaonDatapoint],
                  ffs: List[float],
                  errors: List[float],
                  reports_dir: str,

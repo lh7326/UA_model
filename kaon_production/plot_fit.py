@@ -1,17 +1,17 @@
 from configparser import ConfigParser
 
-from kaon_production.data import read_data, Datapoint
-from kaon_production.utils import make_partial_form_factor_for_parameters, make_partial_cross_section_for_parameters
+from kaon_production.data import read_data, KaonDatapoint
+from common.utils import make_partial_form_factor_for_parameters, make_partial_cross_section_for_parameters
 from model_parameters import KaonParametersB, Parameter
 from plotting.plot_fit import plot_ff_fit_neutral_plus_charged
 from task.ResidualOscillationsTask import ResidualOscillationsTask
 
 
 def prepare_data(ts_charged, css_charged, errors_charged, ts_neutral, css_neutral, errors_neutral):
-    ts = [Datapoint(t, True) for t in ts_charged]
+    ts = [KaonDatapoint(t, True) for t in ts_charged]
     cross_sections = list(css_charged)
     errors = list(errors_charged)
-    ts += [Datapoint(t, False) for t in ts_neutral]
+    ts += [KaonDatapoint(t, False) for t in ts_neutral]
     cross_sections += list(css_neutral)
     errors += list(errors_neutral)
 
@@ -75,9 +75,9 @@ if __name__ == '__main__':
     alpha = config.getfloat('constants', 'alpha')
     hc_squared = config.getfloat('constants', 'hc_squared')
     g = make_partial_cross_section_for_parameters(
-        k_meson_mass=kaon_mass, alpha=alpha, hc_squared=hc_squared, parameters=parameters)
-    print(f([Datapoint(t=8.0, is_charged=True)]))
-    print(g([Datapoint(t=8.0, is_charged=True)]))
+        product_particle_mass=kaon_mass, alpha=alpha, hc_squared=hc_squared, parameters=parameters)
+    print(f([KaonDatapoint(t=8.0, is_charged=True)]))
+    print(g([KaonDatapoint(t=8.0, is_charged=True)]))
     plot_ff_fit_neutral_plus_charged(ts, ffs, errs, f, (), 'plot_fit', show=True, save_dir=None)
 
     task = ResidualOscillationsTask(

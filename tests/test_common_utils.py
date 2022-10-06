@@ -1,26 +1,28 @@
 from unittest import TestCase
 import cmath
 
-from kaon_production.function import function_kaon_cross_section
-from kaon_production.data import Datapoint
+from common.utils import function_cross_section
+from kaon_production.data import KaonDatapoint
 from model_parameters import KaonParameters, KaonParametersSimplified
 
+# TODO: extend!
 
-class TestKaonProductionFunction(TestCase):
+
+class TestCommonUtils(TestCase):
 
     def test_function_cross_section__with_kaon_parameters(self):
 
         ts = [
-            Datapoint(t=1.1230, is_charged=True),
-            Datapoint(t=1.1230 + 0.73200j, is_charged=True),
+            KaonDatapoint(t=1.1230, is_charged=True),
+            KaonDatapoint(t=1.1230 + 0.73200j, is_charged=True),
             (0.73200j, 1.0),
-            Datapoint(t=-0.73200j, is_charged=True),
+            KaonDatapoint(t=-0.73200j, is_charged=True),
             (1.1230 - 0.73200j, 1.0),
             (1.1230, 0.0),
-            Datapoint(t=1.1230 + 0.73200j, is_charged=False),
-            Datapoint(t=0.73200j, is_charged=False),
+            KaonDatapoint(t=1.1230 + 0.73200j, is_charged=False),
+            KaonDatapoint(t=0.73200j, is_charged=False),
             (-0.73200j, 0.0),
-            Datapoint(t=1.1230 - 0.73200j, is_charged=False),
+            KaonDatapoint(t=1.1230 - 0.73200j, is_charged=False),
         ]
 
         m_pion = 0.13957039
@@ -59,9 +61,9 @@ class TestKaonProductionFunction(TestCase):
             decay_rate_rho_triple_prime=0.25,
         )
 
-        actual_values = function_kaon_cross_section(
+        actual_values = function_cross_section(
             ts,
-            k_meson_mass=0.493677,
+            product_particle_mass=0.493677,
             alpha=0.0072973525693,
             hc_squared=389379.3721,
             parameters=parameters,
@@ -87,16 +89,16 @@ class TestKaonProductionFunction(TestCase):
     def test_function_cross_section__with_kaon_parameters_simplified(self):
 
         ts = [
-            Datapoint(t=1.1230, is_charged=True),
-            Datapoint(t=1.1230 + 0.73200j, is_charged=True),
+            KaonDatapoint(t=1.1230, is_charged=True),
+            KaonDatapoint(t=1.1230 + 0.73200j, is_charged=True),
             (0.73200j, 1.0),
-            Datapoint(t=-0.73200j, is_charged=True),
-            Datapoint(t=1.1230 - 0.73200j, is_charged=True),
+            KaonDatapoint(t=-0.73200j, is_charged=True),
+            KaonDatapoint(t=1.1230 - 0.73200j, is_charged=True),
             (1.1230, 0.0),
             (1.1230 + 0.73200j, 0.0),
             (0.73200j, 0.0),
             (-0.73200j, 0.0),
-            Datapoint(t=1.1230 - 0.73200j, is_charged=False),
+            KaonDatapoint(t=1.1230 - 0.73200j, is_charged=False),
         ]
 
         m_pion = 0.13957039
@@ -128,9 +130,9 @@ class TestKaonProductionFunction(TestCase):
             mass_rho_triple_prime=1.720,
             decay_rate_rho_triple_prime=0.25,
         )
-        actual_values = function_kaon_cross_section(
+        actual_values = function_cross_section(
             ts,
-            k_meson_mass=0.493677,
+            product_particle_mass=0.493677,
             alpha=0.0072973525693,
             hc_squared=389379.3721,
             parameters=parameters,

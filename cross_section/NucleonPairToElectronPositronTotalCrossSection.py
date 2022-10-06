@@ -3,7 +3,7 @@ from configparser import ConfigParser
 import math
 
 
-class ScalarMesonProductionTotalCrossSection:
+class NucleonPairToElectronPositronTotalCrossSection:
 
     def __init__(
             self,

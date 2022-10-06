@@ -1,5 +1,5 @@
 from task.CrossSectionTask import CrossSectionTask
-from kaon_production.utils import make_partial_cross_section_for_parameters
+from common.utils import make_partial_cross_section_for_parameters
 
 
 class TaskFullFit(CrossSectionTask):

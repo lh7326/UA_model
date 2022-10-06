@@ -1,5 +1,5 @@
 from task.NucleonFormFactorTask import NucleonFormFactorTask
-from nucleon_production.utils import make_partial_form_factor_for_parameters
+from common.utils import make_partial_form_factor_for_parameters
 
 
 class TaskFullFit(NucleonFormFactorTask):

@@ -1,6 +1,6 @@
 from configparser import ConfigParser
 
-from kaon_production.data import read_data, Datapoint
+from kaon_production.data import read_data, KaonDatapoint
 from model_parameters import KaonParameters
 from task.cross_section_tasks import TaskFixAccordingToParametersFitOnlyCharged
 
@@ -10,10 +10,10 @@ def make_parameters(t_0_isoscalar, t_0_isovector, list_of_values):
 
 
 def prepare_data(ts_charged, css_charged, errors_charged, ts_neutral, css_neutral, errors_neutral):
-    ts = [Datapoint(t, True) for t in ts_charged]
+    ts = [KaonDatapoint(t, True) for t in ts_charged]
     cross_sections = list(css_charged)
     errors = list(errors_charged)
-    ts += [Datapoint(t, False) for t in ts_neutral]
+    ts += [KaonDatapoint(t, False) for t in ts_neutral]
     cross_sections += list(css_neutral)
     errors += list(errors_neutral)
 

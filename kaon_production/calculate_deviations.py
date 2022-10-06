@@ -1,9 +1,9 @@
 from configparser import ConfigParser
 from typing import List, Union
 
-from kaon_production.data import read_data, Datapoint
+from kaon_production.data import read_data, KaonDatapoint
 from model_parameters import Parameter, KaonParameters, KaonParametersSimplified, KaonParametersFixedRhoOmega
-from kaon_production.utils import make_partial_cross_section_for_parameters
+from common.utils import make_partial_cross_section_for_parameters
 
 
 def calculate_deviations_from_fit(
@@ -16,7 +16,7 @@ def calculate_deviations_from_fit(
         alpha: float,
         hc_squared: float,
 ):
-    data = [Datapoint(t=t, is_charged=charged_kaons) for t in ts]
+    data = [KaonDatapoint(t=t, is_charged=charged_kaons) for t in ts]
     parameters.fix_all_parameters()
     f = make_partial_cross_section_for_parameters(kaon_mass, alpha, hc_squared, parameters)
     fit = f(data)

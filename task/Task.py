@@ -3,7 +3,7 @@ import numpy as np
 from scipy.optimize import curve_fit
 from typing import List, Union
 
-from kaon_production.data import Datapoint
+from kaon_production.data import KaonDatapoint
 from nucleon_production.data import NucleonDatapoint
 from model_parameters import ModelParameters
 
@@ -13,7 +13,7 @@ class Task(ABC):
     def __init__(self,
                  name: str,
                  parameters: ModelParameters,
-                 ts: Union[List[Datapoint], List[NucleonDatapoint]],
+                 ts: Union[List[KaonDatapoint], List[NucleonDatapoint]],
                  ys: List[float],
                  errors: List[float],
                  reports_dir: str,
@@ -79,19 +79,10 @@ class Task(ABC):
             sum([r2 / (err ** 2) for r2, err in zip(r_squared, errors)])
         ) / (len(r_squared) - len(opt_parameters))
 
-        # only charged data points
-        ys_charged, fit_charged, errors_charged = zip(*[
-            (y, fit, error) for y, fit, error, t in zip(self.ys, fit_ys, self.errors, self.ts) if t.is_charged
-        ])
-        r_squared_charged = [(data - fit) ** 2 for data, fit in zip(ys_charged, fit_charged)]
-        chi_squared_charged = (
-            sum([r2 / (err ** 2) for r2, err in zip(r_squared_charged, errors_charged)])
-        ) / (len(r_squared_charged) - len(opt_parameters))
         self.report.update(
             final_parameters=self.parameters.to_list(),
             r2=sum(r_squared),
-            chi_squared=chi_squared_charged,
-            chi_squared_together_with_neutral=chi_squared,
+            chi_squared=chi_squared,
             covariance_matrix=covariance_matrix,
             parameter_errors=np.sqrt(np.diag(covariance_matrix)),
             status='finished',

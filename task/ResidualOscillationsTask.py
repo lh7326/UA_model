@@ -7,8 +7,8 @@ from task.Task import Task
 from model_parameters import ModelParameters, Parameter
 from other_models import DampedOscillations
 
-from kaon_production.data import Datapoint
-from kaon_production.utils import make_partial_form_factor_for_parameters
+from kaon_production.data import KaonDatapoint
+from common.utils import make_partial_form_factor_for_parameters
 
 
 class _OscillationsParameters(ModelParameters):
@@ -81,7 +81,7 @@ class ResidualOscillationsTask(Task):
     def __init__(self,
                  name: str,
                  parameters: ModelParameters,
-                 ts: List[Datapoint],
+                 ts: List[KaonDatapoint],
                  ys: List[float],
                  errors: List[float],
                  reports_dir: str,
@@ -118,7 +118,7 @@ class ResidualOscillationsTask(Task):
             )
             results = []
             for datapoint in ts:
-                if isinstance(datapoint, Datapoint):
+                if isinstance(datapoint, KaonDatapoint):
                     results.append(model(datapoint.t))
                 else:
                     results.append(model(float(datapoint[0])))
@@ -128,7 +128,7 @@ class ResidualOscillationsTask(Task):
 
     def map_ts_to_laboratory_system_momentum(self, m=0.493677):  # TODO: fix the hack with the mass
         ps = [
-            Datapoint(t=math.sqrt(d.t * (d.t - 4*(m**2))) / (2 * m), is_charged=d.is_charged)
+            KaonDatapoint(t=math.sqrt(d.t * (d.t - 4 * (m ** 2))) / (2 * m), is_charged=d.is_charged)
             for d in self.ts
         ]
         self.ts_fit = self.ts = ps

@@ -4,8 +4,8 @@ from plotting.plot_fit import plot_ff_fit_neutral_plus_charged
 from task.Task import Task
 from model_parameters.ETGMRModelParameters import ETGMRModelParameters
 
-from kaon_production.data import Datapoint
-from kaon_production.utils import make_partial_form_factor_for_parameters
+from kaon_production.data import KaonDatapoint
+from common.utils import make_partial_form_factor_for_parameters
 
 
 class ETGMRModelTask(Task):
@@ -13,7 +13,7 @@ class ETGMRModelTask(Task):
     def __init__(self,
                  name: str,
                  parameters: ETGMRModelParameters,
-                 ts: List[Datapoint],
+                 ts: List[KaonDatapoint],
                  ys: List[float],
                  errors: List[float],
                  reports_dir: str,

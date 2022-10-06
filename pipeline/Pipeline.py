@@ -4,7 +4,7 @@ import os.path
 
 from model_parameters import KaonParameters, KaonParametersSimplified, KaonParametersFixedSelected
 from task.Task import Task
-from kaon_production.data import Datapoint
+from kaon_production.data import KaonDatapoint
 
 
 class Pipeline(ABC):
@@ -94,10 +94,10 @@ class Pipeline(ABC):
             }
 
     def _prepare_data(self):
-        self.ts = [Datapoint(t, True) for t in self.t_values_charged]
+        self.ts = [KaonDatapoint(t, True) for t in self.t_values_charged]
         self.ys = list(self.ys_charged)
         self.errors = list(self.errors_charged)
-        self.ts += [Datapoint(t, False) for t in self.t_values_neutral]
+        self.ts += [KaonDatapoint(t, False) for t in self.t_values_neutral]
         self.ys += list(self.ys_neutral)
         self.errors += list(self.errors_neutral)
 

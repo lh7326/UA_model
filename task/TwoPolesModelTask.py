@@ -1,11 +1,12 @@
-from typing import List
+from typing import List, Union
 
 from plotting.plot_fit import plot_ff_fit_neutral_plus_charged
 from task.Task import Task
 from model_parameters.TwoPolesModelParameters import TwoPolesModelParameters
 
-from kaon_production.data import Datapoint
-from kaon_production.utils import make_partial_form_factor_for_parameters
+from kaon_production.data import KaonDatapoint
+from nucleon_production.data import NucleonDatapoint
+from common.utils import make_partial_form_factor_for_parameters
 
 
 class TwoPolesModelTask(Task):
@@ -13,7 +14,7 @@ class TwoPolesModelTask(Task):
     def __init__(self,
                  name: str,
                  parameters: TwoPolesModelParameters,
-                 ts: List[Datapoint],
+                 ts: Union[List[KaonDatapoint], List[NucleonDatapoint]],
                  ys: List[float],
                  errors: List[float],
                  reports_dir: str,

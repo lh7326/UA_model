@@ -4,7 +4,7 @@ from collections import namedtuple
 from typing import Tuple, List
 
 
-Datapoint = namedtuple('Datapoint', 't is_charged')
+KaonDatapoint = namedtuple('KaonDatapoint', 't is_charged')
 
 DIR_NAME = '../data'
 

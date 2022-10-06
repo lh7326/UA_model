@@ -1,7 +1,7 @@
 from abc import ABC
 from typing import List, Union
 
-from kaon_production.data import Datapoint
+from kaon_production.data import KaonDatapoint
 from plotting.plot_fit import plot_cs_fit_neutral_plus_charged
 from model_parameters import KaonParameters, KaonParametersSimplified, KaonParametersFixedSelected
 from task.Task import Task
@@ -12,7 +12,7 @@ class CrossSectionTask(Task, ABC):
     def __init__(self,
                  name: str,
                  parameters: Union[KaonParameters, KaonParametersSimplified, KaonParametersFixedSelected],
-                 ts: List[Datapoint],
+                 ts: List[KaonDatapoint],
                  css: List[float],
                  errors: List[float],
                  k_meson_mass: float,
