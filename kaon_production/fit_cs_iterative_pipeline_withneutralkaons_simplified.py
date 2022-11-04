@@ -4,7 +4,7 @@ from multiprocessing import Pool
 
 from kaon_production.data import read_data
 from model_parameters.KaonParametersSimplified import KaonParametersSimplified
-from pipeline.CrossSectionIterativePipeline import CrossSectionIterativePipeline
+from pipeline.KaonCrossSectionIterativePipeline import CrossSectionIterativePipeline
 from common.utils import perturb_model_parameters
 
 

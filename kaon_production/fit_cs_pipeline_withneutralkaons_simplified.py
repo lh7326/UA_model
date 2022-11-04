@@ -4,8 +4,8 @@ from multiprocessing import Pool
 
 from kaon_production.data import read_data
 from model_parameters import KaonParametersSimplified
-from task.cross_section_tasks import TaskFixedResonancesFit
-from pipeline.CrossSectionPipeline import CrossSectionPipeline
+from task.kaon_cross_section_tasks import TaskFixedResonancesFit
+from pipeline.KaonCrossSectionPipeline import CrossSectionPipeline
 from common.utils import perturb_model_parameters
 
 

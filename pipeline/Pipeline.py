@@ -2,36 +2,29 @@ from abc import ABC, abstractmethod
 from typing import List, Type, Union
 import os.path
 
-from model_parameters import KaonParameters, KaonParametersSimplified, KaonParametersFixedSelected
+from model_parameters import ModelParameters
 from task.Task import Task
 from kaon_production.data import KaonDatapoint
+from nucleon_production.data import NucleonDatapoint
 
 
 class Pipeline(ABC):
 
     def __init__(self, name: str,
-                 parameters: Union[KaonParameters, KaonParametersSimplified, KaonParametersFixedSelected],
+                 parameters: ModelParameters,
                  tasks: List[Type[Task]],
-                 t_values_charged: List[float], ys_charged: List[float], errors_charged: List[float],
-                 t_values_neutral: List[float], ys_neutral: List[float], errors_neutral: List[float],
+                 ts: Union[List[KaonDatapoint], List[NucleonDatapoint]],
+                 ys: List[float], errors: List[float],
                  reports_dir: str, plot: bool = True, use_handpicked_bounds: bool = True) -> None:
         self.name = name
         self.parameters = parameters
         self.tasks = tasks
-        self.t_values_charged = t_values_charged
-        self.ys_charged = ys_charged
-        self.errors_charged = errors_charged
-        self.t_values_neutral = t_values_neutral
-        self.ys_neutral = ys_neutral
-        self.errors_neutral = errors_neutral
+        self.ts = ts
+        self.ys = ys
+        self.errors = errors
         self.reports_dir = os.path.join(reports_dir, name)
         self.plot = plot
         self.use_handpicked_bounds = use_handpicked_bounds
-
-        self.ts = None
-        self.errors = None
-        self.ys = None
-        self._prepare_data()
 
         self._report = f'Report {name}:\n'
         self._set_up_reports_directory()
@@ -92,21 +85,6 @@ class Pipeline(ABC):
                 'covariance_matrix': task.report.get('covariance_matrix'),
                 'parameter_errors': task.report.get('parameter_errors'),
             }
-
-    def _prepare_data(self):
-        self.ts = [KaonDatapoint(t, True) for t in self.t_values_charged]
-        self.ys = list(self.ys_charged)
-        self.errors = list(self.errors_charged)
-        self.ts += [KaonDatapoint(t, False) for t in self.t_values_neutral]
-        self.ys += list(self.ys_neutral)
-        self.errors += list(self.errors_neutral)
-
-        self.ts, self.ys, self.errors = zip(
-            *sorted(
-                zip(self.ts, self.ys, self.errors),
-                key=lambda tup: tup[0].t,
-            )
-        )
 
     @abstractmethod
     def _create_task(self, task_name: str, task_class: type(Task)) -> Task:

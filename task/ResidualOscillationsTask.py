@@ -1,6 +1,6 @@
 import math
 import numpy as np
-from typing import Dict, List, Tuple
+from typing import Dict, List, Tuple, Union
 
 from plotting.plot_fit import plot_background_residuals_neutral_plus_charged
 from task.Task import Task
@@ -8,7 +8,8 @@ from model_parameters import ModelParameters, Parameter
 from other_models import DampedOscillations
 
 from kaon_production.data import KaonDatapoint
-from common.utils import make_partial_form_factor_for_parameters
+from nucleon_production.data import NucleonDatapoint
+from common.utils import make_partial_cross_section_for_parameters
 
 
 class _OscillationsParameters(ModelParameters):
@@ -81,13 +82,19 @@ class ResidualOscillationsTask(Task):
     def __init__(self,
                  name: str,
                  parameters: ModelParameters,
-                 ts: List[KaonDatapoint],
+                 ts: Union[List[KaonDatapoint], List[NucleonDatapoint]],
                  ys: List[float],
                  errors: List[float],
+                 product_particle_mass: float,
+                 alpha: float,
+                 hc_squared: float,
                  reports_dir: str,
                  plot: bool = True,
                  use_handpicked_bounds: bool = True):
         super().__init__(name, parameters, ts, ys, errors, reports_dir, plot, use_handpicked_bounds)
+        self.product_particle_mass = product_particle_mass
+        self.alpha = alpha
+        self.hc_squared = hc_squared
 
     def _plot(self, opt_params):
         plot_background_residuals_neutral_plus_charged(
@@ -97,7 +104,8 @@ class ResidualOscillationsTask(Task):
     def _set_up(self):
         # recover the background function
         self.parameters.fix_all_parameters()
-        background_f = make_partial_form_factor_for_parameters(self.parameters)
+        background_f = make_partial_cross_section_for_parameters(
+            self.product_particle_mass, self.alpha, self.hc_squared, self.parameters)
         background_ys = background_f(self.ts)
         self.ys_fit = self.ys = [y - b for y, b in zip(self.ys, background_ys)]
 
@@ -127,10 +135,23 @@ class ResidualOscillationsTask(Task):
         self.partial_f = partial
 
     def map_ts_to_laboratory_system_momentum(self, m=0.493677):  # TODO: fix the hack with the mass
-        ps = [
-            KaonDatapoint(t=math.sqrt(d.t * (d.t - 4 * (m ** 2))) / (2 * m), is_charged=d.is_charged)
-            for d in self.ts
-        ]
+        if not self.ts:
+            return
+
+        if isinstance(self.ts[0], KaonDatapoint):
+            ps = [
+                KaonDatapoint(t=math.sqrt(d.t * (d.t - 4 * (m ** 2))) / (2 * m), is_charged=d.is_charged)
+                for d in self.ts
+            ]
+        elif isinstance(self.ts[0], NucleonDatapoint):
+            ps = [
+                NucleonDatapoint(t=math.sqrt(d.t * (d.t - 4 * (m ** 2))) / (2 * m),
+                                 proton=d.proton, electric=d.electric)
+                for d in self.ts
+            ]
+        else:
+            raise f'Bad type of t: {type(self.ts[0])}'
+
         self.ts_fit = self.ts = ps
 
     def drop_large_momenta(self, m=0.493677):

@@ -2,7 +2,7 @@ import math
 
 from kaon_production.data import read_data
 from model_parameters import ETGMRModelParameters, TwoPolesModelParameters
-from pipeline.FormFactorPipeline import FormFactorPipeline
+from pipeline.KaonFormFactorPipeline import KaonFormFactorPipeline
 from task.ETGMRModelTask import ETGMRModelTask
 from task.TwoPolesModelTask import TwoPolesModelTask
 from task.ResidualOscillationsTask import ResidualOscillationsTask
@@ -47,7 +47,7 @@ if __name__ == '__main__':
 
         task_list.append(ResidualOscillationsTask)
 
-        return FormFactorPipeline(
+        return KaonFormFactorPipeline(
             name, initial_params, task_list,
             ts_charged, ys_charged, errors_charged,
             ts_neutral, ys_neutral, errors_neutral,

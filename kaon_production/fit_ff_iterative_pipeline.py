@@ -2,7 +2,7 @@ from configparser import ConfigParser
 
 from kaon_production.data import read_data
 from model_parameters import KaonParametersB
-from pipeline.FormFactorIterativePipeline import FormFactorIterativePipeline
+from pipeline.KaonFormFactorIterativePipeline import KaonFormFactorIterativePipeline
 from common.utils import perturb_model_parameters
 
 
@@ -58,7 +58,7 @@ if __name__ == '__main__':
         )
         numbers = (3, 3, 5, 2, 7, 5, 8, 12)
         repetitions = (10, 40, 30, 20, 30, 40, 30, 30)
-        pipeline = FormFactorIterativePipeline(
+        pipeline = KaonFormFactorIterativePipeline(
             name, initial_parameters,
             charged_ts, charged_ff_values, charged_errors,
             [], [], [],  # TODO: move data (charged/neutral) outside this functionality!

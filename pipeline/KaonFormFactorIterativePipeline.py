@@ -1,25 +1,25 @@
 from typing import List, Tuple, Union
 from random import sample
 
-from pipeline.CrossSectionPipeline import CrossSectionPipeline
-from model_parameters import KaonParameters, KaonParametersSimplified, KaonParametersFixedSelected
-from task.cross_section_tasks import TaskFixAccordingToParametersFit, TaskFullFitOnlyCharged
+from pipeline.KaonFormFactorPipeline import KaonFormFactorPipeline
+from model_parameters import KaonParameters, KaonParametersB, KaonParametersSimplified, KaonParametersFixedSelected
+from task.kaon_form_factor_tasks import TaskFixAccordingToParametersFit, TaskFullFitOnlyCharged
 
 
-class CrossSectionIterativePipeline(CrossSectionPipeline):
+class KaonFormFactorIterativePipeline(KaonFormFactorPipeline):
 
     def __init__(self, name: str,
-                 parameters: Union[KaonParameters, KaonParametersSimplified, KaonParametersFixedSelected],
-                 t_values_charged: List[float], cross_sections_charged: List[float], errors_charged: List[float],
-                 t_values_neutral: List[float], cross_sections_neutral: List[float], errors_neutral: List[float],
-                 k_meson_mass: float, alpha: float, hc_squared: float,
+                 parameters: Union[KaonParameters, KaonParametersB,
+                                   KaonParametersSimplified, KaonParametersFixedSelected],
+                 t_values_charged: List[float], form_factors_charged: List[float], errors_charged: List[float],
+                 t_values_neutral: List[float], form_factors_neutral: List[float], errors_neutral: List[float],
                  reports_dir: str, plot: bool = True, use_handpicked_bounds: bool = True,
                  nr_free_params: Tuple[int, ...] = (3, 5, 7, 10),
                  nr_iterations: Tuple[int, ...] = (10, 20, 20, 10),
                  nr_initial_rounds_with_fixed_resonances: int = 0) -> None:
 
-        super().__init__(name, parameters, [], t_values_charged, cross_sections_charged, errors_charged,
-                         t_values_neutral, cross_sections_neutral, errors_neutral, k_meson_mass, alpha, hc_squared,
+        super().__init__(name, parameters, [], t_values_charged, form_factors_charged, errors_charged,
+                         t_values_neutral, form_factors_neutral, errors_neutral,
                          reports_dir, plot, use_handpicked_bounds)
 
         self.free_params_numbers = []
@@ -35,9 +35,8 @@ class CrossSectionIterativePipeline(CrossSectionPipeline):
             self._log(f'Initializing Task#{i}. Free parameters: {free_params}')
             task_name = f'Task#{i}:{TaskFixAccordingToParametersFit.__name__}'
             task = TaskFixAccordingToParametersFit(
-                task_name, self.parameters,
+                task_name, self.parameters,  # type: ignore
                 self.ts, self.ys, self.errors,
-                self.k_meson_mass, self.alpha, self.hc_squared,
                 self.reports_dir, self.plot, self.use_handpicked_bounds
             )
 
@@ -53,9 +52,8 @@ class CrossSectionIterativePipeline(CrossSectionPipeline):
         self._log(f'Initializing Task#{len(self.free_params_numbers)}. Full fit.')
         task_name = f'Task#{len(self.free_params_numbers)}:{TaskFullFitOnlyCharged.__name__}'
         task = TaskFullFitOnlyCharged(
-            task_name, self.parameters,
+            task_name, self.parameters,  # type: ignore
             self.ts, self.ys, self.errors,
-            self.k_meson_mass, self.alpha, self.hc_squared,
             self.reports_dir, self.plot, self.use_handpicked_bounds
         )
 
@@ -73,7 +71,7 @@ class CrossSectionIterativePipeline(CrossSectionPipeline):
     def _randomly_freeze_parameters(self, number_of_free_parameters, fix_resonances):
         self.parameters.release_all_parameters()  # this allows us to identify which parameters cannot be released
         if fix_resonances:
-            self.parameters.fix_resonances()
+            self.parameters.fix_resonances()  # type: ignore
         names = [par.name for par in self.parameters if not par.is_fixed]
         chosen_names = sample(names, k=number_of_free_parameters)
         self.parameters.fix_all_parameters()

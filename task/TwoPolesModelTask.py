@@ -6,7 +6,7 @@ from model_parameters.TwoPolesModelParameters import TwoPolesModelParameters
 
 from kaon_production.data import KaonDatapoint
 from nucleon_production.data import NucleonDatapoint
-from common.utils import make_partial_form_factor_for_parameters
+from common.utils import make_partial_cross_section_for_parameters
 
 
 class TwoPolesModelTask(Task):
@@ -27,4 +27,4 @@ class TwoPolesModelTask(Task):
                                          opt_params, self.name, show=self.should_plot, save_dir=self.reports_dir)
 
     def _set_up(self):
-        self.partial_f = make_partial_form_factor_for_parameters(self.parameters)
+        self.partial_f = make_partial_cross_section_for_parameters(0, 0, 0, self.parameters)

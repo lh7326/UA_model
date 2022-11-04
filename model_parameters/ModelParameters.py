@@ -106,3 +106,7 @@ class ModelParameters(ABC):
     @abstractmethod
     def get_bounds_for_free_parameters(self, *args, **kwargs) -> Tuple[List[float], List[float]]:
         pass
+
+    def get_ordered_values(self) -> List[float]:
+        # Note: Implement in child classes where needed.
+        return []
