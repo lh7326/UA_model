@@ -1,6 +1,6 @@
 import random
 from configparser import ConfigParser
-from typing import Callable, List, Tuple, Union, Optional
+from typing import Callable, List, Tuple, Union, Optional, TypeVar
 
 import numpy as np
 
@@ -18,14 +18,18 @@ from kaon_production.data import KaonDatapoint
 from nucleon_production.data import NucleonDatapoint
 
 
+T = TypeVar(
+    'T', KaonParameters, KaonParametersB, KaonParametersSimplified, KaonParametersFixedRhoOmega,
+    KaonParametersFixedSelected, ETGMRModelParameters, TwoPolesModelParameters, NucleonParameters,
+)
+
+
 def perturb_model_parameters(
-        parameters: Union[
-            KaonParameters, KaonParametersB, KaonParametersSimplified, KaonParametersFixedRhoOmega,
-            KaonParametersFixedSelected, ETGMRModelParameters, TwoPolesModelParameters, NucleonParameters],
+        parameters: T,
         perturbation_size: float = 0.2,
         perturbation_size_resonances: Optional[float] = None,
         use_handpicked_bounds: bool = True,
-        ) -> KaonParameters:
+        ) -> T:
     if perturbation_size_resonances is None:
         perturbation_size_resonances = perturbation_size
 
@@ -176,12 +180,12 @@ def function_cross_section(
         for datapoint in ts:
             t, is_charged = _read_datapoint_kaon(datapoint)
             cross_section_model.form_factor.charged_variant = is_charged
-            results.append(cross_section_model(t))
+            results.append(abs(cross_section_model(t)))
     else:  # a nucleon form factor model
         for datapoint in ts:
             t, is_proton, _ = _read_datapoint_nucleon(datapoint)  # type: ignore
             cross_section_model.form_factor.proton = is_proton
-            results.append(cross_section_model(t))
+            results.append(abs(cross_section_model(t)))
 
     return results
 

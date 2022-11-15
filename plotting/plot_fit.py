@@ -27,10 +27,11 @@ def plot_cs_fit(ts, css, errors, f, pars, title='Cross Section Fit', show=True, 
     ax.set_title(title)
     ax.set_xlabel('t [GeV^2]')
     ax.set_ylabel('Cross-Section [GeV^-2]')
-    ax.errorbar(ts, css, yerr=errors, ecolor='black', color='black', fmt='x')
+    xs = [datapoint.t for datapoint in ts]
+    ax.errorbar(xs, css, yerr=errors, ecolor='black', color='black', fmt='x')
 
     fit_css = f(ts, *pars)
-    ax.scatter(ts, fit_css, color='red')
+    ax.scatter(xs, fit_css, color='red')
 
     ax.set_xscale('log')
     ax.set_yscale('log')

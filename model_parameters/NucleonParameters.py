@@ -9,6 +9,8 @@ class NucleonParameters(ModelParameters):
 
     def __init__(self,
                  nucleon_mass: float,
+                 magnetic_moment_proton: float,
+                 magnetic_moment_neutron: float,
                  t_0_dirac_isoscalar: float,
                  t_0_dirac_isovector: float,
                  t_in_dirac_isoscalar: float,
@@ -45,13 +47,14 @@ class NucleonParameters(ModelParameters):
                  decay_rate_rho_double_prime: float) -> None:
 
         always_fixed = (
-            'nucleon_mass',
+            'nucleon_mass', 'magnetic_moment_proton', 'magnetic_moment_neutron',
             't_0_dirac_isoscalar', 't_0_dirac_isovector',
             't_0_pauli_isoscalar', 't_0_pauli_isovector',
         )
 
         super().__init__(
-            nucleon_mass, t_0_dirac_isoscalar, t_0_dirac_isovector, t_in_dirac_isoscalar, t_in_dirac_isovector,
+            nucleon_mass, magnetic_moment_proton, magnetic_moment_neutron,
+            t_0_dirac_isoscalar, t_0_dirac_isovector, t_in_dirac_isoscalar, t_in_dirac_isovector,
             t_0_pauli_isoscalar, t_0_pauli_isovector, t_in_pauli_isoscalar, t_in_pauli_isovector,
             a_dirac_omega, a_pauli_omega, mass_omega, decay_rate_omega, a_dirac_omega_prime,
             mass_omega_prime, decay_rate_omega_prime, mass_omega_double_prime, decay_rate_omega_double_prime,
@@ -64,6 +67,8 @@ class NucleonParameters(ModelParameters):
 
     def _setup_data(self,
                     nucleon_mass: float,
+                    magnetic_moment_proton: float,
+                    magnetic_moment_neutron: float,
                     t_0_dirac_isoscalar: float,
                     t_0_dirac_isovector: float,
                     t_in_dirac_isoscalar: float,
@@ -101,6 +106,8 @@ class NucleonParameters(ModelParameters):
 
         return [
             Parameter(name='nucleon_mass', value=nucleon_mass, is_fixed=True),
+            Parameter(name='magnetic_moment_proton', value=magnetic_moment_proton, is_fixed=True),
+            Parameter(name='magnetic_moment_neutron', value=magnetic_moment_neutron, is_fixed=True),
             Parameter(name='t_0_dirac_isoscalar', value=t_0_dirac_isoscalar, is_fixed=True),
             Parameter(name='t_0_dirac_isovector', value=t_0_dirac_isovector, is_fixed=True),
             Parameter(name='t_in_dirac_isoscalar', value=t_in_dirac_isoscalar, is_fixed=False),

@@ -18,7 +18,7 @@ class NucleonCrossSectionIterativePipeline(NucleonCrossSectionPipeline):
                  errors_neutron_electric: List[float],
                  t_values_neutron_magnetic: List[float], cross_sections_neutron_magnetic: List[float],
                  errors_neutron_magnetic: List[float],
-                 k_meson_mass: float, alpha: float, hc_squared: float,
+                 nucleon_mass: float, alpha: float, hc_squared: float,
                  reports_dir: str, plot: bool = True, use_handpicked_bounds: bool = True,
                  nr_free_params: Tuple[int, ...] = (3, 5, 7, 10),
                  nr_iterations: Tuple[int, ...] = (10, 20, 20, 10),
@@ -28,7 +28,7 @@ class NucleonCrossSectionIterativePipeline(NucleonCrossSectionPipeline):
                          errors_proton_electric, t_values_proton_magnetic, cross_sections_proton_magnetic,
                          errors_proton_magnetic, t_values_neutron_electric, cross_sections_neutron_electric,
                          errors_neutron_electric, t_values_neutron_magnetic, cross_sections_neutron_magnetic,
-                         errors_neutron_magnetic, k_meson_mass, alpha, hc_squared,
+                         errors_neutron_magnetic, nucleon_mass, alpha, hc_squared,
                          reports_dir, plot, use_handpicked_bounds)
 
         self.free_params_numbers = []
@@ -46,7 +46,7 @@ class NucleonCrossSectionIterativePipeline(NucleonCrossSectionPipeline):
             task = TaskFixAccordingToParametersFit(
                 task_name, self.parameters,  # type: ignore
                 self.ts, self.ys, self.errors,
-                self.k_meson_mass, self.alpha, self.hc_squared,
+                self.nucleon_mass, self.alpha, self.hc_squared,
                 self.reports_dir, self.plot, self.use_handpicked_bounds
             )
 
@@ -64,7 +64,7 @@ class NucleonCrossSectionIterativePipeline(NucleonCrossSectionPipeline):
         task = TaskFullFit(
             task_name, self.parameters,  # type: ignore
             self.ts, self.ys, self.errors,
-            self.k_meson_mass, self.alpha, self.hc_squared,
+            self.nucleon_mass, self.alpha, self.hc_squared,
             self.reports_dir, self.plot, self.use_handpicked_bounds
         )
 

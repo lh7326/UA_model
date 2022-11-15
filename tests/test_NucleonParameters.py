@@ -8,7 +8,7 @@ class TestNucleonParameters(TestCase):
 
     def setUp(self):
         self.parameters = NucleonParameters(
-            0.938, 0.5, 0.6, 0.7, 0.8,
+            0.938, 2.79, -1.91, 0.5, 0.6, 0.7, 0.8,
             1.5, 1.6, 1.7, 1.8,
             0.1, -0.1, 0.78266, 0.00868,
             0.2, 1.410, 0.29,
@@ -85,7 +85,7 @@ class TestNucleonParameters(TestCase):
         self.parameters.fix_parameters(['a_dirac_omega_prime', 'mass_rho_prime', 't_in_dirac_isovector'])
         self.assertListEqual(
             self.parameters.get_fixed_values(),
-            [0.938, 0.5, 0.6, 0.8, 1.5, 1.6, 0.2, 1.465],
+            [0.938, 2.79, -1.91, 0.5, 0.6, 0.8, 1.5, 1.6, 0.2, 1.465],
         )
 
     def test_update_free_values__length_mismatch(self):

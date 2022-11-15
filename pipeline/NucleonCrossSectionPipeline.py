@@ -19,7 +19,7 @@ class NucleonCrossSectionPipeline(Pipeline):
                  errors_neutron_electric: List[float],
                  t_values_neutron_magnetic: List[float], cross_sections_neutron_magnetic: List[float],
                  errors_neutron_magnetic: List[float],
-                 k_meson_mass: float, alpha: float, hc_squared: float, reports_dir: str,
+                 nucleon_mass: float, alpha: float, hc_squared: float, reports_dir: str,
                  plot: bool = True, use_handpicked_bounds: bool = True) -> None:
         ts, ys, errors = self._prepare_data(
             t_values_proton_electric, cross_sections_proton_electric, errors_proton_electric,
@@ -31,7 +31,7 @@ class NucleonCrossSectionPipeline(Pipeline):
         super().__init__(name, parameters, tasks,
                          ts, ys, errors,
                          reports_dir, plot, use_handpicked_bounds)
-        self.k_meson_mass = k_meson_mass
+        self.nucleon_mass = nucleon_mass
         self.alpha = alpha
         self.hc_squared = hc_squared
 
@@ -39,7 +39,7 @@ class NucleonCrossSectionPipeline(Pipeline):
         return task_class(
             task_name, self.parameters,
             self.ts, self.ys, self.errors,
-            self.k_meson_mass, self.alpha, self.hc_squared,
+            self.nucleon_mass, self.alpha, self.hc_squared,
             self.reports_dir, self.plot, self.use_handpicked_bounds
         )
 
