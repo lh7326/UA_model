@@ -84,6 +84,7 @@ class NucleonCrossSectionIterativePipeline(NucleonCrossSectionPipeline):
         if fix_resonances:
             self.parameters.fix_resonances()  # type: ignore
         names = [par.name for par in self.parameters if not par.is_fixed]
+        number_of_free_parameters = min(len(names), number_of_free_parameters)
         chosen_names = sample(names, k=number_of_free_parameters)
         self.parameters.fix_all_parameters()
         self.parameters.release_parameters(chosen_names)

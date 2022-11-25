@@ -67,10 +67,9 @@ if __name__ == '__main__':
     alpha = config.getfloat('constants', 'alpha')
     hc_squared = config.getfloat('constants', 'hc_squared')
 
-    path_to_reports = '/home/lukas/reports'
+    path_to_reports = '/home/lukas/reports/oscillations'
 
-    ts_proton_electric, css_proton_electric, errors_proton_electric = read_data('charged_kaon.csv')
-
+    ts_proton_electric, css_proton_electric, errors_proton_electric = read_data('proton_cs.csv')
 
     def f(name):
         initial_parameters = make_initial_parameters(
@@ -85,28 +84,28 @@ if __name__ == '__main__':
 
         initial_parameters = perturb_model_parameters(
             initial_parameters,
-            perturbation_size=0.5, perturbation_size_resonances=0.2,
+            perturbation_size=0.5, perturbation_size_resonances=0.1,
             use_handpicked_bounds=True,
         )
-        numbers = (5, 4, 6, 2, 8, 4, 10, 17, 5)
+        numbers = (4, 3, 5, 2, 7, 3, 8, 10, 5)
         repetitions = (5, 20, 20, 10, 40, 10, 20, 20, 10)
         pipeline = NucleonCrossSectionIterativePipeline(
             name, initial_parameters,
-            ts_proton_electric[160:], css_proton_electric[160:], errors_proton_electric[160:],
+            ts_proton_electric, css_proton_electric, errors_proton_electric,
             [], [], [],
             [], [], [],
             [], [], [],
             proton_mass, alpha, hc_squared,
             path_to_reports, plot=False, use_handpicked_bounds=True,
             nr_free_params=numbers, nr_iterations=repetitions,
-            nr_initial_rounds_with_fixed_resonances=5,
+            nr_initial_rounds_with_fixed_resonances=200,
         )
         return pipeline.run()
 
     final_results = []
     best_fit = {'chi_squared': None, 'name': None, 'parameters': None}
-    for i in range(2):
-        result = f(f'test_{i}')
+    for i in range(10):
+        result = f(f'run_{i}')
         print(result)
 
         if result and result.get('chi_squared', None) is not None:
