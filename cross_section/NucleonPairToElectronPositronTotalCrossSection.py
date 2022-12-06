@@ -28,7 +28,7 @@ class NucleonPairToElectronPositronTotalCrossSection:
         self.alpha = config.getfloat('constants', 'alpha')
         self.hc_squared = config.getfloat('constants', 'hc_squared')
 
-        self._precalculated_coefficient_1 = self.hc_squared * math.pi * (self.alpha**2) / 3.0
+        self._precalculated_coefficient_1 = self.hc_squared * 4 * math.pi * (self.alpha**2) / 3.0
         self._four_mass_squared = 4.0 * (self.nucleon_mass**2)
 
     def __call__(self, t: complex) -> complex:
@@ -53,8 +53,8 @@ class NucleonPairToElectronPositronTotalCrossSection:
         self.form_factor.electric = False
         magnetic_form_factor_modulus = abs(self.form_factor(t))
 
+        beta = math.sqrt(1.0 - self._four_mass_squared / abs(t))
         return (
-            (self._precalculated_coefficient_1 / t) /
-            math.sqrt(1.0 - self._four_mass_squared / abs(t)) *
-            (2 * magnetic_form_factor_modulus ** 2 + 4 * self.nucleon_mass**2 * electric_form_factor_modulus**2 / t)
+            (self._precalculated_coefficient_1 * beta / t) *
+            (magnetic_form_factor_modulus ** 2 + self._four_mass_squared * electric_form_factor_modulus**2 / (2 * t))
         )

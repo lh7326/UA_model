@@ -1,7 +1,5 @@
 from configparser import ConfigParser
 
-from multiprocessing import Pool
-
 from nucleon_production.data import read_data
 from model_parameters.NucleonParameters import NucleonParameters
 from pipeline.NucleonCrossSectionIterativePipeline import NucleonCrossSectionIterativePipeline
