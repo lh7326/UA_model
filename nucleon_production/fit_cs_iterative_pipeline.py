@@ -104,8 +104,8 @@ if __name__ == '__main__':
 
     final_results = []
     best_fit = {'chi_squared': None, 'name': None, 'parameters': None}
-    for i in range(10):
-        result = f(f'run_{i}')
+    for i in range(5):
+        result = f(f'run2_{i}')
         print(result)
 
         if result and result.get('chi_squared', None) is not None:

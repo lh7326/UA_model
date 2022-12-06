@@ -4,6 +4,7 @@ from random import sample
 from pipeline.NucleonCrossSectionPipeline import NucleonCrossSectionPipeline
 from model_parameters import NucleonParameters, ETGMRModelParameters, TwoPolesModelParameters
 from task.nucleon_cross_section_tasks import TaskFixAccordingToParametersFit, TaskFullFit
+from task.ResidualOscillationsTask import ResidualOscillationsTask
 
 
 class NucleonCrossSectionIterativePipeline(NucleonCrossSectionPipeline):
@@ -77,6 +78,22 @@ class NucleonCrossSectionIterativePipeline(NucleonCrossSectionPipeline):
         self._log(f'Best fit: {self._best_fit}')
         self._flush_report()
         self._save_report(str(len(self.free_params_numbers)), task.report)
+
+        # residuals
+        self._log(f'Initializing Task#{len(self.free_params_numbers) + 1}. Residuals.')
+        task_name = f'Task#{len(self.free_params_numbers) + 1}:{ResidualOscillationsTask.__name__}'
+        task = ResidualOscillationsTask(
+            task_name, self.parameters,  # type: ignore
+            self.ts, self.ys, self.errors,
+            self.nucleon_mass, self.alpha, self.hc_squared,
+            self.reports_dir, self.plot, self.use_handpicked_bounds
+        )
+
+        self._log(f'Running {task_name}')
+        task.run()
+        self._log(f'{task_name} report: {task.report}')
+        self._save_report(str(len(self.free_params_numbers) + 1), task.report)
+
         return self._best_fit
 
     def _randomly_freeze_parameters(self, number_of_free_parameters, fix_resonances):

@@ -1,13 +1,13 @@
 from unittest import TestCase
 import cmath
 
-from ua_model.NucleonUAModel import NucleonUAModel
+from ua_model.NucleonUAModelOld import NucleonUAModelOld
 
 
-class TestNucleonUAModel(TestCase):
+class TestNucleonUAModelOld(TestCase):
 
     def test___call__(self):
-        nucleon_model = NucleonUAModel(
+        nucleon_model = NucleonUAModelOld(
             proton=True,
             electric=True,
             nucleon_mass=1.0,
@@ -107,17 +107,17 @@ class TestNucleonUAModel(TestCase):
 
         test_cases = [
             {'t': 1.7, 'proton': True, 'electric': False,
-             'expected_value': 9.713204625458062+0.07074134789291299j},
+             'expected_value': 9.264041524614782+0.07288173635849036j},
             {'t': 1.7, 'proton': False, 'electric': True,
-             'expected_value': 6.547797226498032-0.056748829988171726j},
+             'expected_value': 6.36801456730032-0.05590379378968173j},
             {'t': 0.4+1.2j, 'proton': True, 'electric': True,
-             'expected_value': 0.7766084566142761+0.1483752192353497j},
+             'expected_value': 0.7782203362803921+0.1525683395543666j},
             {'t': 162.42-0.647j, 'proton': False, 'electric': False,
-             'expected_value': -0.0027582929607558046-2.5977732227335408e-05j},
+             'expected_value': -0.002759958992972902-2.598171690422949e-05j},
             {'t': 84.1-9124.1j, 'proton': True, 'electric': True,
-             'expected_value': -5.134294004614157e-06+7.80247424899727e-08j},
+             'expected_value': -5.1303718120553975e-06+7.795611633972505e-08j},
             {'t': 62.4j, 'proton': False, 'electric': False,
-             'expected_value': 0.009663648292739201-0.009923990941913124j},
+             'expected_value': 0.009671246342365719-0.009930048457120286j},
         ]
         for case in test_cases:
             with self.subTest(case=case):
@@ -128,12 +128,12 @@ class TestNucleonUAModel(TestCase):
                 self.assertTrue(cmath.isclose(actual, expected, abs_tol=1.0e-15))
 
     def test___call___2(self):
-        nucleon_model = NucleonUAModel(
+        nucleon_model = NucleonUAModelOld(
             proton=True,
             electric=True,
             nucleon_mass=0.938272,
-            magnetic_moment_proton=2.792847351,
-            magnetic_moment_neutron=-1.91304273,
+            magnetic_moment_proton=2.79,
+            magnetic_moment_neutron=-1.91,
             t_0_dirac_isoscalar=0.17531904388276887,
             t_0_dirac_isovector=0.07791957505900839,
             t_in_dirac_isoscalar=0.9001581776629138,
@@ -185,14 +185,14 @@ class TestNucleonUAModel(TestCase):
             self.assertTrue(cmath.isclose(actual, expected, abs_tol=1e-15))
 
         with self.subTest(msg='Test normalization (t=0) --- proton magnetic'):
-            expected = 2.792847351
+            expected = 2.79
             nucleon_model.electric = False
             nucleon_model.proton = True
             actual = nucleon_model(0.0)
             self.assertTrue(cmath.isclose(actual, expected, abs_tol=1e-15))
 
         with self.subTest(msg='Test normalization (t=0) --- neutron magnetic'):
-            expected = -1.91304273
+            expected = -1.91
             nucleon_model.electric = False
             nucleon_model.proton = False
             actual = nucleon_model(0.0)
@@ -228,17 +228,17 @@ class TestNucleonUAModel(TestCase):
 
         test_cases = [
             {'t': 1.7, 'proton': True, 'electric': False,
-             'expected_value': 2.5531762636133686+0.14269472551374163j},
+             'expected_value': 2.107422993708366+0.9337984540696413j},
             {'t': 1.7, 'proton': False, 'electric': True,
-             'expected_value': 2.668848634929326-1.181788739065921j},
+             'expected_value': 2.5894982538118754-0.12916481280320902j},
             {'t': 0.4+1.2j, 'proton': True, 'electric': True,
-             'expected_value': -0.20150599617334652+0.47887099129431737j},
+             'expected_value': -0.19619513739474426+0.4388475016590333j},
             {'t': 162.42-0.647j, 'proton': False, 'electric': False,
-             'expected_value': -7.783031593190773e-05+4.741099873637525e-06j},
+             'expected_value': -6.642301488991929e-05+5.521637016319888e-06j},
             {'t': 84.1-9124.1j, 'proton': True, 'electric': True,
-             'expected_value': -7.86703523408559e-09+3.207904724389229e-10j},
+             'expected_value': -5.5543905991798604e-09+2.9716623338340846e-10j},
             {'t': 62.4j, 'proton': False, 'electric': False,
-             'expected_value': 0.0005750756865537021+3.9141961722643786e-05j},
+             'expected_value': 0.0005048360661170517+4.787044738370395e-05j},
         ]
         for case in test_cases:
             with self.subTest(case=case):
@@ -246,4 +246,5 @@ class TestNucleonUAModel(TestCase):
                 nucleon_model.electric = case['electric']
                 actual = nucleon_model(case['t'])
                 expected = case['expected_value']
+                print(case, actual)
                 self.assertTrue(cmath.isclose(actual, expected, abs_tol=1.0e-15))

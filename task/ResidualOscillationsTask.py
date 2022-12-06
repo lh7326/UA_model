@@ -2,7 +2,7 @@ import math
 import numpy as np
 from typing import Dict, List, Tuple, Union
 
-from plotting.plot_fit import plot_background_residuals_neutral_plus_charged
+from plotting.plot_fit import plot_background_residuals
 from task.Task import Task
 from model_parameters import ModelParameters, Parameter
 from other_models import DampedOscillations
@@ -78,6 +78,7 @@ class _OscillationsParameters(ModelParameters):
 
 
 class ResidualOscillationsTask(Task):
+    # NOTE: Adjusted for the needs of nucleon oscillations work.
 
     def __init__(self,
                  name: str,
@@ -95,11 +96,25 @@ class ResidualOscillationsTask(Task):
         self.product_particle_mass = product_particle_mass
         self.alpha = alpha
         self.hc_squared = hc_squared
+        self.eff_ffs = None
+        self.background_fit = None
+        self.ff_errors = None
+        self.ff_ts = None
 
     def _plot(self, opt_params):
-        plot_background_residuals_neutral_plus_charged(
+        plot_background_residuals(
+            self.ff_ts, self.eff_ffs, self.background_fit, self.ff_errors,
             self.ts, self.ys, self.errors, self.partial_f,
             opt_params, self.name, show=self.should_plot, save_dir=self.reports_dir)
+
+    def transform_to_effective_form_factor(self, cs, err, t):
+        tau = t / (4 * (self.product_particle_mass**2))
+        beta = math.sqrt(1 - 1/tau)
+        denominator = 2 * math.pi * (self.alpha**2) * beta * (2 + 1/tau)
+        ff_squared = 3 * t * cs / denominator
+        error_for_ff_squared = 3 * t * err / denominator
+        ff = math.sqrt(ff_squared)
+        return ff, 0.5 * error_for_ff_squared / ff
 
     def _set_up(self):
         # recover the background function
@@ -107,10 +122,25 @@ class ResidualOscillationsTask(Task):
         background_f = make_partial_cross_section_for_parameters(
             self.product_particle_mass, self.alpha, self.hc_squared, self.parameters)
         background_ys = background_f(self.ts)
-        self.ys_fit = self.ys = [y - b for y, b in zip(self.ys, background_ys)]
 
-        self.map_ts_to_laboratory_system_momentum()
-        self.drop_large_momenta()
+        effective_ff_fit, effective_errs = zip(
+            *[self.transform_to_effective_form_factor(cs, err, datapoint.t)
+              for cs, err, datapoint
+              in zip(background_ys, self.errors, self.ts)]
+        )
+        effective_ff_data, _ = zip(
+            *[self.transform_to_effective_form_factor(cs, err, datapoint.t)
+              for cs, err, datapoint
+              in zip(self.ys, self.errors, self.ts)]
+        )
+        self.ff_ts = self.ts
+        self.eff_ffs = effective_ff_data
+        self.background_fit = effective_ff_fit
+        self.ys = self.ys_fit = [y - b for y, b in zip(effective_ff_data, effective_ff_fit)]
+        self.ff_errors = self.errors_fit = self.errors = effective_errs
+
+        self.map_ts_to_laboratory_system_momentum(self.product_particle_mass)
+        self.drop_large_momenta(5)
 
         self.parameters = _OscillationsParameters(a=100.0, b=2.0, c=5.0, d=0.0)
         #self.parameters = _OscillationsParameters(a=20.0, b=1.0, c=1.0, d=0.0)
@@ -134,7 +164,7 @@ class ResidualOscillationsTask(Task):
             return results
         self.partial_f = partial
 
-    def map_ts_to_laboratory_system_momentum(self, m=0.493677):  # TODO: fix the hack with the mass
+    def map_ts_to_laboratory_system_momentum(self, m):
         if not self.ts:
             return
 
@@ -154,8 +184,8 @@ class ResidualOscillationsTask(Task):
 
         self.ts_fit = self.ts = ps
 
-    def drop_large_momenta(self, m=0.493677):
-        threshold = m
+    def drop_large_momenta(self, cutoff):
+        threshold = cutoff
         nonrelativistic_momenta, vals, errs = zip(*[
             (p, v, e) for p, v, e in zip(self.ts, self.ys, self.errors) if p.t < threshold])
         self.ts_fit = self.ts = nonrelativistic_momenta

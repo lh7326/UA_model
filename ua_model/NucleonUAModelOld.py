@@ -4,7 +4,7 @@ from ua_model.ua_components.UAComponentVariantB import UAComponentVariantB
 from ua_model.MapFromTtoW import MapFromTtoW
 
 
-class NucleonUAModel:
+class NucleonUAModelOld:
     """
     The U&A model for the proton and neutron form factors.
 
@@ -140,8 +140,6 @@ class NucleonUAModel:
         self._initialize_isoscalar_components(name='pauli')
         self._initialize_isovector_components(name='pauli')
 
-        self._mass_terms_cache = {}
-
     def __call__(self, t: complex) -> complex:
         if t.real < 0:
             raise ValueError('t must have a positive real part!')
@@ -166,84 +164,63 @@ class NucleonUAModel:
     # TODO: refactor!
     def _eval_dirac_isoscalar_contribution(self, t: complex) -> complex:
         w = self._t_to_W_dirac_isoscalar(t)
-
-        c_omega = self._get_mass_term(scalar=True, dirac=True, resonance='omega')
-        c_omega_prime = self._get_mass_term(scalar=True, dirac=True, resonance='omega_prime')
-        c_omega_double_prime = self._get_mass_term(scalar=True, dirac=True, resonance='omega_double_prime')
-        c_phi = self._get_mass_term(scalar=True, dirac=True, resonance='phi')
-        c_phi_prime = self._get_mass_term(scalar=True, dirac=True, resonance='phi_prime')
-        c_phi_double_prime = self._get_mass_term(scalar=True, dirac=True, resonance='phi_double_prime')
-
         return (
             0.5 * self._dirac_component_omega_double_prime(w) * self._dirac_component_phi_double_prime(w) +
             self.a_dirac_omega_prime * (
                 self._dirac_component_phi_double_prime(w) * self._dirac_component_omega_prime(w) *
-                (c_phi_double_prime - c_omega_prime) / (
-                        c_phi_double_prime - c_omega_double_prime) +
+                (self.mass_phi_double_prime**2 - self.mass_omega_prime**2) / (
+                        self.mass_phi_double_prime**2 - self.mass_omega_double_prime**2) +
                 self._dirac_component_omega_double_prime(w) * self._dirac_component_omega_prime(w) *
-                (c_omega_double_prime - c_omega_prime) / (
-                        c_omega_double_prime - c_phi_double_prime) -
+                (self.mass_omega_double_prime ** 2 - self.mass_omega_prime ** 2) / (
+                        self.mass_omega_double_prime ** 2 - self.mass_phi_double_prime ** 2) -
                 self._dirac_component_omega_double_prime(w) * self._dirac_component_phi_double_prime(w)
             ) +
             self.a_dirac_phi_prime * (
                 self._dirac_component_phi_double_prime(w) * self._dirac_component_phi_prime(w) *
-                (c_phi_double_prime - c_phi_prime) / (
-                        c_phi_double_prime - c_omega_double_prime) +
+                (self.mass_phi_double_prime ** 2 - self.mass_phi_prime ** 2) / (
+                        self.mass_phi_double_prime ** 2 - self.mass_omega_double_prime ** 2) +
                 self._dirac_component_omega_double_prime(w) * self._dirac_component_phi_prime(w) *
-                (c_omega_double_prime - c_phi_prime) / (
-                        c_omega_double_prime - c_phi_double_prime) -
+                (self.mass_omega_double_prime ** 2 - self.mass_phi_prime ** 2) / (
+                        self.mass_omega_double_prime ** 2 - self.mass_phi_double_prime ** 2) -
                 self._dirac_component_omega_double_prime(w) * self._dirac_component_phi_double_prime(w)
             ) +
             self.a_dirac_omega * (
                 self._dirac_component_phi_double_prime(w) * self._dirac_component_omega(w) *
-                (c_phi_double_prime - c_omega) / (
-                        c_phi_double_prime - c_omega_double_prime) +
+                (self.mass_phi_double_prime ** 2 - self.mass_omega ** 2) / (
+                        self.mass_phi_double_prime ** 2 - self.mass_omega_double_prime ** 2) +
                 self._dirac_component_omega_double_prime(w) * self._dirac_component_omega(w) *
-                (c_omega_double_prime - c_omega) / (
-                        c_omega_double_prime - c_phi_double_prime) -
+                (self.mass_omega_double_prime ** 2 - self.mass_omega ** 2) / (
+                        self.mass_omega_double_prime ** 2 - self.mass_phi_double_prime ** 2) -
                 self._dirac_component_omega_double_prime(w) * self._dirac_component_phi_double_prime(w)
             ) +
             self.a_dirac_phi * (
                 self._dirac_component_phi_double_prime(w) * self._dirac_component_phi(w) *
-                (c_phi_double_prime - c_phi) / (
-                        c_phi_double_prime - c_omega_double_prime) +
+                (self.mass_phi_double_prime ** 2 - self.mass_phi ** 2) / (
+                        self.mass_phi_double_prime ** 2 - self.mass_omega_double_prime ** 2) +
                 self._dirac_component_omega_double_prime(w) * self._dirac_component_phi(w) *
-                (c_omega_double_prime - c_phi) / (
-                        c_omega_double_prime - c_phi_double_prime) -
+                (self.mass_omega_double_prime ** 2 - self.mass_phi ** 2) / (
+                        self.mass_omega_double_prime ** 2 - self.mass_phi_double_prime ** 2) -
                 self._dirac_component_omega_double_prime(w) * self._dirac_component_phi_double_prime(w)
             )
         )
 
     def _eval_dirac_isovector_contribution(self, t: complex) -> complex:
         w = self._t_to_W_dirac_isovector(t)
-
-        c_rho = self._get_mass_term(scalar=False, dirac=True, resonance='rho')
-        c_rho_prime = self._get_mass_term(scalar=False, dirac=True, resonance='rho_prime')
-        c_rho_double_prime = self._get_mass_term(scalar=False, dirac=True, resonance='rho_double_prime')
-
         return (
             0.5 * self._dirac_component_rho_prime(w) * self._dirac_component_rho_double_prime(w) +
             self.a_dirac_rho * (
                 self._dirac_component_rho(w) * self._dirac_component_rho_prime(w) *
-                (c_rho_prime - c_rho) / (
-                    c_rho_prime - c_rho_double_prime) +
+                (self.mass_rho_prime**2 - self.mass_rho**2) / (
+                    self.mass_rho_prime**2 - self.mass_rho_double_prime**2) +
                 self._dirac_component_rho(w) * self._dirac_component_rho_double_prime(w) *
-                (c_rho_double_prime - c_rho) / (
-                    c_rho_double_prime - c_rho_prime) -
+                (self.mass_rho_double_prime ** 2 - self.mass_rho ** 2) / (
+                    self.mass_rho_double_prime ** 2 - self.mass_rho_prime ** 2) -
                 self._dirac_component_rho_prime(w) * self._dirac_component_rho_double_prime(w)
             )
         )
 
     def _eval_pauli_isoscalar_contribution(self, t: complex) -> complex:
         w = self._t_to_W_pauli_isoscalar(t)
-
-        c_omega = self._get_mass_term(scalar=True, dirac=False, resonance='omega')
-        c_omega_prime = self._get_mass_term(scalar=True, dirac=False, resonance='omega_prime')
-        c_omega_double_prime = self._get_mass_term(scalar=True, dirac=False, resonance='omega_double_prime')
-        c_phi = self._get_mass_term(scalar=True, dirac=False, resonance='phi')
-        c_phi_prime = self._get_mass_term(scalar=True, dirac=False, resonance='phi_prime')
-        c_phi_double_prime = self._get_mass_term(scalar=True, dirac=False, resonance='phi_double_prime')
-
         norm = 0.5 * (self.magnetic_moment_proton + self.magnetic_moment_neutron - 1.0)
         return (
             norm * self._pauli_component_omega_double_prime(w) * self._pauli_component_phi_double_prime(w) *
@@ -251,66 +228,66 @@ class NucleonUAModel:
             self.a_pauli_phi_prime * (
                 self._pauli_component_phi_double_prime(w) * self._pauli_component_phi_prime(w) *
                 self._pauli_component_omega_prime(w) *
-                ((c_phi_double_prime - c_phi_prime) /
-                 (c_phi_double_prime - c_omega_double_prime)) *
-                ((c_omega_prime - c_phi_prime) /
-                 (c_omega_prime - c_omega_double_prime)) +
+                ((self.mass_phi_double_prime**2 - self.mass_phi_prime**2) /
+                 (self.mass_phi_double_prime**2 - self.mass_omega_double_prime**2)) *
+                ((self.mass_omega_prime ** 2 - self.mass_phi_prime ** 2) /
+                 (self.mass_omega_prime ** 2 - self.mass_omega_double_prime ** 2)) +
                 self._pauli_component_omega_double_prime(w) * self._pauli_component_omega_prime(w) *
                 self._pauli_component_phi_prime(w) *
-                ((c_omega_double_prime - c_phi_prime) /
-                 (c_omega_double_prime - c_phi_double_prime)) *
-                ((c_omega_prime - c_phi_prime) /
-                 (c_omega_prime - c_phi_double_prime)) +
+                ((self.mass_omega_double_prime ** 2 - self.mass_phi_prime ** 2) /
+                 (self.mass_omega_double_prime ** 2 - self.mass_phi_double_prime ** 2)) *
+                ((self.mass_omega_prime ** 2 - self.mass_phi_prime ** 2) /
+                 (self.mass_omega_prime ** 2 - self.mass_phi_double_prime ** 2)) +
                 self._pauli_component_omega_double_prime(w) * self._pauli_component_phi_double_prime(w) *
                 self._pauli_component_phi_prime(w) *
-                ((c_omega_double_prime - c_phi_prime) /
-                 (c_omega_double_prime - c_omega_prime)) *
-                ((c_phi_double_prime - c_phi_prime) /
-                 (c_phi_double_prime - c_omega_prime)) -
+                ((self.mass_omega_double_prime ** 2 - self.mass_phi_prime ** 2) /
+                 (self.mass_omega_double_prime ** 2 - self.mass_omega_prime ** 2)) *
+                ((self.mass_phi_double_prime ** 2 - self.mass_phi_prime ** 2) /
+                 (self.mass_phi_double_prime ** 2 - self.mass_omega_prime ** 2)) -
                 self._pauli_component_omega_double_prime(w) * self._pauli_component_phi_double_prime(w) *
                 self._pauli_component_omega_prime(w)
             ) +
             self.a_pauli_omega * (
                 self._pauli_component_phi_double_prime(w) * self._pauli_component_omega_prime(w) *
                 self._pauli_component_omega(w) *
-                ((c_phi_double_prime - c_omega) /
-                 (c_phi_double_prime - c_omega_double_prime)) *
-                ((c_omega_prime - c_omega) /
-                 (c_omega_prime - c_omega_double_prime)) +
+                ((self.mass_phi_double_prime ** 2 - self.mass_omega ** 2) /
+                 (self.mass_phi_double_prime ** 2 - self.mass_omega_double_prime ** 2)) *
+                ((self.mass_omega_prime ** 2 - self.mass_omega ** 2) /
+                 (self.mass_omega_prime ** 2 - self.mass_omega_double_prime ** 2)) +
                 self._pauli_component_omega_double_prime(w) * self._pauli_component_omega_prime(w) *
                 self._pauli_component_omega(w) *
-                ((c_omega_double_prime - c_omega) /
-                 (c_omega_double_prime - c_phi_double_prime)) *
-                ((c_omega_prime - c_omega) /
-                 (c_omega_prime - c_phi_double_prime)) +
+                ((self.mass_omega_double_prime ** 2 - self.mass_omega ** 2) /
+                 (self.mass_omega_double_prime ** 2 - self.mass_phi_double_prime ** 2)) *
+                ((self.mass_omega_prime ** 2 - self.mass_omega ** 2) /
+                 (self.mass_omega_prime ** 2 - self.mass_phi_double_prime ** 2)) +
                 self._pauli_component_omega_double_prime(w) * self._pauli_component_phi_double_prime(w) *
                 self._pauli_component_omega(w) *
-                ((c_omega_double_prime - c_omega) /
-                 (c_omega_double_prime - c_omega_prime)) *
-                ((c_phi_double_prime - c_omega) /
-                 (c_phi_double_prime - c_omega_prime)) -
+                ((self.mass_omega_double_prime ** 2 - self.mass_omega ** 2) /
+                 (self.mass_omega_double_prime ** 2 - self.mass_omega_prime ** 2)) *
+                ((self.mass_phi_double_prime ** 2 - self.mass_omega ** 2) /
+                 (self.mass_phi_double_prime ** 2 - self.mass_omega_prime ** 2)) -
                 self._pauli_component_omega_double_prime(w) * self._pauli_component_phi_double_prime(w) *
                 self._pauli_component_omega_prime(w)
             ) +
             self.a_pauli_phi * (
                 self._pauli_component_phi_double_prime(w) * self._pauli_component_omega_prime(w) *
                 self._pauli_component_phi(w) *
-                ((c_phi_double_prime - c_phi) /
-                 (c_phi_double_prime - c_omega_double_prime)) *
-                ((c_omega_prime - c_phi) /
-                 (c_omega_prime - c_omega_double_prime)) +
+                ((self.mass_phi_double_prime ** 2 - self.mass_phi ** 2) /
+                 (self.mass_phi_double_prime ** 2 - self.mass_omega_double_prime ** 2)) *
+                ((self.mass_omega_prime ** 2 - self.mass_phi ** 2) /
+                 (self.mass_omega_prime ** 2 - self.mass_omega_double_prime ** 2)) +
                 self._pauli_component_omega_double_prime(w) * self._pauli_component_omega_prime(w) *
                 self._pauli_component_phi(w) *
-                ((c_omega_double_prime - c_phi) /
-                 (c_omega_double_prime - c_phi_double_prime)) *
-                ((c_omega_prime - c_phi) /
-                 (c_omega_prime - c_phi_double_prime)) +
+                ((self.mass_omega_double_prime ** 2 - self.mass_phi ** 2) /
+                 (self.mass_omega_double_prime ** 2 - self.mass_phi_double_prime ** 2)) *
+                ((self.mass_omega_prime ** 2 - self.mass_phi ** 2) /
+                 (self.mass_omega_prime ** 2 - self.mass_phi_double_prime ** 2)) +
                 self._pauli_component_omega_double_prime(w) * self._pauli_component_phi_double_prime(w) *
                 self._pauli_component_phi(w) *
-                ((c_omega_double_prime - c_phi) /
-                 (c_omega_double_prime - c_omega_prime)) *
-                ((c_phi_double_prime - c_phi) /
-                 (c_phi_double_prime - c_omega_prime)) -
+                ((self.mass_omega_double_prime ** 2 - self.mass_phi ** 2) /
+                 (self.mass_omega_double_prime ** 2 - self.mass_omega_prime ** 2)) *
+                ((self.mass_phi_double_prime ** 2 - self.mass_phi ** 2) /
+                 (self.mass_phi_double_prime ** 2 - self.mass_omega_prime ** 2)) -
                 self._pauli_component_omega_double_prime(w) * self._pauli_component_phi_double_prime(w) *
                 self._pauli_component_omega_prime(w)
             )
@@ -352,59 +329,10 @@ class NucleonUAModel:
         t_meson_pole = (mass - 1j * decay_rate / 2) ** 2
         w_meson = map_from_t_to_w(t_meson_pole)
 
-        if t_meson_pole.real < t_0:
+        mass_squared = mass**2
+        if mass_squared < t_0:
             raise ValueError('Mass squared of the resonance must be above the t_0 threshold!')
-        elif t_meson_pole.real < t_in:
+        elif mass_squared < t_in:
             return UAComponentVariantA(w_n, w_meson)
         else:
             return UAComponentVariantB(w_n, w_meson)
-
-    def _get_mass_term(self, scalar: bool, dirac: bool, resonance: str) -> complex:
-        key = self._build_cache_key(scalar, dirac, resonance)
-        cached_val = self._mass_terms_cache.get(key, None)
-        if cached_val:
-            return cached_val
-        val = self._calculate_mass_term(scalar, dirac, resonance)
-        self._mass_terms_cache[key] = val
-        return val
-
-    @staticmethod
-    def _build_cache_key(scalar: bool, dirac: bool, resonance: str) -> str:
-        key = 'isoscalar_' if scalar else 'isovector_'
-        key += 'dirac_' if dirac else 'pauli_'
-        return key + resonance
-
-    def _calculate_mass_term(self, scalar: bool, dirac: bool, resonance: str) -> complex:
-        if scalar and dirac:
-            t_to_w = self._t_to_W_dirac_isoscalar
-        elif scalar and not dirac:
-            t_to_w = self._t_to_W_pauli_isoscalar
-        elif not scalar and dirac:
-            t_to_w = self._t_to_W_dirac_isovector
-        else:  # not scalar and not dirac
-            t_to_w = self._t_to_W_pauli_isovector
-
-        mass = self.__getattribute__('mass_' + resonance)
-        decay_rate = self.__getattribute__('decay_rate_' + resonance)
-        pole = mass - 0.5j * decay_rate
-        w_resonance = t_to_w(pole**2)
-        w_norm = t_to_w(0)
-
-        if (pole**2).real < t_to_w.t_in:
-            return self._calculate_mass_term_a(w_resonance, w_norm)
-        else:
-            return self._calculate_mass_term_b(w_resonance, w_norm)
-
-    @staticmethod
-    def _calculate_mass_term_a(w_r: complex, w_n: complex) -> complex:
-        numerator = ((w_n - w_r) * (w_n - w_r.conjugate()) *
-                     (w_n - 1 / w_r) * (w_n - 1 / w_r.conjugate()))
-        denominator = - abs((w_r - 1 / w_r))**2
-        return numerator / denominator
-
-    @staticmethod
-    def _calculate_mass_term_b(w_r: complex, w_n: complex) -> complex:
-        numerator = ((w_n - w_r) * (w_n - w_r.conjugate()) *
-                     (w_n + w_r) * (w_n + w_r.conjugate()))
-        denominator = - abs((w_r - 1 / w_r)) ** 2
-        return numerator / denominator
