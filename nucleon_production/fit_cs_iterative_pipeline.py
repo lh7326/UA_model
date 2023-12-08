@@ -43,12 +43,12 @@ def make_initial_parameters(
         mass_phi_double_prime=2.159,
         decay_rate_phi_double_prime=0.137,
         a_dirac_rho=0.4,
-        mass_rho=0.76388,
-        decay_rate_rho=0.14428,
-        mass_rho_prime=1.34231,
-        decay_rate_rho_prime=0.49217,
-        mass_rho_double_prime=1.7185,
-        decay_rate_rho_double_prime=0.48958,
+        mass_rho=0.77526,
+        decay_rate_rho=0.1474,
+        mass_rho_prime=1.465,
+        decay_rate_rho_prime=0.4,
+        mass_rho_double_prime=1.72,
+        decay_rate_rho_double_prime=0.25,
     )
 
 
@@ -67,7 +67,7 @@ if __name__ == '__main__':
 
     path_to_reports = '/home/lukas/reports/oscillations'
 
-    ts_proton_electric, css_proton_electric, errors_proton_electric = read_data('proton_cs.csv')
+    ts_proton_electric, css_proton_electric, errors_proton_electric = read_data('proton_cs_extended.csv')
 
     def f(name):
         initial_parameters = make_initial_parameters(
@@ -79,14 +79,14 @@ if __name__ == '__main__':
             t_0_pauli_isoscalar=t_0_isoscalar,
             t_0_pauli_isovector=t_0_isovector,
         )
-
+        initial_parameters.fix_resonances()  # we want to keep the resonances at their table values
         initial_parameters = perturb_model_parameters(
             initial_parameters,
-            perturbation_size=0.5, perturbation_size_resonances=0.1,
+            perturbation_size=0.8, perturbation_size_resonances=0.1,
             use_handpicked_bounds=True,
         )
         numbers = (4, 3, 5, 2, 7, 3, 8, 10, 5)
-        repetitions = (5, 20, 20, 10, 40, 10, 20, 20, 10)
+        repetitions = (5, 20, 30, 20, 40, 10, 20, 20, 10)
         pipeline = NucleonCrossSectionIterativePipeline(
             name, initial_parameters,
             ts_proton_electric, css_proton_electric, errors_proton_electric,
@@ -102,8 +102,8 @@ if __name__ == '__main__':
 
     final_results = []
     best_fit = {'chi_squared': None, 'name': None, 'parameters': None}
-    for i in range(5):
-        result = f(f'run2_{i}')
+    for i in range(10):
+        result = f(f'run7_{i}')
         print(result)
 
         if result and result.get('chi_squared', None) is not None:

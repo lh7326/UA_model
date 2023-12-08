@@ -161,7 +161,7 @@ def function_cross_section(
     ff_model = _get_ff_model(parameters)
 
     config = ConfigParser()
-    config['constants'] = {'alpha': alpha, 'hc_squared': hc_squared}
+    config['constants'] = {'alpha': str(alpha), 'hc_squared': str(hc_squared)}
     if _is_kaon_type_model(ff_model):
         cross_section_model = ScalarMesonProductionTotalCrossSection(
             product_particle_mass, ff_model, config)

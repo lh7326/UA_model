@@ -60,9 +60,15 @@ class NucleonCrossSectionIterativePipeline(NucleonCrossSectionPipeline):
             self._flush_report()
             self._save_report(str(i), task.report)
 
-        self._log(f'Initializing Task#{len(self.free_params_numbers)}. Full fit.')
-        task_name = f'Task#{len(self.free_params_numbers)}:{TaskFullFit.__name__}'
-        task = TaskFullFit(
+        self.parameters.release_all_parameters()
+        if len(self.free_params_numbers) < self.nr_initial_rounds_with_fixed_resonances:
+            name = 'Full fit (Fixed resonances)'
+            self.parameters.fix_resonances()  # type: ignore
+        else:
+            name = 'Full fit'
+        self._log(f'Initializing Task#{len(self.free_params_numbers)}. {name}.')
+        task_name = f'Task#{len(self.free_params_numbers)}:{name}'
+        task = TaskFixAccordingToParametersFit(
             task_name, self.parameters,  # type: ignore
             self.ts, self.ys, self.errors,
             self.nucleon_mass, self.alpha, self.hc_squared,

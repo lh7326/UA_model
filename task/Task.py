@@ -7,7 +7,7 @@ from kaon_production.data import KaonDatapoint
 from nucleon_production.data import NucleonDatapoint
 from model_parameters import ModelParameters
 
-
+#TODO: remove reports_dir
 class Task(ABC):
 
     def __init__(self,
@@ -41,6 +41,7 @@ class Task(ABC):
             'parameter_errors': None,
             'status': 'started',
             'error_message': None,
+            'parameter_list': [],
         }
 
     def run(self):
@@ -86,6 +87,7 @@ class Task(ABC):
             covariance_matrix=covariance_matrix,
             parameter_errors=np.sqrt(np.diag(covariance_matrix)),
             status='finished',
+            parameter_list=self.parameters.get_ordered_values(),
         )
 
     @abstractmethod

@@ -246,5 +246,4 @@ class TestNucleonUAModelOld(TestCase):
                 nucleon_model.electric = case['electric']
                 actual = nucleon_model(case['t'])
                 expected = case['expected_value']
-                print(case, actual)
                 self.assertTrue(cmath.isclose(actual, expected, abs_tol=1.0e-15))
