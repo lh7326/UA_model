@@ -7,7 +7,7 @@ from kaon_production.data import KaonDatapoint
 from nucleon_production.data import NucleonDatapoint
 from model_parameters import ModelParameters
 
-#TODO: remove reports_dir
+
 class Task(ABC):
 
     def __init__(self,
@@ -16,7 +16,6 @@ class Task(ABC):
                  ts: Union[List[KaonDatapoint], List[NucleonDatapoint]],
                  ys: List[float],
                  errors: List[float],
-                 reports_dir: str,
                  plot: bool = True,
                  use_handpicked_bounds: bool = True):
         self.name = name
@@ -28,7 +27,6 @@ class Task(ABC):
         self.ts_fit = ts
         self.ys_fit = ys
         self.errors_fit = errors
-        self.reports_dir = reports_dir
         self.should_plot = plot
         self.use_handpicked_bounds = use_handpicked_bounds
         self.report = {

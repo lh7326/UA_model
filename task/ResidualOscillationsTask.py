@@ -1,6 +1,6 @@
 import math
 import numpy as np
-from typing import Dict, List, Tuple, Union
+from typing import Dict, List, Tuple, Union, Optional
 
 from plotting.plot_fit import plot_background_residuals
 from task.Task import Task
@@ -89,10 +89,11 @@ class ResidualOscillationsTask(Task):
                  product_particle_mass: float,
                  alpha: float,
                  hc_squared: float,
-                 reports_dir: str,
+                 reports_dir: Optional[str] = None,
                  plot: bool = True,
                  use_handpicked_bounds: bool = True):
-        super().__init__(name, parameters, ts, ys, errors, reports_dir, plot, use_handpicked_bounds)
+        super().__init__(name, parameters, ts, ys, errors, plot, use_handpicked_bounds)
+        self.reports_dir = reports_dir
         self.product_particle_mass = product_particle_mass
         self.alpha = alpha
         self.hc_squared = hc_squared
@@ -102,10 +103,11 @@ class ResidualOscillationsTask(Task):
         self.ff_ts = None
 
     def _plot(self, opt_params):
-        plot_background_residuals(
-            self.ff_ts, self.eff_ffs, self.background_fit, self.ff_errors,
-            self.ts, self.ys, self.errors, self.partial_f,
-            opt_params, self.name, show=self.should_plot, save_dir=self.reports_dir)
+        if self.reports_dir:
+            plot_background_residuals(
+                self.ff_ts, self.eff_ffs, self.background_fit, self.ff_errors,
+                self.ts, self.ys, self.errors, self.partial_f,
+                opt_params, self.name, show=self.should_plot, save_dir=self.reports_dir)
 
     def transform_to_effective_form_factor(self, cs, err, t):
         tau = t / (4 * (self.product_particle_mass**2))
