@@ -32,6 +32,9 @@ class ModelParameters(ABC):
     def to_list(self) -> List[Parameter]:
         return list(self._data)
 
+    def copy(self) -> 'ModelParameters':
+        return self.from_list(self.to_list())
+
     def _find(self, name: str) -> Tuple[int, Parameter]:
         for index, parameter in enumerate(self._data):
             if parameter.name == name:
@@ -103,3 +106,7 @@ class ModelParameters(ABC):
     @abstractmethod
     def get_bounds_for_free_parameters(self, *args, **kwargs) -> Tuple[List[float], List[float]]:
         pass
+
+    def get_ordered_values(self) -> List[float]:
+        # Note: Implement in child classes where needed.
+        return []

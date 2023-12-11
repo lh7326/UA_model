@@ -113,6 +113,13 @@ class TestModelParameters(TestCase):
              0.14, 1.720, 0.25, 2.15, 0.3],
         )
 
+    def test_copy(self):
+        self.parameters.set_value('a_phi', 1)
+        copy = self.parameters.copy()
+        copy.set_value('a_phi', 2)
+        self.assertEqual(self.parameters['a_phi'].value, 1)
+        self.assertEqual(copy['a_phi'].value, 2)
+
     def test_update_free_values(self):
         self.parameters.release_all_parameters()
         self.parameters.fix_parameters([

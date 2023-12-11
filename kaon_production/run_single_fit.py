@@ -1,8 +1,8 @@
 from configparser import ConfigParser
 
-from kaon_production.data import read_data, Datapoint
+from kaon_production.data import read_data, KaonDatapoint
 from model_parameters import KaonParameters
-from task.cross_section_tasks import TaskFixAccordingToParametersFitOnlyCharged
+from task.kaon_cross_section_tasks import TaskFixAccordingToParametersFit
 
 
 def make_parameters(t_0_isoscalar, t_0_isovector, list_of_values):
@@ -10,10 +10,10 @@ def make_parameters(t_0_isoscalar, t_0_isovector, list_of_values):
 
 
 def prepare_data(ts_charged, css_charged, errors_charged, ts_neutral, css_neutral, errors_neutral):
-    ts = [Datapoint(t, True) for t in ts_charged]
+    ts = [KaonDatapoint(t, True) for t in ts_charged]
     cross_sections = list(css_charged)
     errors = list(errors_charged)
-    ts += [Datapoint(t, False) for t in ts_neutral]
+    ts += [KaonDatapoint(t, False) for t in ts_neutral]
     cross_sections += list(css_neutral)
     errors += list(errors_neutral)
 
@@ -51,32 +51,19 @@ if __name__ == '__main__':
         neutral_ts, neutral_cross_sections_values, neutral_errors,
     )
 
-    # task = TaskFullFitOnlyCharged(
-    #     'Full Fit (Only charged)', parameters,
-    #     ts, cross_sections, errors,
-    #     kaon_mass, alpha, hc_squared,
-    #     t_0_isoscalar, t_0_isovector,
-    #     None, True, use_handpicked_bounds=False
-    # )
     parameters.set_value('decay_rate_phi_prime', 0.150)
     parameters.release_all_parameters()
     parameters.fix_resonances()
     parameters.release_parameters([
         't_in_isoscalar', 't_in_isovector',
         'decay_rate_omega_prime',
-    #    'decay_rate_phi_prime',
         'mass_phi', 'decay_rate_phi', 'mass_phi_prime', 'decay_rate_phi_prime', 'mass_phi_double_prime', 'decay_rate_phi_double_prime',
         'decay_rate_rho_double_prime', 'decay_rate_rho_triple_prime',
     ])
-    #parameters.release_all_parameters()
-    #parameters.fix_parameters(['mass_phi', 'mass_omega', 'mass_rho', 'decay_rate_phi', 'decay_rate_rho',
-    #                           'mass_phi_double_prime', 'mass_rho_double_prime', 'mass_phi_prime', 'decay_rate_omega',
-    #                           'mass_rho_prime', 'mass_omega_double_prime'])
-    task = TaskFixAccordingToParametersFitOnlyCharged(
-        'Full Fit (Only charged)', parameters,
+    task = TaskFixAccordingToParametersFit(
+        'Fit', parameters,
         ts, cross_sections, errors,
         kaon_mass, alpha, hc_squared,
-        t_0_isoscalar, t_0_isovector,
         None, True, use_handpicked_bounds=False
     )
     print(task.run().get_ordered_values())

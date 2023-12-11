@@ -4,12 +4,12 @@ from collections import namedtuple
 from typing import Tuple, List
 
 
-KaonDatapoint = namedtuple('KaonDatapoint', 't is_charged')
+NucleonDatapoint = namedtuple('Datapoint', 't proton electric')
 
 DIR_NAME = '../data'
 
 
-def read_data(file_name: str = 'charged_kaon.csv') -> Tuple[List[float], List[float], List[float]]:
+def read_data(file_name: str = '.csv') -> Tuple[List[float], List[float], List[float]]:
     xs = []
     ys = []
     errs = []

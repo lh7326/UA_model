@@ -21,8 +21,6 @@ def error_for_square_root(val, err):
     return (1 / (2 * math.sqrt(val))) * err
 
 
-
-
 if __name__ == '__main__':
     config = ConfigParser(inline_comment_prefixes='#')
     config.read('../configuration.ini')

@@ -2,8 +2,8 @@ from configparser import ConfigParser
 
 from kaon_production.data import read_data
 from model_parameters import KaonParametersB
-from pipeline.FormFactorIterativePipeline import FormFactorIterativePipeline
-from kaon_production.utils import perturb_model_parameters
+from pipeline.KaonFormFactorIterativePipeline import KaonFormFactorIterativePipeline
+from common.utils import perturb_model_parameters
 
 
 def make_initial_parameters(t_0_isoscalar, t_0_isovector):
@@ -58,7 +58,7 @@ if __name__ == '__main__':
         )
         numbers = (3, 3, 5, 2, 7, 5, 8, 12)
         repetitions = (10, 40, 30, 20, 30, 40, 30, 30)
-        pipeline = FormFactorIterativePipeline(
+        pipeline = KaonFormFactorIterativePipeline(
             name, initial_parameters,
             charged_ts, charged_ff_values, charged_errors,
             [], [], [],  # TODO: move data (charged/neutral) outside this functionality!
@@ -70,8 +70,8 @@ if __name__ == '__main__':
 
     final_results = []
     best_fit = {'chi_squared': None, 'name': None, 'parameters': None}
-    for i in range(10):
-        result = f(f'iterative3_{i}')
+    for i in range(15):
+        result = f(f'iterative7_{i}')
         print(result)
         if result and result.get('chi_squared', None) is not None:
             final_results.append(result)

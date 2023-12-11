@@ -1,8 +1,8 @@
 from unittest import TestCase
 import cmath
 
-from kaon_production.data import Datapoint
-from kaon_production.utils import make_partial_cross_section_for_parameters
+from kaon_production.data import KaonDatapoint
+from common.utils import make_partial_cross_section_for_parameters
 from model_parameters import KaonParameters, KaonParametersSimplified
 
 
@@ -37,12 +37,12 @@ class TestKaonProductionUtils(TestCase):
             2.15, 0.3,
         )
         self.ts = [
-            Datapoint(t=0.1, is_charged=True),
-            Datapoint(t=1.812, is_charged=False),
-            Datapoint(t=84.4301, is_charged=True),
-            Datapoint(t=87.4j, is_charged=False),
-            Datapoint(t=0.4 - 0.02j, is_charged=True),
-            Datapoint(t=38.4 + 7.93j, is_charged=False),
+            KaonDatapoint(t=0.1, is_charged=True),
+            KaonDatapoint(t=1.812, is_charged=False),
+            KaonDatapoint(t=84.4301, is_charged=True),
+            KaonDatapoint(t=87.4j, is_charged=False),
+            KaonDatapoint(t=0.4 - 0.02j, is_charged=True),
+            KaonDatapoint(t=38.4 + 7.93j, is_charged=False),
         ]
         self.expected_for_kaon_parameters = [
             -1.2547114651583273e-12-6830.331085566366j,

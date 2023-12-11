@@ -1,7 +1,7 @@
 from configparser import ConfigParser
 from typing import Callable, List, Union, Tuple
 
-from kaon_production.data import read_data, Datapoint
+from kaon_production.data import read_data, KaonDatapoint
 from cross_section.ScalarMesonProductionTotalCrossSection import ScalarMesonProductionTotalCrossSection
 from ua_model.SingleComponentModel import SingleComponentModel
 from plotting.plot_fit import plot_cs_fit_neutral_plus_charged
@@ -16,17 +16,17 @@ def make_function_cross_section(
         decay_rate: float,
         t_0: float,
         t_in: float,
-        ) -> Callable[[List[Union[Datapoint, Tuple[float, float]]]], List[complex]]:
+        ) -> Callable[[List[Union[KaonDatapoint, Tuple[float, float]]]], List[complex]]:
 
     ff_model = SingleComponentModel(t_0, t_in, a, mass, decay_rate)
     config = ConfigParser()
-    config['constants'] = {'alpha': alpha, 'hc_squared': hc_squared}
+    config['constants'] = {'alpha': str(alpha), 'hc_squared': str(hc_squared)}
     cross_section_model = ScalarMesonProductionTotalCrossSection(k_meson_mass, ff_model, config)
 
-    def f(ts: List[Union[Datapoint, Tuple[float, float]]]) -> List[complex]:
+    def f(ts: List[Union[KaonDatapoint, Tuple[float, float]]]) -> List[complex]:
         results = []
         for datapoint in ts:
-            if isinstance(datapoint, Datapoint):
+            if isinstance(datapoint, KaonDatapoint):
                 cross_section_model.form_factor.charged_variant = datapoint.is_charged
                 results.append(cross_section_model(datapoint.t))
             else:
@@ -37,10 +37,10 @@ def make_function_cross_section(
 
 
 def prepare_data(ts_charged, css_charged, errors_charged, ts_neutral, css_neutral, errors_neutral):
-    ts = [Datapoint(t, True) for t in ts_charged]
+    ts = [KaonDatapoint(t, True) for t in ts_charged]
     cross_sections = list(css_charged)
     errors = list(errors_charged)
-    ts += [Datapoint(t, False) for t in ts_neutral]
+    ts += [KaonDatapoint(t, False) for t in ts_neutral]
     cross_sections += list(css_neutral)
     errors += list(errors_neutral)
 
