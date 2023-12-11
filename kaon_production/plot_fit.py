@@ -82,6 +82,7 @@ if __name__ == '__main__':
 
     task = ResidualOscillationsTask(
         'ResidualOscillationsTask', parameters, ts, ffs, errs,
+        product_particle_mass=kaon_mass, alpha=alpha, hc_squared=hc_squared,
         reports_dir='/home/lukas/reports/ff', plot=True
     )
     task.run()

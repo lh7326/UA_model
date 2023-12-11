@@ -20,7 +20,7 @@ def make_function_cross_section(
 
     ff_model = SingleComponentModel(t_0, t_in, a, mass, decay_rate)
     config = ConfigParser()
-    config['constants'] = {'alpha': alpha, 'hc_squared': hc_squared}
+    config['constants'] = {'alpha': str(alpha), 'hc_squared': str(hc_squared)}
     cross_section_model = ScalarMesonProductionTotalCrossSection(k_meson_mass, ff_model, config)
 
     def f(ts: List[Union[KaonDatapoint, Tuple[float, float]]]) -> List[complex]:

@@ -80,8 +80,8 @@ class Task(ABC):
 
         self.report.update(
             final_parameters=self.parameters.to_list(),
-            r2=sum(r_squared),
-            chi_squared=chi_squared,
+            r2=str(sum(r_squared)),
+            chi_squared=str(chi_squared),
             covariance_matrix=covariance_matrix,
             parameter_errors=np.sqrt(np.diag(covariance_matrix)),
             status='finished',

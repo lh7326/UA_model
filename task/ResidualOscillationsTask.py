@@ -145,7 +145,6 @@ class ResidualOscillationsTask(Task):
         self.drop_large_momenta(5)
 
         self.parameters = _OscillationsParameters(a=100.0, b=2.0, c=5.0, d=0.0)
-        #self.parameters = _OscillationsParameters(a=20.0, b=1.0, c=1.0, d=0.0)
 
         def partial(ts, *pars):
             parameters = _OscillationsParameters.from_list(self.parameters.to_list())
