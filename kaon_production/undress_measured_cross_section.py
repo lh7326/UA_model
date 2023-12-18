@@ -1,7 +1,6 @@
 from typing import List, Tuple, Optional
 
 from configparser import ConfigParser
-import os
 import csv
 import math
 import matplotlib.pyplot as plt

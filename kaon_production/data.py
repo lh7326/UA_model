@@ -2,8 +2,8 @@ import csv
 import math
 import os.path
 from collections import namedtuple
-from typing import Tuple, List
-
+import matplotlib.pyplot as plt
+from typing import Tuple, List, Optional
 
 KaonDatapoint = namedtuple('KaonDatapoint', 't is_charged')
 
@@ -28,13 +28,15 @@ def read_data(file_name: str = 'charged_kaon.csv') -> Tuple[List[float], List[fl
     return xs, ys, errs
 
 
-def read_data_new(file_name: str) -> Tuple[List[float], List[float], List[float], List[float]]:
+def read_data_new(
+        file_name: str, subdir_name: Optional[str] = 'new'
+) -> Tuple[List[float], List[float], List[float], List[float]]:
     xs = []
     ys = []
     stat_errs = []
     sys_errs = []
 
-    filepath = os.path.join(DIR_NAME, 'new', file_name)
+    filepath = os.path.join(DIR_NAME, subdir_name, file_name)
     with open(filepath, 'r') as f:
         reader = csv.reader(f, delimiter=' ')
         for x, y, stat_err, sys_err in reader:
@@ -74,8 +76,37 @@ def merge_statistical_and_systematic_errors(
     return xs, ys, merged_errs
 
 
+def plot_data(
+        filenames: List[str],
+        subdir_name: str,
+        title: str,
+        x_axis_label: str,
+        y_axis_label: str
+):
+
+    fig, ax = plt.subplots()
+    ax.set_title(title)
+    ax.set_xlabel(x_axis_label)
+    ax.set_ylabel(y_axis_label)
+
+    for filename in filenames:
+        xs, ys, errs = merge_statistical_and_systematic_errors(*read_data_new(filename, subdir_name))
+        ax.errorbar(xs, ys, yerr=errs, fmt='x', label=filename)
+
+    ax.legend(loc='upper right')
+
+    plt.show()
+    plt.close()
+
+
 if __name__ == '__main__':
-    file_name = 'snd_charged_kaons_undressed.csv'
-    transform_energy_to_s(
-        f'../data/raw_files/{file_name}',
-        f'../data/new/{file_name}')
+    # file_name = 'snd_charged_kaons_undressed.csv'
+    # transform_energy_to_s(
+    #     f'../data/raw_files/{file_name}',
+    #     f'../data/new/{file_name}')
+
+    filenames = ['cmd_3_charged_kaons_undressed.csv',
+                 'snd_charged_kaons_undressed.csv',
+                 'babar_2013_charged_kaons.csv',
+                 ]
+    plot_data(filenames, 'raw_files', 'Cross sections --- Charged kaons', 'E[GeV]', 'sigma[nb]')
