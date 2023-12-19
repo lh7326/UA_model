@@ -48,6 +48,24 @@ def read_data_new(
     return xs, ys, stat_errs, sys_errs
 
 
+def read_data_files_new(
+        file_names: List[str], subdir_name: Optional[str] = 'new'
+) -> Tuple[List[float], List[float], List[float], List[float]]:
+    xs = []
+    ys = []
+    stat_errs = []
+    sys_errs = []
+
+    for file_name in file_names:
+        new_xs, new_ys, new_stat_errs, new_sys_errs = read_data_new(file_name, subdir_name)
+        xs.extend(new_xs)
+        ys.extend(new_ys)
+        stat_errs.extend(new_stat_errs)
+        sys_errs.extend(new_sys_errs)
+
+    return xs, ys, stat_errs, sys_errs
+
+
 def transform_energy_to_s(source_filepath: str, output_filepath: str) -> None:
     converted = []
 
