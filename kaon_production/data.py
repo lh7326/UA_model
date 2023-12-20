@@ -5,7 +5,7 @@ from collections import namedtuple
 import matplotlib.pyplot as plt
 from typing import Tuple, List, Optional
 
-KaonDatapoint = namedtuple('KaonDatapoint', 't is_charged')
+KaonDatapoint = namedtuple('KaonDatapoint', 't is_charged is_for_cross_section')
 
 DIR_NAME = '../data'
 
