@@ -13,16 +13,16 @@ class TestCommonUtils(TestCase):
     def test_function_cross_section__with_kaon_parameters(self):
 
         ts = [
-            KaonDatapoint(t=1.1230, is_charged=True),
-            KaonDatapoint(t=1.1230 + 0.73200j, is_charged=True),
-            (0.73200j, 1.0),
-            KaonDatapoint(t=-0.73200j, is_charged=True),
-            (1.1230 - 0.73200j, 1.0),
-            (1.1230, 0.0),
-            KaonDatapoint(t=1.1230 + 0.73200j, is_charged=False),
-            KaonDatapoint(t=0.73200j, is_charged=False),
-            (-0.73200j, 0.0),
-            KaonDatapoint(t=1.1230 - 0.73200j, is_charged=False),
+            KaonDatapoint(t=1.1230, is_charged=True, is_for_cross_section=True),
+            KaonDatapoint(t=1.1230 + 0.73200j, is_charged=True, is_for_cross_section=True),
+            (0.73200j, 1.0, 1.0),
+            KaonDatapoint(t=-0.73200j, is_charged=True, is_for_cross_section=True),
+            (1.1230 - 0.73200j, 1.0, 1.0),
+            (1.1230, 0.0, 1.0),
+            KaonDatapoint(t=1.1230 + 0.73200j, is_charged=False, is_for_cross_section=True),
+            KaonDatapoint(t=0.73200j, is_charged=False, is_for_cross_section=True),
+            (-0.73200j, 0.0, 1.0),
+            KaonDatapoint(t=1.1230 - 0.73200j, is_charged=False, is_for_cross_section=True),
         ]
 
         m_pion = 0.13957039
@@ -89,16 +89,16 @@ class TestCommonUtils(TestCase):
     def test_function_cross_section__with_kaon_parameters_simplified(self):
 
         ts = [
-            KaonDatapoint(t=1.1230, is_charged=True),
-            KaonDatapoint(t=1.1230 + 0.73200j, is_charged=True),
-            (0.73200j, 1.0),
-            KaonDatapoint(t=-0.73200j, is_charged=True),
-            KaonDatapoint(t=1.1230 - 0.73200j, is_charged=True),
-            (1.1230, 0.0),
-            (1.1230 + 0.73200j, 0.0),
-            (0.73200j, 0.0),
-            (-0.73200j, 0.0),
-            KaonDatapoint(t=1.1230 - 0.73200j, is_charged=False),
+            KaonDatapoint(t=1.1230, is_charged=True, is_for_cross_section=True),
+            KaonDatapoint(t=1.1230 + 0.73200j, is_charged=True, is_for_cross_section=True),
+            (0.73200j, 1.0, 1.0),
+            KaonDatapoint(t=-0.73200j, is_charged=True, is_for_cross_section=True),
+            KaonDatapoint(t=1.1230 - 0.73200j, is_charged=True, is_for_cross_section=True),
+            (1.1230, 0.0, 1.0),
+            (1.1230 + 0.73200j, 0.0, 1.0),
+            (0.73200j, 0.0, 1.0),
+            (-0.73200j, 0.0, 1.0),
+            KaonDatapoint(t=1.1230 - 0.73200j, is_charged=False, is_for_cross_section=True),
         ]
 
         m_pion = 0.13957039

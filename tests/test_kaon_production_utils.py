@@ -37,12 +37,12 @@ class TestKaonProductionUtils(TestCase):
             2.15, 0.3,
         )
         self.ts = [
-            KaonDatapoint(t=0.1, is_charged=True),
-            KaonDatapoint(t=1.812, is_charged=False),
-            KaonDatapoint(t=84.4301, is_charged=True),
-            KaonDatapoint(t=87.4j, is_charged=False),
-            KaonDatapoint(t=0.4 - 0.02j, is_charged=True),
-            KaonDatapoint(t=38.4 + 7.93j, is_charged=False),
+            KaonDatapoint(t=0.1, is_charged=True, is_for_cross_section=True),
+            KaonDatapoint(t=1.812, is_charged=False, is_for_cross_section=True),
+            KaonDatapoint(t=84.4301, is_charged=True, is_for_cross_section=True),
+            KaonDatapoint(t=87.4j, is_charged=False, is_for_cross_section=True),
+            KaonDatapoint(t=0.4 - 0.02j, is_charged=True, is_for_cross_section=True),
+            KaonDatapoint(t=38.4 + 7.93j, is_charged=False, is_for_cross_section=True),
         ]
         self.expected_for_kaon_parameters = [
             -1.2547114651583273e-12-6830.331085566366j,
