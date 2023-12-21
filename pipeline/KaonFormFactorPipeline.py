@@ -36,10 +36,10 @@ class KaonFormFactorPipeline(Pipeline):
             ts_charged: List[float], ffs_charged: List[float], errors_charged: List[float],
             ts_neutral: List[float], ffs_neutral: List[float], errors_neutral: List[float],
     ) -> Tuple[List[KaonDatapoint], List[float], List[float]]:
-        ts = [KaonDatapoint(t, True) for t in ts_charged]
+        ts = [KaonDatapoint(t, True, False) for t in ts_charged]
         ys = list(ffs_charged)
         errors = list(errors_charged)
-        ts += [KaonDatapoint(t, False) for t in ts_neutral]
+        ts += [KaonDatapoint(t, False, False) for t in ts_neutral]
         ys += list(ffs_neutral)
         errors += list(errors_neutral)
 

@@ -40,10 +40,10 @@ class KaonCrossSectionPipeline(Pipeline):
             ts_charged: List[float], css_charged: List[float], errors_charged: List[float],
             ts_neutral: List[float], css_neutral: List[float], errors_neutral: List[float],
     ) -> Tuple[List[KaonDatapoint], List[float], List[float]]:
-        ts = [KaonDatapoint(t, True) for t in ts_charged]
+        ts = [KaonDatapoint(t, True, True) for t in ts_charged]
         ys = list(css_charged)
         errors = list(errors_charged)
-        ts += [KaonDatapoint(t, False) for t in ts_neutral]
+        ts += [KaonDatapoint(t, False, True) for t in ts_neutral]
         ys += list(css_neutral)
         errors += list(errors_neutral)
 

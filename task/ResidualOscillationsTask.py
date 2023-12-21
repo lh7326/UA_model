@@ -171,7 +171,9 @@ class ResidualOscillationsTask(Task):
 
         if isinstance(self.ts[0], KaonDatapoint):
             ps = [
-                KaonDatapoint(t=math.sqrt(d.t * (d.t - 4 * (m ** 2))) / (2 * m), is_charged=d.is_charged)
+                KaonDatapoint(t=math.sqrt(d.t * (d.t - 4 * (m ** 2))) / (2 * m),
+                              is_charged=d.is_charged,
+                              is_for_cross_section=d.is_for_cross_section)
                 for d in self.ts
             ]
         elif isinstance(self.ts[0], NucleonDatapoint):

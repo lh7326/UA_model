@@ -16,31 +16,33 @@ def make_function_cross_section(
         decay_rate: float,
         t_0: float,
         t_in: float,
-        ) -> Callable[[List[Union[KaonDatapoint, Tuple[float, float]]]], List[complex]]:
+        ) -> Callable[[List[Union[KaonDatapoint, Tuple[float, float, float]]]], List[complex]]:
 
     ff_model = SingleComponentModel(t_0, t_in, a, mass, decay_rate)
     config = ConfigParser()
     config['constants'] = {'alpha': str(alpha), 'hc_squared': str(hc_squared)}
     cross_section_model = ScalarMesonProductionTotalCrossSection(k_meson_mass, ff_model, config)
 
-    def f(ts: List[Union[KaonDatapoint, Tuple[float, float]]]) -> List[complex]:
+    def f(ts: List[Union[KaonDatapoint, Tuple[float, float, float]]]) -> List[complex]:
         results = []
         for datapoint in ts:
             if isinstance(datapoint, KaonDatapoint):
                 cross_section_model.form_factor.charged_variant = datapoint.is_charged
+                assert datapoint.is_for_cross_section
                 results.append(cross_section_model(datapoint.t))
             else:
                 cross_section_model.form_factor.charged_variant = bool(datapoint[1])
+                assert datapoint[2] > 0.5  # is for cross-section
                 results.append(cross_section_model(datapoint[0]))
         return results
     return f
 
 
 def prepare_data(ts_charged, css_charged, errors_charged, ts_neutral, css_neutral, errors_neutral):
-    ts = [KaonDatapoint(t, True) for t in ts_charged]
+    ts = [KaonDatapoint(t, True, True) for t in ts_charged]
     cross_sections = list(css_charged)
     errors = list(errors_charged)
-    ts += [KaonDatapoint(t, False) for t in ts_neutral]
+    ts += [KaonDatapoint(t, False, True) for t in ts_neutral]
     cross_sections += list(css_neutral)
     errors += list(errors_neutral)
 
