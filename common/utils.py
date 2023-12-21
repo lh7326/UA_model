@@ -136,7 +136,7 @@ def function_form_factor(
         for datapoint in ts:
             t, is_charged, is_for_cross_section = _read_datapoint_kaon(datapoint)
             if is_for_cross_section:
-                raise f'Datapoint {datapoint} is for cross section, not form factor!'
+                raise ValueError('Datapoint {datapoint} is for cross section, not form factor!')
             ff_model.charged_variant = is_charged
             results.append(abs(ff_model(t)))
     else:  # a nucleon form factor model
@@ -182,7 +182,7 @@ def function_cross_section(
         for datapoint in ts:
             t, is_charged, is_for_cross_section = _read_datapoint_kaon(datapoint)
             if not is_for_cross_section:
-                raise f'Datapoint {datapoint} is for form factor, not cross section!'
+                raise ValueError('Datapoint {datapoint} is for form factor, not cross section!')
             cross_section_model.form_factor.charged_variant = is_charged
             results.append(abs(cross_section_model(t)))
     else:  # a nucleon form factor model
