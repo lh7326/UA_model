@@ -43,6 +43,11 @@ def plot_cs_fit(ts, css, errors, f, pars, title='Cross Section Fit', show=True, 
     plt.close()
 
 
+def plot_combined_fit(
+        ts, ys, errors, f, pars, title='Combined Fit', show=True, save_dir=None):
+    raise NotImplementedError
+
+
 def plot_cs_fit_neutral_plus_charged(
         ts, css, errors, f, pars, title='Cross Section Fit', show=True, save_dir=None):
     fit_css = f(ts, *pars)
