@@ -5,8 +5,6 @@ from model_parameters import KaonParametersFixedSelected
 from pipeline.KaonCombinedIterativePipeline import KaonCombinedIterativePipeline
 from common.utils import perturb_model_parameters
 
-# TODO: finish plotting + prepare spacelike data
-
 
 def make_initial_parameters(t_0_isoscalar, t_0_isovector):
     return KaonParametersFixedSelected(
