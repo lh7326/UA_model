@@ -113,9 +113,6 @@ class KaonUAModel:
         self._initialize_isovector_components()
 
     def __call__(self, t: complex) -> complex:
-        if t.real < 0:
-            raise ValueError('t must have a positive real part!')
-
         isoscalar_contribution = self._eval_isoscalar_contribution(t)
         isovector_contribution = self._eval_isovector_contribution(t)
 
