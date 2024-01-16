@@ -52,8 +52,10 @@ def plot_combined_fit(
         ax.set_ylabel(y_label)
         ax.errorbar(x_vals, y_vals, yerr=error_vals, ecolor='black', color='black', fmt='x')
         ax.scatter(x_vals, fit_vals, color='red')
-        ax.set_xscale('log')
+
         ax.set_yscale('log')
+        if min(x_vals) > 0:
+            ax.set_xscale('log')
 
     fit_ys = f(ts, *pars)
 
@@ -117,6 +119,8 @@ def plot_combined_fit(
         nr_cols = 1
 
     fig, axes = plt.subplots(nrows=nr_rows, ncols=nr_cols)
+    fig.set_figwidth(12.8)
+    fig.set_figheight(9.6)
     if nr_subplots == 1:
         axes = [axes]
     else:
