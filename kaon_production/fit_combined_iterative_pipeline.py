@@ -4,7 +4,7 @@ from kaon_production.data import read_data_files_new, merge_statistical_and_syst
 from model_parameters import KaonParametersFixedSelected
 from pipeline.KaonCombinedIterativePipeline import KaonCombinedIterativePipeline
 from common.utils import perturb_model_parameters
-
+# TODO: finish adding eta correction (don't forger the unit test)
 
 def make_initial_parameters(t_0_isoscalar, t_0_isovector):
     return KaonParametersFixedSelected(
