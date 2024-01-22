@@ -1,10 +1,10 @@
 from configparser import ConfigParser
 
-from kaon_production.data import read_data_files_new, merge_statistical_and_systematic_errors
+from kaon_production.data import read_data_files_new, merge_statistical_and_systematic_errors, apply_fsr_correction
 from model_parameters import KaonParametersFixedSelected
 from pipeline.KaonCombinedIterativePipeline import KaonCombinedIterativePipeline
 from common.utils import perturb_model_parameters
-# TODO: finish adding eta correction
+
 
 def make_initial_parameters(t_0_isoscalar, t_0_isovector):
     return KaonParametersFixedSelected(
@@ -57,23 +57,27 @@ if __name__ == '__main__':
     path_to_reports = '/home/lukas/reports/kaons'
 
     (timelike_charged_ts, timelike_charged_cross_sections_values,
-     timelike_charged_errors) = merge_statistical_and_systematic_errors(
-        *read_data_files_new(
-            file_names=[
-                'babar_2013_charged_kaons.csv',
-                'cmd_3_charged_kaons_undressed.csv',
-                'snd_charged_kaons_undressed.csv',
-            ]
+     timelike_charged_errors) = apply_fsr_correction(
+        *merge_statistical_and_systematic_errors(
+            *read_data_files_new(
+                file_names=[
+                    'babar_2013_charged_kaons.csv',
+                    'cmd_3_charged_kaons_undressed.csv',
+                    'snd_charged_kaons_undressed.csv',
+                ]
+            )
         )
     )
     (timelike_neutral_ts, timelike_neutral_cross_sections_values,
-     timelike_neutral_errors) = merge_statistical_and_systematic_errors(
-        *read_data_files_new(
-            file_names=[
-                'cmd_3_neutral_kaons_undressed.csv',
-                'snd_neutral_kaons_charged_mode_undressed.csv',
-                'snd_neutral_kaons_neutral_mode_undressed.csv',
-            ]
+     timelike_neutral_errors) = apply_fsr_correction(
+        *merge_statistical_and_systematic_errors(
+            *read_data_files_new(
+                file_names=[
+                    'cmd_3_neutral_kaons_undressed.csv',
+                    'snd_neutral_kaons_charged_mode_undressed.csv',
+                    'snd_neutral_kaons_neutral_mode_undressed.csv',
+                ]
+            )
         )
     )
     (spacelike_charged_ts, spacelike_charged_form_factor_values,
@@ -120,8 +124,8 @@ if __name__ == '__main__':
 
     final_results = []
     best_fit = {'chi_squared': None, 'name': None, 'parameters': None}
-    for i in range(10):
-        result = f(f'test_{i}')
+    for i in range(5):
+        result = f(f'test2_{i}')
         print(result)
 
         if result and result.get('chi_squared', None) is not None:

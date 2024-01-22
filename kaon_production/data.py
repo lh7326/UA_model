@@ -1,13 +1,22 @@
 import csv
+from configparser import ConfigParser
 import math
 import os.path
 from collections import namedtuple
 import matplotlib.pyplot as plt
 from typing import Tuple, List, Optional
 
+from kaon_production.eta_correction import apply_eta_correction
+
 KaonDatapoint = namedtuple('KaonDatapoint', 't is_charged is_for_cross_section')
 
 DIR_NAME = '../data'
+
+config = ConfigParser(inline_comment_prefixes='#')
+config.read('../configuration.ini')
+KAON_MASS = config.getfloat('constants', 'charged_kaon_mass')
+ALPHA = config.getfloat('constants', 'alpha')
+
 
 # TODO: remove the old read_data function?
 
@@ -123,6 +132,18 @@ def merge_statistical_and_systematic_errors(
     for stat_e, sys_e in zip(stat_errs, sys_errs):
         merged_errs.append(math.sqrt(stat_e**2 + sys_e**2))
     return xs, ys, merged_errs
+
+
+def apply_fsr_correction(
+        s_list: List[float], cs_list: List[float], errs: List[float]
+) -> Tuple[List[float], List[float], List[float]]:
+    assert len(s_list) == len(cs_list) == len(errs)
+    corrected_cs = []
+    corrected_errs = []
+    for s, cs, err in zip(s_list, cs_list, errs):
+        corrected_cs.append(apply_eta_correction(cs, s, KAON_MASS, ALPHA))
+        corrected_errs.append(apply_eta_correction(err, s, KAON_MASS, ALPHA))
+    return s_list, corrected_cs, corrected_errs
 
 
 def plot_data(
