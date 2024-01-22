@@ -40,4 +40,18 @@ class TestEtaCorrection(TestCase):
 
     def test_apply_eta_correction(self):
 
-        pass
+        particle_mass = 0.13957039  # charged pion
+        alpha = 0.0072973525693
+        test_cases = [
+            {'cs': 1.0, 's': 0.08, 'expected': 1.0674789321713842},
+            {'cs': 0.2, 's': 0.08, 'expected': 0.21349578643427686},
+            {'cs': 1.0, 's': 0.17, 'expected': 1.0117024000513168},
+            {'cs': 1.0, 's': 0.84, 'expected': 1.00765429814779},
+            {'cs': 1.0, 's': 1.0, 'expected': 1.007538576779526},
+            {'cs': 1.0, 's': 23.1, 'expected': 1.0069919981967508},
+        ]
+
+        for case in test_cases:
+            with self.subTest(msg=f'case={case}'):
+                actual = apply_eta_correction(case['cs'], case['s'], particle_mass, alpha)
+                self.assertTrue(math.isclose(actual, case['expected'], abs_tol=1e-15))

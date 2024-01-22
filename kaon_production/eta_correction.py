@@ -93,12 +93,32 @@ def apply_eta_correction(
 if __name__ == '__main__':
     betas = [x / 100.0 for x in range(1, 100)]
     etas = [_calculate_eta(beta) for beta in betas]
-
-    fig, ax = plt.subplots()
+    _, ax = plt.subplots()
     ax.set_title('Eta correction')
     ax.set_xlabel('Beta [1]')
     ax.set_ylabel('Eta [1]')
     ax.scatter(betas, etas)
+    plt.show()
+    plt.close()
 
+    ss = [x / 100.0 for x in range(10, 100)]
+    corrections = [apply_eta_correction(1.0, s, 0.13957039, 0.0072973525693)
+                   for s in ss]
+    _, ax = plt.subplots()
+    ax.set_title('FSR correction')
+    ax.set_xlabel('s [GeV^2]')
+    ax.set_ylabel('FSR correction [1]')
+    ax.scatter(ss, corrections)
+    plt.show()
+    plt.close()
+
+    sqrt_s_list = [x / 100.0 for x in range(40, 200)]
+    beta_list = [calculate_beta(sqrt_s**2, 0.13957039) for sqrt_s in sqrt_s_list]
+    eta_list = [_calculate_eta(beta) for beta in beta_list]
+    _, ax = plt.subplots()
+    ax.set_title('Eta correction')
+    ax.set_xlabel('sqrt(s) [GeV]')
+    ax.set_ylabel('Eta [1]')
+    ax.scatter(sqrt_s_list, eta_list)
     plt.show()
     plt.close()
