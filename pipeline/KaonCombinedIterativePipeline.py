@@ -3,7 +3,8 @@ from random import sample
 
 from pipeline.KaonCombinedPipeline import KaonCombinedPipeline
 from model_parameters import KaonParameters, KaonParametersB, KaonParametersSimplified, KaonParametersFixedSelected
-from task.kaon_combined_tasks import TaskFixAccordingToParametersFit, TaskFullFit
+from task.kaon_combined_tasks import (TaskFixAccordingToParametersFit, TaskFullFit,
+                                      TaskFixAccordingToParametersFitOnlyTimelike, TaskFullFitOnlyTimelike)
 
 
 class KaonCombinedIterativePipeline(KaonCombinedPipeline):
@@ -27,7 +28,8 @@ class KaonCombinedIterativePipeline(KaonCombinedPipeline):
                  plot: bool = True, use_handpicked_bounds: bool = True,
                  nr_free_params: Tuple[int, ...] = (3, 5, 7, 10),
                  nr_iterations: Tuple[int, ...] = (10, 20, 20, 10),
-                 nr_initial_rounds_with_fixed_resonances: int = 0) -> None:
+                 nr_initial_rounds_with_fixed_resonances: int = 0,
+                 fit_on_timelike_data_only: bool = False) -> None:
 
         super().__init__(name, parameters, [], k_meson_mass, alpha, hc_squared, reports_dir,
                          t_cs_values_charged, cross_sections_charged, cs_errors_charged,
@@ -40,6 +42,7 @@ class KaonCombinedIterativePipeline(KaonCombinedPipeline):
         for free_pars, repetitions in zip(nr_free_params, nr_iterations):
             self.free_params_numbers.extend([free_pars] * repetitions)
         self.nr_initial_rounds_with_fixed_resonances = nr_initial_rounds_with_fixed_resonances
+        self.fit_on_timelike_data_only = fit_on_timelike_data_only
 
     def run(self) -> dict:
         self._log(f'Starting. Initial parameters: {self.parameters.to_list()}')
@@ -47,9 +50,13 @@ class KaonCombinedIterativePipeline(KaonCombinedPipeline):
             fix_resonances = (i < self.nr_initial_rounds_with_fixed_resonances)
             free_params = self._randomly_freeze_parameters(fp_num, fix_resonances)
             self._log(f'Initializing Task#{i}. Free parameters: {free_params}')
-            task_name = f'Task#{i}:{TaskFixAccordingToParametersFit.__name__}'
-            task = TaskFixAccordingToParametersFit(
-                task_name, self.parameters,  # type: ignore
+
+            task_class = (TaskFixAccordingToParametersFitOnlyTimelike if self.fit_on_timelike_data_only
+                          else TaskFixAccordingToParametersFit)
+
+            task_name = f'Task#{i}:{task_class.__name__}'
+            task = task_class(  # type: ignore
+                task_name, self.parameters,
                 self.ts, self.ys, self.errors,
                 self.k_meson_mass, self.alpha, self.hc_squared,
                 self.reports_dir, self.plot, self.use_handpicked_bounds
@@ -65,9 +72,11 @@ class KaonCombinedIterativePipeline(KaonCombinedPipeline):
             self._save_report(str(i), task.report)
 
         self._log(f'Initializing Task#{len(self.free_params_numbers)}. Full fit.')
-        task_name = f'Task#{len(self.free_params_numbers)}:{TaskFullFit.__name__}'
-        task = TaskFullFit(
-            task_name, self.parameters,  # type: ignore
+        task_class = (TaskFullFitOnlyTimelike if self.fit_on_timelike_data_only
+                      else TaskFullFit)
+        task_name = f'Task#{len(self.free_params_numbers)}:{task_class.__name__}'
+        task = task_class(  # type: ignore
+            task_name, self.parameters,
             self.ts, self.ys, self.errors,
             self.k_meson_mass, self.alpha, self.hc_squared,
             self.reports_dir, self.plot, self.use_handpicked_bounds
@@ -81,7 +90,10 @@ class KaonCombinedIterativePipeline(KaonCombinedPipeline):
 
         self._log(f'Best fit: {self._best_fit}')
         final_chi_squared = task.report['chi_squared']
-        self._log(f'Final fit: chi_squared={final_chi_squared}; parameters={self.parameters.to_list()}')
+        final_chi_squared_on_training_set = task.report['chi_squared_on_training_set']
+        self._log(f'Final fit: chi_squared={final_chi_squared};'
+                  f'chi_squared_on_training_set={final_chi_squared_on_training_set};'
+                  f' parameters={self.parameters.to_list()}')
         self._flush_report()
         self._save_report(str(len(self.free_params_numbers)), task.report)
         self._serialize_parameters(name='final_fit_parameters')

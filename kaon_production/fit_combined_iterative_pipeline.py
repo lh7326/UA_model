@@ -122,6 +122,7 @@ if __name__ == '__main__':
             plot=False, use_handpicked_bounds=False,
             nr_free_params=numbers, nr_iterations=repetitions,
             nr_initial_rounds_with_fixed_resonances=10,
+            fit_on_timelike_data_only=True,
         )
         return pipeline.run()
 

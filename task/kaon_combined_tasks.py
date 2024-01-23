@@ -30,3 +30,32 @@ class TaskFixAccordingToParametersFit(KaonCombinedTask):
         self.partial_f = make_partial_ff_or_cs_for_parameters(
             self.product_particle_mass, self.alpha, self.hc_squared, self.parameters
         )
+
+
+class TaskFullFitOnlyTimelike(KaonCombinedTask):
+
+    def _set_up(self):
+        self.parameters.release_all_parameters()
+        self.partial_f = make_partial_ff_or_cs_for_parameters(
+            self.product_particle_mass, self.alpha, self.hc_squared, self.parameters
+        )
+
+        self.ts_fit, self.ys_fit, self.errors_fit = zip(
+            *filter(lambda data_tuple: data_tuple[0].t > 0.0,
+                    zip(self.ts_fit, self.ys_fit, self.errors_fit),
+                    )
+        )
+
+
+class TaskFixAccordingToParametersFitOnlyTimelike(KaonCombinedTask):
+
+    def _set_up(self):
+        self.partial_f = make_partial_ff_or_cs_for_parameters(
+            self.product_particle_mass, self.alpha, self.hc_squared, self.parameters
+        )
+
+        self.ts_fit, self.ys_fit, self.errors_fit = zip(
+            *filter(lambda data_tuple: data_tuple[0].t > 0.0,
+                    zip(self.ts_fit, self.ys_fit, self.errors_fit),
+                    )
+        )

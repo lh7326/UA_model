@@ -35,6 +35,7 @@ class Task(ABC):
             'final_parameters': None,
             'r2': None,
             'chi_squared': None,
+            'chi_squared_on_training_set': None,
             'covariance_matrix': None,
             'parameter_errors': None,
             'status': 'started',
@@ -78,10 +79,21 @@ class Task(ABC):
             sum([r2 / (err ** 2) for r2, err in zip(r_squared, errors)])
         ) / (len(r_squared) - len(opt_parameters))
 
+        if len(self.ts) == len(self.ts_fit):  # we assume here that training and report data are the same
+            chi_squared_on_training_set = chi_squared
+        else:
+            fit_ys_fit = self.partial_f(self.ts_fit, *opt_parameters)
+            r_squared_fit = [(data - fit) ** 2 for data, fit in zip(self.ys_fit, fit_ys_fit)]
+            errors_fit = self.errors_fit
+            chi_squared_on_training_set = (
+                sum([r2 / (err ** 2) for r2, err in zip(r_squared_fit, errors_fit)])
+            ) / (len(r_squared_fit) - len(opt_parameters))
+
         self.report.update(
             final_parameters=self.parameters.to_list(),
             r2=str(sum(r_squared)),
             chi_squared=str(chi_squared),
+            chi_squared_on_training_set=str(chi_squared_on_training_set),
             covariance_matrix=covariance_matrix,
             parameter_errors=np.sqrt(np.diag(covariance_matrix)),
             status='finished',
