@@ -84,6 +84,7 @@ class KaonCombinedIterativePipeline(KaonCombinedPipeline):
         self._log(f'Final fit: chi_squared={final_chi_squared}; parameters={self.parameters.to_list()}')
         self._flush_report()
         self._save_report(str(len(self.free_params_numbers)), task.report)
+        self._serialize_parameters(name='final_fit_parameters')
         return self._best_fit
 
     def _randomly_freeze_parameters(self, number_of_free_parameters, fix_resonances):

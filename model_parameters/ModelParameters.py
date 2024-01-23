@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from collections import namedtuple
+import pickle
 from typing import Iterator, List, Tuple
 
 
@@ -31,6 +32,16 @@ class ModelParameters(ABC):
 
     def to_list(self) -> List[Parameter]:
         return list(self._data)
+
+    def serialize_parameters_into(self, filepath: str) -> None:
+        with open(filepath, 'wb') as f:
+            pickle.dump(self.to_list(), f, pickle.HIGHEST_PROTOCOL)
+
+    @classmethod
+    def load_from_serialized_parameters(cls, filepath: str) -> 'ModelParameters':
+        with open(filepath, 'rb') as f:
+            list_of_parameters = pickle.load(f)
+        return cls.from_list(list_of_parameters)
 
     def copy(self) -> 'ModelParameters':
         return self.from_list(self.to_list())

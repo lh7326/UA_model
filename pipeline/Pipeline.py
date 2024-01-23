@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import List, Type, Union
+from typing import List, Type, Union, Optional
 import os.path
 
 from model_parameters import ModelParameters
@@ -70,6 +70,12 @@ class Pipeline(ABC):
         filepath = os.path.join(self.reports_dir, filename)
         with open(filepath, 'w') as f:
             f.write(str(report))
+
+    def _serialize_parameters(self, name: str, directory: Optional[str] = None) -> None:
+        if not directory:
+            directory = self.reports_dir
+        filename = f'{name}.pickle'
+        self.parameters.serialize_parameters_into(os.path.join(directory, filename))
 
     def _update_best_fit(self, task: Task) -> None:
         if not task.report['chi_squared']:
