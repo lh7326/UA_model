@@ -76,7 +76,7 @@ class Pipeline(ABC):
             return None
         current = task.report['chi_squared']
         best_so_far = self._best_fit.get('chi_squared', None)
-        if not best_so_far or current < best_so_far:
+        if not best_so_far or float(current) < float(best_so_far):
             self._best_fit = {
                 'chi_squared': current,
                 'name': f'{self.name}:{task.name}',
