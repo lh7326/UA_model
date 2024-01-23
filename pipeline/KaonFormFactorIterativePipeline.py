@@ -64,6 +64,8 @@ class KaonFormFactorIterativePipeline(KaonFormFactorPipeline):
         self.parameters = task.parameters
 
         self._log(f'Best fit: {self._best_fit}')
+        final_chi_squared = task.report['chi_squared']
+        self._log(f'Final fit: chi_squared={final_chi_squared}; parameters={self.parameters.to_list()}')
         self._flush_report()
         self._save_report(str(len(self.free_params_numbers)), task.report)
         return self._best_fit
