@@ -13,9 +13,9 @@ class PionUAModel:
             self,
             t_0_isovector: float,
             t_in_isovector: float,
-            a_rho: float,
             a_rho_prime: float,
             a_rho_double_prime: float,
+            a_rho_triple_prime: float,
             mass_rho: float,
             decay_rate_rho: float,
             mass_rho_prime: float,
@@ -34,10 +34,10 @@ class PionUAModel:
         self.w_zero = w_zero
 
         # isovector components' proportionality constants
-        self.a_rho = a_rho
         self.a_rho_prime = a_rho_prime
         self.a_rho_double_prime = a_rho_double_prime
-        self.a_rho_triple_prime = 0.5 - a_rho - a_rho_prime - a_rho_double_prime
+        self.a_rho_triple_prime = a_rho_triple_prime
+        self.a_rho = 0.5 - a_rho_prime - a_rho_double_prime - a_rho_triple_prime
 
         # read data about the resonances
         self.mass_rho = mass_rho

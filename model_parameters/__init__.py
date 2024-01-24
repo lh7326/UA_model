@@ -7,3 +7,4 @@ from .KaonParametersB import KaonParametersB
 from .ETGMRModelParameters import ETGMRModelParameters
 from .TwoPolesModelParameters import TwoPolesModelParameters
 from .NucleonParameters import NucleonParameters
+from .PionParameters import PionParameters

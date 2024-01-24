@@ -10,7 +10,6 @@ class PionParameters(ModelParameters):
     def __init__(self,
                  t_0_isovector: float,
                  t_in_isovector: float,
-                 a_rho: float,
                  mass_rho: float,
                  decay_rate_rho: float,
                  a_rho_prime: float,
@@ -19,6 +18,7 @@ class PionParameters(ModelParameters):
                  a_rho_double_prime: float,
                  mass_rho_double_prime: float,
                  decay_rate_rho_double_prime: float,
+                 a_rho_triple_prime: float,
                  mass_rho_triple_prime: float,
                  decay_rate_rho_triple_prime: float,
                  w_pole: complex,
@@ -27,17 +27,17 @@ class PionParameters(ModelParameters):
 
         super().__init__(
             t_0_isovector, t_in_isovector,
-            a_rho, mass_rho, decay_rate_rho,
+            mass_rho, decay_rate_rho,
             a_rho_prime, mass_rho_prime, decay_rate_rho_prime,
             a_rho_double_prime, mass_rho_double_prime, decay_rate_rho_double_prime,
-            mass_rho_triple_prime, decay_rate_rho_triple_prime, w_pole, w_zero,
+            a_rho_triple_prime, mass_rho_triple_prime, decay_rate_rho_triple_prime,
+            w_pole, w_zero,
             always_fixed=('t_0_isovector',),
         )
 
     def _setup_data(self,
                     t_0_isovector: float,
                     t_in_isovector: float,
-                    a_rho: float,
                     mass_rho: float,
                     decay_rate_rho: float,
                     a_rho_prime: float,
@@ -46,6 +46,7 @@ class PionParameters(ModelParameters):
                     a_rho_double_prime: float,
                     mass_rho_double_prime: float,
                     decay_rate_rho_double_prime: float,
+                    a_rho_triple_prime: float,
                     mass_rho_triple_prime: float,
                     decay_rate_rho_triple_prime: float,
                     w_pole: complex,
@@ -54,7 +55,6 @@ class PionParameters(ModelParameters):
         return [
             Parameter(name='t_0_isovector', value=t_0_isovector, is_fixed=True),
             Parameter(name='t_in_isovector', value=t_in_isovector, is_fixed=False),
-            Parameter(name='a_rho', value=a_rho, is_fixed=False),
             Parameter(name='mass_rho', value=mass_rho, is_fixed=False),
             Parameter(name='decay_rate_rho', value=decay_rate_rho, is_fixed=False),
             Parameter(name='a_rho_prime', value=a_rho_prime, is_fixed=False),
@@ -62,6 +62,7 @@ class PionParameters(ModelParameters):
             Parameter(name='decay_rate_rho_prime', value=decay_rate_rho_prime, is_fixed=False),
             Parameter(name='a_rho_double_prime', value=a_rho_double_prime, is_fixed=False),
             Parameter(name='mass_rho_double_prime', value=mass_rho_double_prime, is_fixed=False),
+            Parameter(name='a_rho_triple_prime', value=a_rho_triple_prime, is_fixed=False),
             Parameter(name='decay_rate_rho_double_prime', value=decay_rate_rho_double_prime, is_fixed=False),
             Parameter(name='mass_rho_triple_prime', value=mass_rho_triple_prime, is_fixed=False),
             Parameter(name='decay_rate_rho_triple_prime', value=decay_rate_rho_triple_prime, is_fixed=False),
@@ -99,7 +100,6 @@ class PionParameters(ModelParameters):
         """
         return {
             't_in_isovector': {'lower': self['t_0_isovector'].value, 'upper': np.inf},
-            'a_rho': {'lower': -np.inf, 'upper': np.inf},
             'mass_rho': {'lower': 0.75, 'upper': 0.78},
             'decay_rate_rho': {'lower': 0.140, 'upper': 0.150},
             'a_rho_prime': {'lower': -np.inf, 'upper': np.inf},
@@ -108,6 +108,7 @@ class PionParameters(ModelParameters):
             'a_rho_double_prime': {'lower': -np.inf, 'upper': np.inf},
             'mass_rho_double_prime': {'lower': 1.68, 'upper': 1.74},
             'decay_rate_rho_double_prime': {'lower': 0.1, 'upper': 0.6},
+            'a_rho_triple_prime': {'lower': -np.inf, 'upper': np.inf},
             'mass_rho_triple_prime': {'lower': 2.0, 'upper': 2.4},
             'decay_rate_rho_triple_prime': {'lower': 0.1, 'upper': 0.6},
             'w_pole': {'lower': -np.inf, 'upper': np.inf},
@@ -124,7 +125,6 @@ class PionParameters(ModelParameters):
         lower_mass_bound_isovector = math.sqrt(self['t_0_isovector'].value)
         return {
             't_in_isovector': {'lower': self['t_0_isovector'].value, 'upper': np.inf},
-            'a_rho': {'lower': -np.inf, 'upper': np.inf},
             'mass_rho': {'lower': lower_mass_bound_isovector, 'upper': np.inf},
             'decay_rate_rho': {'lower': 0.0, 'upper': np.inf},
             'a_rho_prime': {'lower': -np.inf, 'upper': np.inf},
@@ -133,6 +133,7 @@ class PionParameters(ModelParameters):
             'a_rho_double_prime': {'lower': -np.inf, 'upper': np.inf},
             'mass_rho_double_prime': {'lower': lower_mass_bound_isovector, 'upper': np.inf},
             'decay_rate_rho_double_prime': {'lower': 0.0, 'upper': np.inf},
+            'a_rho_triple_prime': {'lower': -np.inf, 'upper': np.inf},
             'mass_rho_triple_prime': {'lower': lower_mass_bound_isovector, 'upper': np.inf},
             'decay_rate_rho_triple_prime': {'lower': 0.0, 'upper': np.inf},
             'w_pole': {'lower': -np.inf, 'upper': np.inf},
@@ -151,9 +152,9 @@ class PionParameters(ModelParameters):
           decay_rate_rho_prime
           decay_rate_rho_double_prime
           decay_rate_rho_triple_prime
-          a_rho
           a_rho_prime
           a_rho_double_prime
+          a_rho_triple_prime
           w_pole
           w_zero
 
@@ -170,9 +171,9 @@ class PionParameters(ModelParameters):
             'decay_rate_rho_prime',
             'decay_rate_rho_double_prime',
             'decay_rate_rho_triple_prime',
-            'a_rho',
             'a_rho_prime',
             'a_rho_double_prime',
+            'a_rho_triple_prime',
             'w_pole',
             'w_zero',
         ]
@@ -193,9 +194,9 @@ class PionParameters(ModelParameters):
             'decay_rate_rho_prime',
             'decay_rate_rho_double_prime',
             'decay_rate_rho_triple_prime',
-            'a_rho',
             'a_rho_prime',
             'a_rho_double_prime',
+            'a_rho_triple_prime',
             'w_pole',
             'w_zero',
         ]
