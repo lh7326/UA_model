@@ -20,14 +20,17 @@ class PionParameters(ModelParameters):
                  mass_rho_double_prime: float,
                  decay_rate_rho_double_prime: float,
                  mass_rho_triple_prime: float,
-                 decay_rate_rho_triple_prime: float) -> None:
+                 decay_rate_rho_triple_prime: float,
+                 w_pole: complex,
+                 w_zero: complex,
+                 ) -> None:
 
         super().__init__(
             t_0_isovector, t_in_isovector,
             a_rho, mass_rho, decay_rate_rho,
             a_rho_prime, mass_rho_prime, decay_rate_rho_prime,
             a_rho_double_prime, mass_rho_double_prime, decay_rate_rho_double_prime,
-            mass_rho_triple_prime, decay_rate_rho_triple_prime,
+            mass_rho_triple_prime, decay_rate_rho_triple_prime, w_pole, w_zero,
             always_fixed=('t_0_isovector',),
         )
 
@@ -44,7 +47,9 @@ class PionParameters(ModelParameters):
                     mass_rho_double_prime: float,
                     decay_rate_rho_double_prime: float,
                     mass_rho_triple_prime: float,
-                    decay_rate_rho_triple_prime: float) -> List[Parameter]:
+                    decay_rate_rho_triple_prime: float,
+                    w_pole: complex,
+                    w_zero: complex) -> List[Parameter]:
 
         return [
             Parameter(name='t_0_isovector', value=t_0_isovector, is_fixed=True),
@@ -60,6 +65,8 @@ class PionParameters(ModelParameters):
             Parameter(name='decay_rate_rho_double_prime', value=decay_rate_rho_double_prime, is_fixed=False),
             Parameter(name='mass_rho_triple_prime', value=mass_rho_triple_prime, is_fixed=False),
             Parameter(name='decay_rate_rho_triple_prime', value=decay_rate_rho_triple_prime, is_fixed=False),
+            Parameter(name='w_pole', value=w_pole, is_fixed=False),
+            Parameter(name='w_zero', value=w_zero, is_fixed=False),
         ]
 
     @classmethod
@@ -103,6 +110,8 @@ class PionParameters(ModelParameters):
             'decay_rate_rho_double_prime': {'lower': 0.1, 'upper': 0.6},
             'mass_rho_triple_prime': {'lower': 2.0, 'upper': 2.4},
             'decay_rate_rho_triple_prime': {'lower': 0.1, 'upper': 0.6},
+            'w_pole': {'lower': -np.inf, 'upper': np.inf},
+            'w_zero': {'lower': -np.inf, 'upper': np.inf},
         }
 
     def get_model_parameters_bounds_maximal(self) -> Dict:
@@ -126,6 +135,8 @@ class PionParameters(ModelParameters):
             'decay_rate_rho_double_prime': {'lower': 0.0, 'upper': np.inf},
             'mass_rho_triple_prime': {'lower': lower_mass_bound_isovector, 'upper': np.inf},
             'decay_rate_rho_triple_prime': {'lower': 0.0, 'upper': np.inf},
+            'w_pole': {'lower': -np.inf, 'upper': np.inf},
+            'w_zero': {'lower': -np.inf, 'upper': np.inf},
         }
 
     def get_ordered_values(self) -> List[float]:
@@ -143,6 +154,8 @@ class PionParameters(ModelParameters):
           a_rho
           a_rho_prime
           a_rho_double_prime
+          w_pole
+          w_zero
 
         Returns: the ordered list of parameter values
 
@@ -160,6 +173,8 @@ class PionParameters(ModelParameters):
             'a_rho',
             'a_rho_prime',
             'a_rho_double_prime',
+            'w_pole',
+            'w_zero',
         ]
         return [self[name].value for name in names]
 
@@ -181,6 +196,8 @@ class PionParameters(ModelParameters):
             'a_rho',
             'a_rho_prime',
             'a_rho_double_prime',
+            'w_pole',
+            'w_zero',
         ]
         assert len(list_of_values) == len(names)
         pars = [Parameter(name, value, False) for name, value in zip(names, list_of_values)]

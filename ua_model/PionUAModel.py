@@ -24,9 +24,14 @@ class PionUAModel:
             decay_rate_rho_double_prime: float,
             mass_rho_triple_prime: float,
             decay_rate_rho_triple_prime: float,
+            w_pole: complex,
+            w_zero: complex,
     ) -> None:
         self.t_0_isovector = t_0_isovector
         self.t_in_isovector = t_in_isovector
+
+        self.w_pole = w_pole
+        self.w_zero = w_zero
 
         # isovector components' proportionality constants
         self.a_rho = a_rho
@@ -48,6 +53,7 @@ class PionUAModel:
             t_0=self.t_0_isovector,
             t_in=self.t_in_isovector,
         )
+        self.w_n = self._t_to_W_isovector(0)
 
         self._component_rho = None
         self._component_rho_prime = None
@@ -56,7 +62,7 @@ class PionUAModel:
         self._initialize_isovector_components()
 
     def __call__(self, t: complex) -> complex:
-        return self._eval_isovector_contribution(t)
+        return self._eval_additional_factor(t) * self._eval_isovector_contribution(t)
 
     def _eval_isovector_contribution(self, t: complex) -> complex:
         w = self._t_to_W_isovector(t)
@@ -66,6 +72,12 @@ class PionUAModel:
             + self.a_rho_double_prime * self._component_rho_double_prime(w)
             + self.a_rho_triple_prime * self._component_rho_triple_prime(w)
         )
+
+    def _eval_additional_factor(self, t: complex) -> complex:
+        w = self._t_to_W_isovector(t)
+        zero_factor = (w - self.w_zero) / (self.w_n - self.w_zero)
+        pole_factor = (self.w_n - self.w_pole) / (w - self.w_pole)
+        return zero_factor * pole_factor
 
     def _initialize_isovector_components(self) -> None:
         for resonance_name in ['rho', 'rho_prime', 'rho_double_prime', 'rho_triple_prime']:
