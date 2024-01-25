@@ -126,6 +126,7 @@ def function_form_factor(
             List[Union[NucleonDatapoint, Tuple[complex, float, float]]],
         ],
         parameters: ModelParameters,
+        return_absolute_value: bool,
         ) -> List[float]:
 
     ff_model = _get_ff_model(parameters)
@@ -138,13 +139,21 @@ def function_form_factor(
             if is_for_cross_section:
                 raise ValueError('Datapoint {datapoint} is for cross section, not form factor!')
             ff_model.charged_variant = is_charged
-            results.append(abs(ff_model(t)))
+            res = ff_model(t)
+            if return_absolute_value:
+                results.append(abs(res))
+            else:
+                results.append(res)
     else:  # a nucleon form factor model
         for datapoint in ts:
             t, is_proton, is_electric = _read_datapoint_nucleon(datapoint)  # type: ignore
             ff_model.proton = is_proton
             ff_model.electric = is_electric
-            results.append(abs(ff_model(t)))
+            res = ff_model(t)
+            if return_absolute_value:
+                results.append(abs(res))
+            else:
+                results.append(res)
 
     return results
 
@@ -250,13 +259,14 @@ def function_form_factor_or_cross_section(
 
 def make_partial_form_factor_for_parameters(
         parameters: ModelParameters,
+        return_absolute_value: bool = True,
 ) -> Callable:
 
     parameters = parameters.copy()
 
     def partial_f(ts, *args):
         parameters.update_free_values(list(args))
-        return function_form_factor(ts, parameters)
+        return function_form_factor(ts, parameters, return_absolute_value)
 
     return partial_f
 
