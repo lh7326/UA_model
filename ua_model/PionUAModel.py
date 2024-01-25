@@ -37,7 +37,7 @@ class PionUAModel:
         self.a_rho_prime = a_rho_prime
         self.a_rho_double_prime = a_rho_double_prime
         self.a_rho_triple_prime = a_rho_triple_prime
-        self.a_rho = 0.5 - a_rho_prime - a_rho_double_prime - a_rho_triple_prime
+        self.a_rho = 1.0 - a_rho_prime - a_rho_double_prime - a_rho_triple_prime
 
         # read data about the resonances
         self.mass_rho = mass_rho
