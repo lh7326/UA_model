@@ -7,6 +7,12 @@ import matplotlib.pyplot as plt
 
 # TODO: Move this to a shared module. Perhaps refactor. Add unit tests.
 
+FILEPATH_REAL_TIMELIKE = '../data/running_alpha/real_parts.csv'
+FILEPATH_REAL_TIMELIKE_HIGH_ENERGIES = '../data/running_alpha/real_parts_high_energies.csv'
+FILEPATH_REAL_SPACELIKE = '../data/running_alpha/spacelike_real_parts.csv'
+FILEPATH_IMAGINARY_TIMELIKE = '../data/running_alpha/imaginary_parts.csv'
+FILEPATH_IMAGINARY_TIMELIKE_HIGH_ENERGIES = '../data/running_alpha/imaginary_parts_high_energies.csv'
+FILEPATH_IMAGINARY_SPACELIKE = '../data/running_alpha/spacelike_imaginary_parts.csv'
 
 def error_for_addition_uncorrelated(err1: float, err2: float) -> float:
     return math.sqrt(err1**2 + err2**2)
@@ -17,6 +23,10 @@ def error_for_addition_correlated(err1: float, err2: float) -> float:
 
 
 def error_for_multiplication_uncorrelated(val1: float, err1: float, val2: float, err2: float) -> float:
+    if val1 == 0:
+        return val2 * err1
+    if val2 == 0:
+        return val1 * err2
     rel_err1 = err1 / val1
     rel_err2 = err2 / val2
     return val1 * val2 * error_for_addition_uncorrelated(rel_err1, rel_err2)
@@ -45,55 +55,74 @@ def _undress_cross_section_measurement(
     return undressed_cs, rescaled_stat_error, new_sys_err
 
 
-def _read_data_running_alpha_real_parts(timelike: bool) -> Tuple[List[float], List[float], List[float]]:
+def _read_data_running_alpha_real_parts(
+        timelike: bool,
+        high_energies: bool
+) -> Tuple[List[float], List[float], List[float]]:
     if timelike:
-        filepath_real = '../data/running_alpha/real_parts.csv'
+        filepaths_real = [FILEPATH_REAL_TIMELIKE]
+        if high_energies:
+            filepaths_real.append(FILEPATH_REAL_TIMELIKE_HIGH_ENERGIES)
     else:
-        filepath_real = '../data/running_alpha/spacelike_real_parts.csv'
+        filepaths_real = [FILEPATH_REAL_SPACELIKE]
 
     energy_real = []
     alpha_real = []
     error_real = []
-    with open(filepath_real, 'r') as f:
-        reader = csv.reader(f, delimiter=' ')
-        for en_r, al_r, _, er_r, _ in reader:
-            energy_real.append(float(en_r))
-            alpha_real.append(float(al_r))
-            error_real.append(float(er_r))
+    for filepath in filepaths_real:
+        with open(filepath, 'r') as f:
+            reader = csv.reader(f, delimiter=' ')
+            for en_r, al_r, _, er_r, _ in reader:
+                energy_real.append(float(en_r))
+                alpha_real.append(float(al_r))
+                error_real.append(abs(float(er_r)))
     return energy_real, alpha_real, error_real
 
 
-def _read_data_running_alpha_imaginary_parts(timelike: bool) -> Tuple[List[float], List[float], List[float]]:
+def _read_data_running_alpha_imaginary_parts(
+        timelike: bool,
+        high_energies: bool,
+) -> Tuple[List[float], List[float], List[float]]:
     if timelike:
-        filepath_imaginary = '../data/running_alpha/imaginary_parts.csv'
+        filepaths_imaginary = [FILEPATH_IMAGINARY_TIMELIKE]
+        if high_energies:
+            filepaths_imaginary.append(FILEPATH_IMAGINARY_TIMELIKE_HIGH_ENERGIES)
     else:
-        filepath_imaginary = '../data/running_alpha/spacelike_imaginary_parts.csv'
+        filepaths_imaginary = [FILEPATH_IMAGINARY_SPACELIKE]
 
     energy_imaginary = []
     alpha_imaginary = []
     error_imaginary = []
-    with open(filepath_imaginary, 'r') as f:
-        reader = csv.reader(f, delimiter=' ')
-        for en_i, al_i, al_i_low, al_i_high in reader:
-            energy_imaginary.append(float(en_i))
-            alpha_imaginary.append(float(al_i))
-            error_imaginary.append((float(al_i_high) - float(al_i_low)) / 2.0)
+    for filepath in filepaths_imaginary:
+        with open(filepath, 'r') as f:
+            reader = csv.reader(f, delimiter=' ')
+            for en_i, al_i, al_i_low, al_i_high in reader:
+                energy_imaginary.append(float(en_i))
+                alpha_imaginary.append(float(al_i))
+                error_imaginary.append(abs(float(al_i_high) - float(al_i_low)) / 2.0)
     return energy_imaginary, alpha_imaginary, error_imaginary
 
 
 def _get_running_alpha_data(
-        timelike: Optional[bool] = True
+        timelike: Optional[bool] = True,
+        high_energies: Optional[bool] = True,
 ) -> List[Tuple[float, float, float]]:
-    energy_real, alpha_real, error_real = _read_data_running_alpha_real_parts(timelike)
-    energy_imaginary, alpha_imaginary, error_imaginary = _read_data_running_alpha_imaginary_parts(timelike)
+    energy_real, alpha_real, error_real = _read_data_running_alpha_real_parts(
+        timelike, high_energies)
+    energy_imaginary, alpha_imaginary, error_imaginary = _read_data_running_alpha_imaginary_parts(
+        timelike, high_energies)
 
     energy, alpha_squared, error = [], [], []
     for en_r, en_i, al_r, al_i, er_r, er_i in zip(energy_real, energy_imaginary, alpha_real,
                                                   alpha_imaginary, error_real, error_imaginary):
         assert en_r == en_i
         energy.append(en_r)
-        alpha_squared.append(al_r**2 + al_i**2)
-        error.append(error_for_addition_correlated(2 * al_r * er_r, 2 * al_i * er_i))
+        alpha_squared_value = al_r**2 + al_i**2
+        assert alpha_squared_value > 0
+        alpha_squared.append(alpha_squared_value)
+        error_alpha_squared = error_for_addition_correlated(2 * abs(al_r) * er_r, 2 * abs(al_i) * er_i)
+        assert error_alpha_squared > 0
+        error.append(error_alpha_squared)
 
     return list(zip(energy, alpha_squared, error))
 
@@ -133,7 +162,7 @@ def undress_data_point(
             round(new_stat_error, round_to_digits), round(overall_sys_error, round_to_digits))
 
 
-def plot_running_alpha(timelike: Optional[bool] = True):
+def plot_running_alpha(timelike: Optional[bool] = True, high_energies: Optional[bool] = False):
 
     def _plot(x, y, err, title, x_axis_label, y_axis_label):
         fig, ax = plt.subplots()
@@ -145,11 +174,11 @@ def plot_running_alpha(timelike: Optional[bool] = True):
         plt.show()
         plt.close()
 
-    _plot(*_read_data_running_alpha_real_parts(timelike), title='Real(alpha)',
+    _plot(*_read_data_running_alpha_real_parts(timelike, high_energies), title='Real(alpha)',
           x_axis_label='E[GeV]', y_axis_label='Re[alpha]')
-    _plot(*_read_data_running_alpha_imaginary_parts(timelike), title='Imaginary(alpha)',
+    _plot(*_read_data_running_alpha_imaginary_parts(timelike, high_energies), title='Imaginary(alpha)',
           x_axis_label='E[GeV]', y_axis_label='Im[alpha]')
-    _plot(*list(zip(*_get_running_alpha_data(timelike))), title='AlphaSquared',
+    _plot(*list(zip(*_get_running_alpha_data(timelike, high_energies))), title='AlphaSquared',
           x_axis_label='E[GeV]', y_axis_label='|alpha|^2')
 
 
@@ -158,12 +187,13 @@ if __name__ == '__main__':
     config.read('../configuration.ini')
     alpha = config.getfloat('constants', 'alpha')
 
-    timelike = False
-    filepath_to_undress = '../data/raw_files/spacelike_charged_kaons_formfactor2_1986.csv'
-    out_filepath = '../data/raw_files/spacelike_charged_kaons_formfactor2_1986_undressed.csv'
+    timelike = True
+    high_energies = True
+    filepath_to_undress = '../data/raw_files/babar_neutral_kaons_2014.csv'
+    out_filepath = '../data/raw_files/babar_neutral_kaons_2014_undressed.csv'
 
-    running_alpha_data = _get_running_alpha_data(timelike)
-    plot_running_alpha(timelike)
+    running_alpha_data = _get_running_alpha_data(timelike, high_energies)
+    plot_running_alpha(timelike, high_energies)
 
     converted = []
 
