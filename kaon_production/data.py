@@ -68,14 +68,22 @@ def read_data_files_new(
     return xs, ys, stat_errs, sys_errs
 
 
-def transform_energy_to_s(source_filepath: str, output_filepath: str) -> None:
+def transform_energy_to_s(
+        source_filepath: str,
+        output_filepath: str,
+        convert_from_pikobarns_to_nanobarns: Optional[bool] = False,
+) -> None:
     converted = []
 
     with open(source_filepath, 'r') as f:
         reader = csv.reader(f, delimiter=' ')
         for energy, cross_section, statistical_error, systematic_error in reader:
+            if convert_from_pikobarns_to_nanobarns:
+                cross_section = str(round(float(cross_section) / 1000, 6))
+                statistical_error = str(round(float(statistical_error) / 1000, 6))
+                systematic_error = str(round(float(systematic_error) / 1000, 6))
             converted.append(
-                (round(float(energy)**2, 6),
+                (str(round(float(energy)**2, 6)),
                  cross_section,
                  statistical_error,
                  systematic_error)
@@ -169,16 +177,29 @@ def plot_data(
 
 
 if __name__ == '__main__':
-    # file_name = 'snd_charged_kaons_undressed.csv'
+    # file_name = 'babar_neutral_kaons_2014_undressed.csv'
     # transform_energy_to_s(
     #     f'../data/raw_files/{file_name}',
-    #     f'../data/new/{file_name}')
+    #     f'../data/new/{file_name}',
+    #     convert_from_pikobarns_to_nanobarns=False,
+    # )
 
-    filenames = ['cmd_3_charged_kaons_undressed.csv',
-                 'snd_charged_kaons_undressed.csv',
-                 'babar_2013_charged_kaons.csv',
-                 ]
-    plot_data(filenames, 'raw_files', 'Cross sections --- Charged kaons', 'E[GeV]', 'sigma[nb]')
+    filenames = [
+        'cmd_3_charged_kaons_undressed.csv',
+        'snd_charged_kaons_undressed.csv',
+        'babar_2013_charged_kaons_undressed.csv',
+        'babar_charged_kaons_2015_undressed.csv',
+        'BESIII_charged_kaons_2019_undressed.csv',
+    ]
+    # filenames = [
+    #     'cmd_3_neutral_kaons_undressed.csv',
+    #     'cmd_2_neutral_kaons_undressed.csv',
+    #     'snd_neutral_kaons_charged_mode_undressed.csv',
+    #     'snd_neutral_kaons_neutral_mode_undressed.csv',
+    #     'babar_neutral_kaons_2014_undressed.csv',
+    #     'BESIII_neutral_kaons_2021_undressed.csv',
+    # ]
+    plot_data(filenames, 'new', 'Cross sections --- Neutral kaons', 's[GeV^2]', 'sigma[nb]')
 
     # process_spacelike_data(
     #     f'../data/raw_files/spacelike_charged_kaons_formfactor2_1986_undressed.csv',

@@ -64,7 +64,7 @@ if __name__ == '__main__':
         *merge_statistical_and_systematic_errors(
             *read_data_files_new(
                 file_names=[
-                    'babar_2013_charged_kaons.csv',
+                    'babar_2013_charged_kaons_undressed.csv',
                     'cmd_3_charged_kaons_undressed.csv',
                     'snd_charged_kaons_undressed.csv',
                 ]
