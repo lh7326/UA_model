@@ -5,7 +5,7 @@ from collections import namedtuple
 import matplotlib.pyplot as plt
 from typing import Tuple, List, Optional, Callable
 
-from kaon_production.eta_correction import apply_eta_correction
+from kaon_production.eta_correction import add_fsr_effects, remove_fsr_effects
 
 KaonDatapoint = namedtuple('KaonDatapoint', 't is_charged is_for_cross_section')
 
@@ -135,8 +135,8 @@ def merge_statistical_and_systematic_errors(
     return xs, ys, merged_errs
 
 
-def make_function_to_apply_fsr_corrections(
-        final_particle_mass: float, alpha: float
+def make_function_to_add_fsr_effects(
+        final_particle_mass: float, alpha: float,
 ) -> Callable[[List[float], List[float], List[float]], Tuple[List[float], List[float], List[float]]]:
 
     def apply_fsr_correction(
@@ -146,8 +146,26 @@ def make_function_to_apply_fsr_corrections(
         corrected_cs = []
         corrected_errs = []
         for s, cs, err in zip(s_list, cs_list, errs):
-            corrected_cs.append(apply_eta_correction(cs, s, final_particle_mass, alpha))
-            corrected_errs.append(apply_eta_correction(err, s, final_particle_mass, alpha))
+            corrected_cs.append(add_fsr_effects(cs, s, final_particle_mass, alpha))
+            corrected_errs.append(add_fsr_effects(err, s, final_particle_mass, alpha))
+        return s_list, corrected_cs, corrected_errs
+
+    return apply_fsr_correction
+
+
+def make_function_to_remove_fsr_effects(
+        final_particle_mass: float, alpha: float,
+) -> Callable[[List[float], List[float], List[float]], Tuple[List[float], List[float], List[float]]]:
+
+    def apply_fsr_correction(
+        s_list: List[float], cs_list: List[float], errs: List[float]
+    ) -> Tuple[List[float], List[float], List[float]]:
+        assert len(s_list) == len(cs_list) == len(errs)
+        corrected_cs = []
+        corrected_errs = []
+        for s, cs, err in zip(s_list, cs_list, errs):
+            corrected_cs.append(remove_fsr_effects(cs, s, final_particle_mass, alpha))
+            corrected_errs.append(remove_fsr_effects(err, s, final_particle_mass, alpha))
         return s_list, corrected_cs, corrected_errs
 
     return apply_fsr_correction

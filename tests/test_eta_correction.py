@@ -1,7 +1,7 @@
 from unittest import TestCase
 import math
 
-from kaon_production.eta_correction import calculate_beta, dilogarithm, apply_eta_correction
+from kaon_production.eta_correction import calculate_beta, dilogarithm, add_fsr_effects
 # TODO: finish
 
 class TestEtaCorrection(TestCase):
@@ -38,7 +38,7 @@ class TestEtaCorrection(TestCase):
             with self.subTest(msg=f'z={z}'):
                 self.assertTrue(math.isclose(actual, expected, abs_tol=1e-15))
 
-    def test_apply_eta_correction(self):
+    def test_add_fsr_effects(self):
 
         particle_mass = 0.13957039  # charged pion
         alpha = 0.0072973525693
@@ -53,5 +53,5 @@ class TestEtaCorrection(TestCase):
 
         for case in test_cases:
             with self.subTest(msg=f'case={case}'):
-                actual = apply_eta_correction(case['cs'], case['s'], particle_mass, alpha)
+                actual = add_fsr_effects(case['cs'], case['s'], particle_mass, alpha)
                 self.assertTrue(math.isclose(actual, case['expected'], abs_tol=1e-15))

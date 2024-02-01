@@ -1,7 +1,7 @@
 from configparser import ConfigParser
 
 from kaon_production.data import (
-    read_data_files_new, merge_statistical_and_systematic_errors, make_function_to_apply_fsr_corrections)
+    read_data_files_new, merge_statistical_and_systematic_errors, make_function_to_remove_fsr_effects)
 from model_parameters import KaonParametersFixedSelected
 from pipeline.KaonCombinedIterativePipeline import KaonCombinedIterativePipeline
 from common.utils import perturb_model_parameters
@@ -57,10 +57,10 @@ if __name__ == '__main__':
 
     path_to_reports = '/home/lukas/reports/kaons'
 
-    apply_fsr_correction = make_function_to_apply_fsr_corrections(kaon_mass, alpha)
+    remove_fsr_effects = make_function_to_remove_fsr_effects(kaon_mass, alpha)
 
     (timelike_charged_ts, timelike_charged_cross_sections_values,
-     timelike_charged_errors) = apply_fsr_correction(
+     timelike_charged_errors) = remove_fsr_effects(
         *merge_statistical_and_systematic_errors(
             *read_data_files_new(
                 file_names=[
@@ -72,7 +72,7 @@ if __name__ == '__main__':
         )
     )
     (timelike_neutral_ts, timelike_neutral_cross_sections_values,
-     timelike_neutral_errors) = apply_fsr_correction(
+     timelike_neutral_errors) = remove_fsr_effects(
         *merge_statistical_and_systematic_errors(
             *read_data_files_new(
                 file_names=[

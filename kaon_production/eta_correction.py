@@ -66,14 +66,14 @@ def _calculate_eta(beta: float) -> float:
     return intermediate_result + 1.5 * (1 + beta**2) / (beta**2)
 
 
-def apply_eta_correction(
+def add_fsr_effects(
         cs_value: float,
         s: float,
         final_particle_mass: float,
         alpha: float
 ) -> float:
     """
-    Returns a cross-section value corrected for FSR effects.
+    Returns a cross-section value with final state radiation effects added to it.
     Can be also applied on squared form factors.
 
     Args:
@@ -90,6 +90,30 @@ def apply_eta_correction(
     return cs_value * (1.0 + eta * alpha / math.pi)
 
 
+def remove_fsr_effects(
+        cs_value: float,
+        s: float,
+        final_particle_mass: float,
+        alpha: float
+) -> float:
+    """
+    Returns a cross-section value with final state radiation effects removed from it.
+    Can be also applied on squared form factors.
+
+    Args:
+        cs_value (float): a cross-section value
+        s (float): Mandelstam s-variable
+        final_particle_mass (float): the mass of either of the two final particles
+        alpha (float): the value of the fine structure constant
+
+    Returns: a corrected cross-section value (float)
+
+    """
+    beta = calculate_beta(s, final_particle_mass)
+    eta = _calculate_eta(beta)
+    return cs_value / (1.0 + eta * alpha / math.pi)
+
+
 if __name__ == '__main__':
     betas = [x / 100.0 for x in range(1, 100)]
     etas = [_calculate_eta(beta) for beta in betas]
@@ -102,7 +126,7 @@ if __name__ == '__main__':
     plt.close()
 
     ss = [x / 100.0 for x in range(10, 100)]
-    corrections = [apply_eta_correction(1.0, s, 0.13957039, 0.0072973525693)
+    corrections = [add_fsr_effects(1.0, s, 0.13957039, 0.0072973525693)
                    for s in ss]
     _, ax = plt.subplots()
     ax.set_title('FSR correction')
