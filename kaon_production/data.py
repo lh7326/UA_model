@@ -1,6 +1,7 @@
 import csv
 import math
 import os.path
+import random
 from collections import namedtuple
 import matplotlib.pyplot as plt
 from typing import Tuple, List, Optional, Callable
@@ -135,11 +136,41 @@ def merge_statistical_and_systematic_errors(
     return xs, ys, merged_errs
 
 
+def generate_monte_carlo_data_sample(
+        xs: List[float],
+        ys: List[float],
+        stat_errs: List[float],
+        sys_errs: List[float],
+) -> Tuple[List[float], List[float], List[float], List[float]]:
+    """
+    Generate new values of ys based on the original ys and systematic and statistical errors.
+    Both kinds of error are interpreted as standard deviations of Gaussian distributions.
+    All datapoints are shifted in a completely correlated way according to their systematic error.
+    Each datapoint is shifted independently according to its statistical error.
+
+    Args:
+        xs: A list of x values.
+        ys: A list of y values.
+        stat_errs: A list of statistical errors (standard deviations).
+        sys_errs: A list of systematic errors (standard deviations).
+
+    Returns:
+        xs, shifted ys, statistical errors, systematic errors
+
+    """
+    stat_err_shifts = [random.gauss(mu=0, sigma=err) for err in stat_errs]
+    systematic_error_factor = random.gauss(mu=0.0, sigma=1.0)
+    sys_err_shifts = [err * systematic_error_factor for err in sys_errs]
+    shifted_ys = [y + stat_shift + sys_shift for y, stat_shift, sys_shift
+                  in zip(ys, stat_err_shifts, sys_err_shifts)]
+    return xs, shifted_ys, stat_errs, sys_errs
+
+
 def make_function_to_add_fsr_effects(
         final_particle_mass: float, alpha: float,
 ) -> Callable[[List[float], List[float], List[float]], Tuple[List[float], List[float], List[float]]]:
 
-    def apply_fsr_correction(
+    def add_fsr(
         s_list: List[float], cs_list: List[float], errs: List[float]
     ) -> Tuple[List[float], List[float], List[float]]:
         assert len(s_list) == len(cs_list) == len(errs)
@@ -150,14 +181,14 @@ def make_function_to_add_fsr_effects(
             corrected_errs.append(add_fsr_effects(err, s, final_particle_mass, alpha))
         return s_list, corrected_cs, corrected_errs
 
-    return apply_fsr_correction
+    return add_fsr
 
 
 def make_function_to_remove_fsr_effects(
         final_particle_mass: float, alpha: float,
 ) -> Callable[[List[float], List[float], List[float]], Tuple[List[float], List[float], List[float]]]:
 
-    def apply_fsr_correction(
+    def remove_fsr(
         s_list: List[float], cs_list: List[float], errs: List[float]
     ) -> Tuple[List[float], List[float], List[float]]:
         assert len(s_list) == len(cs_list) == len(errs)
@@ -168,15 +199,18 @@ def make_function_to_remove_fsr_effects(
             corrected_errs.append(remove_fsr_effects(err, s, final_particle_mass, alpha))
         return s_list, corrected_cs, corrected_errs
 
-    return apply_fsr_correction
+    return remove_fsr
 
 
 def plot_data(
         filenames: List[str],
+        remove_fsr_filenames: List[str],
         subdir_name: str,
         title: str,
         x_axis_label: str,
-        y_axis_label: str
+        y_axis_label: str,
+        final_particle_mass: float = 0.493677,
+        alpha: float = 0.0072973525693,
 ):
 
     fig, ax = plt.subplots()
@@ -187,6 +221,12 @@ def plot_data(
     for filename in filenames:
         xs, ys, errs = merge_statistical_and_systematic_errors(*read_data_new(filename, subdir_name))
         ax.errorbar(xs, ys, yerr=errs, fmt='x', label=filename)
+
+    for filename in remove_fsr_filenames:
+        xs, ys, errs = merge_statistical_and_systematic_errors(*read_data_new(filename, subdir_name))
+        remove_fsr = make_function_to_remove_fsr_effects(final_particle_mass, alpha)
+        xs, ys, errs = remove_fsr(xs, ys, errs)
+        ax.errorbar(xs, ys, yerr=errs, fmt='x', label=f'FSR removed - {filename}')
 
     ax.legend(loc='upper right')
 
@@ -202,22 +242,38 @@ if __name__ == '__main__':
     #     convert_from_pikobarns_to_nanobarns=False,
     # )
 
-    filenames = [
-        'cmd_3_charged_kaons_undressed.csv',
-        'snd_charged_kaons_undressed.csv',
-        'babar_2013_charged_kaons_undressed.csv',
-        'babar_charged_kaons_2015_undressed.csv',
-        'BESIII_charged_kaons_2019_undressed.csv',
-    ]
     # filenames = [
-    #     'cmd_3_neutral_kaons_undressed.csv',
-    #     'cmd_2_neutral_kaons_undressed.csv',
-    #     'snd_neutral_kaons_charged_mode_undressed.csv',
-    #     'snd_neutral_kaons_neutral_mode_undressed.csv',
-    #     'babar_neutral_kaons_2014_undressed.csv',
-    #     'BESIII_neutral_kaons_2021_undressed.csv',
+    #    'cmd_3_charged_kaons_undressed.csv',
+    #    'snd_charged_kaons_undressed.csv',
+    #    'babar_2013_charged_kaons_undressed.csv',
+    #    'babar_charged_kaons_2015_undressed.csv',
+    #    'BESIII_charged_kaons_2019_undressed.csv',
     # ]
-    plot_data(filenames, 'new', 'Cross sections --- Neutral kaons', 's[GeV^2]', 'sigma[nb]')
+  #   remove_fsr_filenames = [
+  # #     'cmd_3_charged_kaons_undressed.csv',
+  # #     'snd_charged_kaons_undressed.csv',
+  #      'babar_2013_charged_kaons_undressed.csv',
+  #      'babar_charged_kaons_2015_undressed.csv',
+  #      'BESIII_charged_kaons_2019_undressed.csv',
+  #  ]
+    filenames = [
+   #    'cmd_3_neutral_kaons_undressed.csv',
+   #    'cmd_2_neutral_kaons_undressed.csv',
+   #    'snd_neutral_kaons_charged_mode_undressed.csv',
+   #    'snd_neutral_kaons_neutral_mode_undressed.csv',
+   #    'babar_neutral_kaons_2014_undressed.csv',
+   #    'BESIII_neutral_kaons_2021_undressed.csv',
+    ]
+    remove_fsr_filenames = [
+       'cmd_3_neutral_kaons_undressed.csv',
+   #    'cmd_2_neutral_kaons_undressed.csv',
+   #    'snd_neutral_kaons_charged_mode_undressed.csv',
+   #    'snd_neutral_kaons_neutral_mode_undressed.csv',
+       'babar_neutral_kaons_2014_undressed.csv',
+       'BESIII_neutral_kaons_2021_undressed.csv',
+    ]
+
+    plot_data(filenames, remove_fsr_filenames, 'new', 'Cross sections --- Neutral kaons', 's[GeV^2]', 'sigma[nb]')
 
     # process_spacelike_data(
     #     f'../data/raw_files/spacelike_charged_kaons_formfactor2_1986_undressed.csv',
