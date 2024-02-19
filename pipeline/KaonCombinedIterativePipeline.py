@@ -4,7 +4,8 @@ from random import sample
 from pipeline.KaonCombinedPipeline import KaonCombinedPipeline
 from model_parameters import KaonParameters, KaonParametersB, KaonParametersSimplified, KaonParametersFixedSelected
 from task.kaon_combined_tasks import (TaskFixAccordingToParametersFit, TaskFullFit,
-                                      TaskFixAccordingToParametersFitOnlyTimelike, TaskFullFitOnlyTimelike)
+                                      TaskFixAccordingToParametersFitOnlyTimelike, TaskFullFitOnlyTimelike,
+                                      TaskFixAccordingToParametersFitOnlyTimelikeSubsetOfDataset)
 
 
 class KaonCombinedIterativePipeline(KaonCombinedPipeline):
@@ -29,6 +30,7 @@ class KaonCombinedIterativePipeline(KaonCombinedPipeline):
                  nr_free_params: Tuple[int, ...] = (3, 5, 7, 10),
                  nr_iterations: Tuple[int, ...] = (10, 20, 20, 10),
                  nr_initial_rounds_with_fixed_resonances: int = 0,
+                 nr_initial_rounds_on_partial_dataset: int = 0,
                  fit_on_timelike_data_only: bool = False) -> None:
 
         super().__init__(name, parameters, [], k_meson_mass, alpha, hc_squared, reports_dir,
@@ -42,17 +44,27 @@ class KaonCombinedIterativePipeline(KaonCombinedPipeline):
         for free_pars, repetitions in zip(nr_free_params, nr_iterations):
             self.free_params_numbers.extend([free_pars] * repetitions)
         self.nr_initial_rounds_with_fixed_resonances = nr_initial_rounds_with_fixed_resonances
+        self.nr_initial_rounds_with_partial_dataset = nr_initial_rounds_on_partial_dataset
         self.fit_on_timelike_data_only = fit_on_timelike_data_only
 
     def run(self) -> dict:
         self._log(f'Starting. Initial parameters: {self.parameters.to_list()}')
         for i, fp_num in enumerate(self.free_params_numbers):
             fix_resonances = (i < self.nr_initial_rounds_with_fixed_resonances)
+            partial_dataset = (i < self.nr_initial_rounds_with_partial_dataset)
             free_params = self._randomly_freeze_parameters(fp_num, fix_resonances)
             self._log(f'Initializing Task#{i}. Free parameters: {free_params}')
 
-            task_class = (TaskFixAccordingToParametersFitOnlyTimelike if self.fit_on_timelike_data_only
-                          else TaskFixAccordingToParametersFit)
+            if self.fit_on_timelike_data_only and partial_dataset:
+                task_class = TaskFixAccordingToParametersFitOnlyTimelikeSubsetOfDataset
+            elif self.fit_on_timelike_data_only and not partial_dataset:
+                task_class = TaskFixAccordingToParametersFitOnlyTimelike
+            elif not self.fit_on_timelike_data_only and partial_dataset:
+                raise NotImplementedError
+            elif not self.fit_on_timelike_data_only and not partial_dataset:
+                task_class = TaskFixAccordingToParametersFit
+            else:
+                raise 'Incorrect case syntax'
 
             task_name = f'Task#{i}:{task_class.__name__}'
             task = task_class(  # type: ignore
