@@ -15,12 +15,12 @@ DIR_NAME = '../data'
 # TODO: remove the old read_data function?
 
 
-def read_data(file_name: str = 'charged_kaon.csv') -> Tuple[List[float], List[float], List[float]]:
+def read_data(file_name, subdir_name) -> Tuple[List[float], List[float], List[float]]:
     xs = []
     ys = []
     errs = []
 
-    filepath = os.path.join(DIR_NAME, file_name)
+    filepath = os.path.join(DIR_NAME, subdir_name, file_name)
     with open(filepath, 'r') as f:
         reader = csv.reader(f, delimiter=' ')
         for x, y, err in reader:
@@ -250,7 +250,7 @@ if __name__ == '__main__':
     #    'BESIII_charged_kaons_2019_undressed.csv',
     # ]
   #   remove_fsr_filenames = [
-  # #     'cmd_3_charged_kaons_undressed.csv',
+  #      'cmd_3_charged_kaons_undressed.csv',
   # #     'snd_charged_kaons_undressed.csv',
   #      'babar_2013_charged_kaons_undressed.csv',
   #      'babar_charged_kaons_2015_undressed.csv',
@@ -266,7 +266,7 @@ if __name__ == '__main__':
     ]
     remove_fsr_filenames = [
        'cmd_3_neutral_kaons_undressed.csv',
-   #    'cmd_2_neutral_kaons_undressed.csv',
+       'cmd_2_neutral_kaons_undressed.csv',
    #    'snd_neutral_kaons_charged_mode_undressed.csv',
    #    'snd_neutral_kaons_neutral_mode_undressed.csv',
        'babar_neutral_kaons_2014_undressed.csv',
@@ -274,7 +274,3 @@ if __name__ == '__main__':
     ]
 
     plot_data(filenames, remove_fsr_filenames, 'new', 'Cross sections --- Neutral kaons', 's[GeV^2]', 'sigma[nb]')
-
-    # process_spacelike_data(
-    #     f'../data/raw_files/spacelike_charged_kaons_formfactor2_1986_undressed.csv',
-    #     f'../data/new/spacelike_charged_kaons_formfactor_1986_undressed.csv')
