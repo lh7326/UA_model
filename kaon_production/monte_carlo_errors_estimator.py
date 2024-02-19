@@ -1,4 +1,6 @@
 import os
+import os.path
+import statistics
 from configparser import ConfigParser
 
 from kaon_production.data import (
@@ -59,9 +61,9 @@ def _run_pipeline(save_dir, name, starting_parameters,
                   timelike_charged_cross_sections_values, timelike_charged_errors,
                   timelike_neutral_ts, timelike_neutral_cross_sections_values,
                   timelike_neutral_errors, spacelike_charged_ts, spacelike_charged_form_factor_values,
-                  space_charged_errors):
+                  spacelike_charged_errors):
     numbers = (7, 15, 10, 15)
-    repetitions = (3, 2, 2, 2)
+    repetitions = (5, 2, 3, 4)
     pipeline = KaonCombinedIterativePipeline(
         name, starting_parameters,
         kaon_mass, alpha, hc_squared, save_dir,
@@ -73,7 +75,7 @@ def _run_pipeline(save_dir, name, starting_parameters,
         cs_errors_neutral=timelike_neutral_errors,
         t_ff_values_charged=spacelike_charged_ts,
         form_factors_charged=spacelike_charged_form_factor_values,
-        ff_errors_charged=space_charged_errors,
+        ff_errors_charged=spacelike_charged_errors,
         plot=False, use_handpicked_bounds=False,
         nr_free_params=numbers, nr_iterations=repetitions,
         nr_initial_rounds_with_fixed_resonances=2,
@@ -83,16 +85,42 @@ def _run_pipeline(save_dir, name, starting_parameters,
 
 
 def _generate_monte_carlo_parameters(
-        original_parameters, files_charged_timelike, files_neutral_timelike,
+        original_parameters, kaon_mass, alpha, hc_squared, files_charged_timelike, files_neutral_timelike,
         files_charged_spacelike, remove_fsr_effects_function, nr_to_generate, save_dir):
     os.makedirs(save_dir, exist_ok=False)
     for n in range(nr_to_generate):
         name = f'item_{n}'
         _run_pipeline(
             save_dir, name, original_parameters,
+            kaon_mass, alpha, hc_squared,
             *_generate_data_set(files_charged_timelike, files_neutral_timelike,
                                 files_charged_spacelike, remove_fsr_effects_function)
         )
+
+
+def _read_parameters_in_dir(dirpath):
+    filenames = os.listdir(dirpath)
+    return [
+        KaonParametersFixedSelected.load_from_serialized_parameters(
+            os.path.join(dirpath, filename, 'final_fit_parameters.pickle')
+        ) for filename in filenames
+    ]
+
+
+def _calculate_parameter_mean_and_std(list_pars):
+    if not list_pars:
+        return None
+    names = [parameter.name for parameter in list_pars[0]]
+    result = {}
+    for name in names:
+        vals = [pars[name].value for pars in list_pars]
+        result[name] = {'mean': statistics.mean(vals), 'standard_deviation': statistics.stdev(vals)}
+    return result
+
+
+def _calculate_mean_and_std_of_function_values(f, list_pars):
+    values = [f(parameters) for parameters in list_pars]
+    return {'mean': statistics.mean(values), 'standard_deviation': statistics.stdev(values)}
 
 
 if __name__ == '__main__':
@@ -123,10 +151,12 @@ if __name__ == '__main__':
     source_pars_directory = '/home/lukas/reports/kaons/run4_3'
     save_dir = os.path.join(source_pars_directory, 'monte_carlo')
     original_parameters = KaonParametersFixedSelected.load_from_serialized_parameters(
-        os.path.join(source_pars_directory, 'final_parameters.pickle')
+        os.path.join(source_pars_directory, 'final_fit_parameters.pickle')
     )
 
-    _generate_monte_carlo_parameters(
-        original_parameters, files_charged_timelike, files_neutral_timelike,
-        files_charged_spacelike, remove_fsr_effects, 5, save_dir
-    )
+    # _generate_monte_carlo_parameters(
+    #     original_parameters, kaon_mass, alpha, hc_squared, files_charged_timelike, files_neutral_timelike,
+    #     files_charged_spacelike, remove_fsr_effects, 5, save_dir
+    # )
+
+    print(_calculate_parameter_mean_and_std(_read_parameters_in_dir(save_dir)))
