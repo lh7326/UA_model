@@ -11,7 +11,7 @@ class MapFromWtoT:
         This object represents the function that maps from the complex w-plane
         in which we will construct the model onto the complex t-plane, where t
         is the square of the off-the-mass-shell momentum carried by the virtual photon.
-        Note that we use the signature +---, so t^2 > 0 corresponds to time-like momenta.
+        Note that we use the signature +---, so t > 0 corresponds to time-like momenta.
 
         More precisely, the model is constructed on a four-sheeted Riemann surface, each sheet
         having the same t-coordinates but different W-coordinates. The map from W to t maps the complex plane
