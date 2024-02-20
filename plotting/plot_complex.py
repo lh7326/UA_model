@@ -78,11 +78,11 @@ def plot_w_to_t(t_0, t_in):
     plot_mapped_curves('W-plane', 't-plane', curves, mapped)
 
 
-def plot_t_to_w(t_0, t_in):
+def plot_t_to_w(t_0, t_in, sheet=1):
     curves = [
-        [(n * -0.1 + t_0) for n in range(1, 1000)],  # between minus infinity and t_0
-        [((t_in - t_0) * n * 0.01 + t_0) for n in range(1, 100)],  # between t_0 and t_in
-        [(n * 0.1 + t_in) for n in range(1, 1000)],  # above t_in
+        [(n * -0.1 + 1e-10j + t_0) for n in range(1, 1000)],  # between minus infinity and t_0
+        [((t_in - t_0) * n * 0.01 + 1e-10j + t_0) for n in range(1, 100)],  # between t_0 and t_in
+        [(n * 0.1 + 1e-10j + t_in) for n in range(1, 1000)],  # above t_in
         [(n * -0.1 + 54j) for n in range(1, 1000)],
         [(n * 0.1 + 54j) for n in range(1, 1000)],
         [(n * 0.1 - 20j) for n in range(-1000, 0)] + [(n * 0.1 - 20j) for n in range(1, 1000)],
@@ -90,8 +90,8 @@ def plot_t_to_w(t_0, t_in):
         [(n * 0.1j + 17) for n in range(1, 1000)],
     ]
 
-    f = MapFromTtoW(t_0, t_in)
-    mapped = [[f(z) for z in curve] for curve in curves]
+    map_t_to_w = MapFromTtoW(t_0, t_in)
+    mapped = [[map_t_to_w.map_from_sheet(z, sheet=sheet) for z in curve] for curve in curves]
 
     plot_mapped_curves('t-plane', 'W-plane', curves, mapped)
 

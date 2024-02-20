@@ -11,7 +11,15 @@ from plotting.plot_complex import plot_mapped_curves
 T_0 = 1.0
 T_IN = 2.0
 
-t_to_w_version1 = MapFromTtoW(T_0, T_IN)  # the version used in the model
+map_from_t_to_w = MapFromTtoW(T_0, T_IN)
+
+
+def t_to_w_version1(t):
+    """
+    The version used in the model.
+
+    """
+    return map_from_t_to_w.map_from_sheet(t, sheet=1)
 
 
 def t_to_w_version2(t):
@@ -54,9 +62,9 @@ def t_to_w_version3(t):
 
 def plot_t_to_w(f):
     curves = [
-        [(n * -0.1 + T_0) for n in range(1, 1000)],  # between minus infinity and t_0
-        [((T_IN - T_0) * n * 0.01 + T_0) for n in range(1, 100)],  # between t_0 and t_in
-        [(n * 0.1 + T_IN) for n in range(1, 1000)],  # above t_in
+        [(n * -0.1 + 1e-10j + T_0) for n in range(1, 1000)],  # between minus infinity and t_0
+        [((T_IN - T_0) * n * 0.01 + 1e-10j + T_0) for n in range(1, 100)],  # between t_0 and t_in
+        [(n * 0.1 + 1e-10j + T_IN) for n in range(1, 1000)],  # above t_in
         [(n * 0.1 - 20j) for n in range(-1000, 0)] + [(n * 0.1 - 20j) for n in range(1, 1000)],
         [n * (0.1 + 0.1j) for n in range(1, 1000)],
     ]
