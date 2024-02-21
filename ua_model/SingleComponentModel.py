@@ -24,24 +24,16 @@ class SingleComponentModel:
         self._t_to_W = MapFromTtoW(t_0=self.t_0, t_in=self.t_in)
         self._component = self._build_component(self.t_0, self.t_in, self.mass_resonance, self.decay_rate_resonance)
 
-    def __call__(self, t: complex) -> complex:
-        if t.real < 0:
-            raise ValueError('t must have a positive real part!')
-
+    def __call__(self, t: float) -> complex:
         w = self._t_to_W(t)
         return self.coupling_constant * self._component(w)
 
     @staticmethod
     def _build_component(t_0: float, t_in: float, mass: float, decay_rate: float) -> UAComponent:
-        map_from_t_to_w = MapFromTtoW(t_0, t_in)
-        w_n = map_from_t_to_w(0)
-        t_meson_pole = (mass - 1j * decay_rate / 2) ** 2
-        w_meson = map_from_t_to_w(t_meson_pole)
-
         mass_squared = mass**2
         if mass_squared < t_0:
             raise ValueError('Mass squared of the resonance must be above the t_0 threshold!')
         elif mass_squared < t_in:
-            return UAComponentVariantA(w_n, w_meson)
+            return UAComponentVariantA(mass, decay_rate, MapFromTtoW(t_0, t_in))
         else:
-            return UAComponentVariantB(w_n, w_meson)
+            return UAComponentVariantB(mass, decay_rate, MapFromTtoW(t_0, t_in))

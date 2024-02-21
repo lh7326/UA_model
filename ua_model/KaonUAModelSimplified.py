@@ -102,10 +102,7 @@ class KaonUAModelSimplified:
         self._initialize_isoscalar_components()
         self._initialize_isovector_components()
 
-    def __call__(self, t: complex) -> complex:
-        if t.real < 0:
-            raise ValueError('t must have a positive real part!')
-
+    def __call__(self, t: float) -> complex:
         isoscalar_contribution = self._eval_isoscalar_contribution(t)
         isovector_contribution = self._eval_isovector_contribution(t)
 
@@ -114,7 +111,7 @@ class KaonUAModelSimplified:
         else:
             return isoscalar_contribution - isovector_contribution
 
-    def _eval_isoscalar_contribution(self, t: complex) -> complex:
+    def _eval_isoscalar_contribution(self, t: float) -> complex:
         w = self._t_to_W_isoscalar(t)
         return (
             self.a_omega_prime * self._component_omega_prime(w)
@@ -124,7 +121,7 @@ class KaonUAModelSimplified:
             + self.a_phi_double_prime * self._component_phi_double_prime(w)
         )
 
-    def _eval_isovector_contribution(self, t: complex) -> complex:
+    def _eval_isovector_contribution(self, t: float) -> complex:
         w = self._t_to_W_isovector(t)
         return (
             self.a_rho_prime * self._component_rho_prime(w)
@@ -153,15 +150,10 @@ class KaonUAModelSimplified:
 
     @staticmethod
     def _build_component(t_0: float, t_in: float, mass: float, decay_rate: float) -> UAComponent:
-        map_from_t_to_w = MapFromTtoW(t_0, t_in)
-        w_n = map_from_t_to_w(0)
-        t_meson_pole = (mass - 1j * decay_rate / 2) ** 2
-        w_meson = map_from_t_to_w(t_meson_pole)
-
         mass_squared = mass**2
         if mass_squared < t_0:
             raise ValueError('Mass squared of the resonance must be above the t_0 threshold!')
         elif mass_squared < t_in:
-            return UAComponentVariantA(w_n, w_meson)
+            return UAComponentVariantA(mass, decay_rate, MapFromTtoW(t_0, t_in))
         else:
-            return UAComponentVariantB(w_n, w_meson)
+            return UAComponentVariantB(mass, decay_rate, MapFromTtoW(t_0, t_in))

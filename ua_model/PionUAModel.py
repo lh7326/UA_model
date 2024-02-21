@@ -61,10 +61,10 @@ class PionUAModel:
         self._component_rho_triple_prime = None
         self._initialize_isovector_components()
 
-    def __call__(self, t: complex) -> complex:
+    def __call__(self, t: float) -> complex:
         return self._eval_additional_factor(t) * self._eval_isovector_contribution(t)
 
-    def _eval_isovector_contribution(self, t: complex) -> complex:
+    def _eval_isovector_contribution(self, t: float) -> complex:
         w = self._t_to_W_isovector(t)
         return (
             self.a_rho * self._component_rho(w)
@@ -73,7 +73,7 @@ class PionUAModel:
             + self.a_rho_triple_prime * self._component_rho_triple_prime(w)
         )
 
-    def _eval_additional_factor(self, t: complex) -> complex:
+    def _eval_additional_factor(self, t: float) -> complex:
         w = self._t_to_W_isovector(t)
         zero_factor = (w - self.w_zero) / (self.w_n - self.w_zero)
         pole_factor = (self.w_n - self.w_pole) / (w - self.w_pole)
@@ -88,15 +88,10 @@ class PionUAModel:
 
     @staticmethod
     def _build_component(t_0: float, t_in: float, mass: float, decay_rate: float) -> UAComponent:
-        map_from_t_to_w = MapFromTtoW(t_0, t_in)
-        w_n = map_from_t_to_w(0)
-        t_meson_pole = (mass - 1j * decay_rate / 2) ** 2
-        w_meson = map_from_t_to_w(t_meson_pole)
-
         mass_squared = mass**2
         if mass_squared < t_0:
             raise ValueError('Mass squared of the resonance must be above the t_0 threshold!')
         elif mass_squared < t_in:
-            return UAComponentVariantA(w_n, w_meson)
+            return UAComponentVariantA(mass, decay_rate, MapFromTtoW(t_0, t_in))
         else:
-            return UAComponentVariantB(w_n, w_meson)
+            return UAComponentVariantB(mass, decay_rate, MapFromTtoW(t_0, t_in))

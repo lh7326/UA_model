@@ -10,16 +10,22 @@ as individual objects is to allow us to conveniently select the appropriate form
 at the time of the initialization of the model.
 
 """
+import operator
 from abc import ABC, abstractmethod
+import functools
+from ua_model.MapFromTtoW import MapFromTtoW
 
 
 class UAComponent(ABC):
 
-    def __init__(self, w_n: complex, w_meson: complex) -> None:
-        self.w_n = w_n
-        self.w_meson = w_meson
+    def __init__(self, meson_mass: float, meson_decay_rate: float, map_from_t_to_w: MapFromTtoW) -> None:
+        self.w_n = map_from_t_to_w(0)
+        self.map_from_t_to_w = map_from_t_to_w
 
-        # evaluate some constants
+        self._poles = []
+        self._evaluate_poles(meson_mass, meson_decay_rate)
+
+        # evaluate some further constants
         self._asymptotic_factor_denominator = (1 - (self.w_n ** 2)) ** 2
         self._resonant_factor_numerator = self._eval_resonant_factor_numerator()
 
@@ -41,33 +47,36 @@ class UAComponent(ABC):
         # If needed, we may consider making a change here.
         return ((1 - w**2) ** 2) / self._asymptotic_factor_denominator
 
-    @abstractmethod
     def _eval_resonant_factor(self, w: complex) -> complex:
+        denominator = functools.reduce(
+            operator.mul,
+            [w - pole for pole in self._poles],
+            1,
+        )
+        return self._resonant_factor_numerator / denominator
+
+    def _eval_resonant_factor_numerator(self) -> complex:
+        if not len(self._poles) == 4:
+            raise Exception('Poles have not been evaluated correctly yet!')
+
+        return functools.reduce(
+            operator.mul,
+            [self.w_n - pole for pole in self._poles],
+            1,
+        )
+
+    @abstractmethod
+    def _evaluate_poles(self, meson_mass: float, meson_decay_rate: float) -> None:
         """
-        This method should return the value of the appropriate resonant factor at the given W.
-
-        NOTE: It is expected that this method will access the (constant) attribute '_resonant_factor_numerator'.
-
-        Different variant of the model components differ by small details in this section of the function form.
-        We decide on which variant to apply based on the value of the mass of the resonance and t_0 and t_in.
+        This method should evaluate locations of the four poles in the W-plane
+        and save them into the list self._poles.
 
         Args:
-            w (complex):
+            meson_mass:
+            meson_decay_rate:
 
         Returns:
-            complex
-
-        """
-        pass
-
-    @abstractmethod
-    def _eval_resonant_factor_numerator(self) -> complex:
-        """
-        This method should evaluate the numerator of the resonant factor.
-        It is called only during the initialization of the component. (The numerator is a constant.)
-
-        Returns:
-            complex
+            None
 
         """
         pass

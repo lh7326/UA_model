@@ -142,10 +142,7 @@ class NucleonUAModel:
 
         self._mass_terms_cache = {}
 
-    def __call__(self, t: complex) -> complex:
-        if t.real < 0:
-            raise ValueError('t must have a positive real part!')
-
+    def __call__(self, t: float) -> complex:
         dirac_isoscalar_contribution = self._eval_dirac_isoscalar_contribution(t)
         dirac_isovector_contribution = self._eval_dirac_isovector_contribution(t)
         pauli_isoscalar_contribution = self._eval_pauli_isoscalar_contribution(t)
@@ -164,7 +161,7 @@ class NucleonUAModel:
             return dirac_form_factor + pauli_form_factor
 
     # TODO: refactor!
-    def _eval_dirac_isoscalar_contribution(self, t: complex) -> complex:
+    def _eval_dirac_isoscalar_contribution(self, t: float) -> complex:
         w = self._t_to_W_dirac_isoscalar(t)
 
         c_omega = self._get_mass_term(scalar=True, dirac=True, resonance='omega')
@@ -214,7 +211,7 @@ class NucleonUAModel:
             )
         )
 
-    def _eval_dirac_isovector_contribution(self, t: complex) -> complex:
+    def _eval_dirac_isovector_contribution(self, t: float) -> complex:
         w = self._t_to_W_dirac_isovector(t)
 
         c_rho = self._get_mass_term(scalar=False, dirac=True, resonance='rho')
@@ -234,7 +231,7 @@ class NucleonUAModel:
             )
         )
 
-    def _eval_pauli_isoscalar_contribution(self, t: complex) -> complex:
+    def _eval_pauli_isoscalar_contribution(self, t: float) -> complex:
         w = self._t_to_W_pauli_isoscalar(t)
 
         c_omega = self._get_mass_term(scalar=True, dirac=False, resonance='omega')
@@ -316,7 +313,7 @@ class NucleonUAModel:
             )
         )
 
-    def _eval_pauli_isovector_contribution(self, t: complex) -> complex:
+    def _eval_pauli_isovector_contribution(self, t: float) -> complex:
         w = self._t_to_W_pauli_isovector(t)
         norm = 0.5 * (self.magnetic_moment_proton - self.magnetic_moment_neutron - 1.0)
         return (norm * self._pauli_component_rho(w) * self._pauli_component_rho_prime(w) *
@@ -347,17 +344,13 @@ class NucleonUAModel:
 
     @staticmethod
     def _build_component(t_0: float, t_in: float, mass: float, decay_rate: float) -> UAComponent:
-        map_from_t_to_w = MapFromTtoW(t_0, t_in)
-        w_n = map_from_t_to_w(0)
         t_meson_pole = (mass - 1j * decay_rate / 2) ** 2
-        w_meson = map_from_t_to_w(t_meson_pole)
-
         if t_meson_pole.real < t_0:
             raise ValueError('Mass squared of the resonance must be above the t_0 threshold!')
         elif t_meson_pole.real < t_in:
-            return UAComponentVariantA(w_n, w_meson)
+            return UAComponentVariantA(mass, decay_rate, MapFromTtoW(t_0, t_in))
         else:
-            return UAComponentVariantB(w_n, w_meson)
+            return UAComponentVariantB(mass, decay_rate, MapFromTtoW(t_0, t_in))
 
     def _get_mass_term(self, scalar: bool, dirac: bool, resonance: str) -> complex:
         key = self._build_cache_key(scalar, dirac, resonance)
