@@ -95,20 +95,20 @@ def _get_ff_model(
         raise TypeError('Unexpected parameters type: ' + type(parameters).__name__)
 
 
-def _read_datapoint_kaon(datapoint: Union[KaonDatapoint, Tuple[complex, float, float]]) -> Tuple[complex, bool, bool]:
+def _read_datapoint_kaon(datapoint: Union[KaonDatapoint, Tuple[float, float, float]]) -> Tuple[float, bool, bool]:
     if isinstance(datapoint, KaonDatapoint):
         return datapoint.t, datapoint.is_charged, datapoint.is_for_cross_section
     else:
-        return complex(datapoint[0]), bool(datapoint[1]), bool(datapoint[2])
+        return float(datapoint[0]), bool(datapoint[1]), bool(datapoint[2])
 
 
 def _read_datapoint_nucleon(
-        datapoint: Union[NucleonDatapoint, Tuple[complex, float, float]]
-) -> Tuple[complex, bool, bool]:
+        datapoint: Union[NucleonDatapoint, Tuple[float, float, float]]
+) -> Tuple[float, bool, bool]:
     if isinstance(datapoint, NucleonDatapoint):
         return datapoint.t, datapoint.proton, datapoint.electric
     else:
-        return complex(datapoint[0]), bool(datapoint[1]), bool(datapoint[2])
+        return float(datapoint[0]), bool(datapoint[1]), bool(datapoint[2])
 
 
 def _is_kaon_type_model(ff_model: Callable) -> bool:
@@ -123,7 +123,7 @@ def _is_kaon_type_model(ff_model: Callable) -> bool:
 def function_form_factor(
         ts: Union[
             List[Union[KaonDatapoint, Tuple[float, float, float]]],
-            List[Union[NucleonDatapoint, Tuple[complex, float, float]]],
+            List[Union[NucleonDatapoint, Tuple[float, float, float]]],
         ],
         parameters: ModelParameters,
         return_absolute_value: bool,
@@ -161,7 +161,7 @@ def function_form_factor(
 def function_cross_section(
         ts: Union[
             List[Union[KaonDatapoint, Tuple[float, float, float]]],
-            List[Union[NucleonDatapoint, Tuple[complex, float, float]]],
+            List[Union[NucleonDatapoint, Tuple[float, float, float]]],
         ],
         product_particle_mass: float,
         alpha: float,
@@ -207,7 +207,7 @@ def function_cross_section(
 def function_form_factor_or_cross_section(
         xs: Union[
             List[Union[KaonDatapoint, Tuple[float, float, float]]],
-            List[Union[NucleonDatapoint, Tuple[complex, float, float]]],
+            List[Union[NucleonDatapoint, Tuple[float, float, float]]],
         ],
         product_particle_mass: float,
         alpha: float,

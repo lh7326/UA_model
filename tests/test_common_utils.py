@@ -14,15 +14,15 @@ class TestCommonUtils(TestCase):
 
         ts = [
             KaonDatapoint(t=1.1230, is_charged=True, is_for_cross_section=True),
-            KaonDatapoint(t=1.1230 + 0.73200j, is_charged=True, is_for_cross_section=True),
-            (0.73200j, 1.0, 1.0),
-            KaonDatapoint(t=-0.73200j, is_charged=True, is_for_cross_section=True),
-            (1.1230 - 0.73200j, 1.0, 1.0),
+            KaonDatapoint(t=0.73200, is_charged=True, is_for_cross_section=True),
+            (0.73200, 1.0, 1.0),
+            KaonDatapoint(t=-0.73200, is_charged=True, is_for_cross_section=True),
+            (1.1230, 1.0, 1.0),
             (1.1230, 0.0, 1.0),
-            KaonDatapoint(t=1.1230 + 0.73200j, is_charged=False, is_for_cross_section=True),
-            KaonDatapoint(t=0.73200j, is_charged=False, is_for_cross_section=True),
-            (-0.73200j, 0.0, 1.0),
-            KaonDatapoint(t=1.1230 - 0.73200j, is_charged=False, is_for_cross_section=True),
+            KaonDatapoint(t=1.1230, is_charged=False, is_for_cross_section=True),
+            KaonDatapoint(t=0.73200, is_charged=False, is_for_cross_section=True),
+            (-0.73200, 0.0, 1.0),
+            KaonDatapoint(t=-1.1230, is_charged=False, is_for_cross_section=True),
         ]
 
         m_pion = 0.13957039
@@ -70,16 +70,16 @@ class TestCommonUtils(TestCase):
         )
 
         expected_values = [
-            1.422899583299445,
-            abs(7.322169806015914+5.145404160322535j),
-            abs(43.88590980666062-8.017152698541237j),
-            abs(43.88590980666064+8.01715269854124j),
-            abs(7.32216980601591-5.145404160322531j),
-            0.5325913326692017,
-            abs(1.1155860768607209 + 0.7839399239773068j),
-            abs(1.5146068572452065 - 0.27669095858528914j),
-            abs(1.5146068572451994 + 0.27669095858528786j),
-            abs(1.115586076860725 - 0.7839399239773098j),
+            1.3305954557093416,
+            15.598313561047673,
+            15.598313561047673,
+            57.129214250267864,
+            1.3305954557093416,
+            0.9603086503862627,
+            0.9603086503862627,
+            13.135748921343643,
+            0.5229041915252842,
+            0.308112713553523,
         ]
 
         for t, actual, expected in zip(ts, actual_values, expected_values):
@@ -100,15 +100,14 @@ class TestCommonUtils(TestCase):
 
         ts = [
             KaonDatapoint(t=1.1230, is_charged=True, is_for_cross_section=True),
-            KaonDatapoint(t=1.1230 + 0.73200j, is_charged=True, is_for_cross_section=True),
-            (0.73200j, 1.0, 1.0),
-            KaonDatapoint(t=-0.73200j, is_charged=True, is_for_cross_section=True),
-            KaonDatapoint(t=1.1230 - 0.73200j, is_charged=True, is_for_cross_section=True),
+            KaonDatapoint(t=-1.1230, is_charged=True, is_for_cross_section=True),
+            (0.73200, 1.0, 1.0),
+            KaonDatapoint(t=-0.73200, is_charged=True, is_for_cross_section=True),
             (1.1230, 0.0, 1.0),
-            (1.1230 + 0.73200j, 0.0, 1.0),
-            (0.73200j, 0.0, 1.0),
-            (-0.73200j, 0.0, 1.0),
-            KaonDatapoint(t=1.1230 - 0.73200j, is_charged=False, is_for_cross_section=True),
+            (-1.1230, 0.0, 1.0),
+            (0.73200, 0.0, 1.0),
+            (-0.73200, 0.0, 1.0),
+            KaonDatapoint(t=1.1230, is_charged=False, is_for_cross_section=True),
         ]
 
         m_pion = 0.13957039
@@ -149,16 +148,15 @@ class TestCommonUtils(TestCase):
         )
 
         expected_values = [
-            2.721106392638103,
-            abs(14.002976557440112 + 9.840112390777117j),
-            abs(59.78991299967486 - 10.9225230709046j),
-            abs(59.78991299967489 + 10.922523070904605j),
-            abs(14.002976557440086 - 9.840112390777097j),
-            0.08305375738667582,
-            abs(0.1432413591144838 + 0.10065796132075078j),
-            abs(0.029289844333965784 - 0.005350718615072836j),
-            abs(0.029289844333966465 + 0.00535071861507296j),
-            abs(0.1432413591144833 - 0.10065796132075043j),
+            3.4234397922515987,
+            25.790189233409905,
+            11.053068468257893,
+            67.24541675894184,
+            0.0476603610075804,
+            0.009432714631928718,
+            0.03820243830713717,
+            0.013155079799326142,
+            0.0476603610075804,
         ]
 
         for t, actual, expected in zip(ts, actual_values, expected_values):
@@ -169,21 +167,21 @@ class TestCommonUtils(TestCase):
 
         ts = [
             KaonDatapoint(t=1.1230, is_charged=True, is_for_cross_section=True),
-            KaonDatapoint(t=1.1230 + 0.73200j, is_charged=True, is_for_cross_section=True),
-            KaonDatapoint(t=1.1230 + 0.73200j, is_charged=True, is_for_cross_section=False),
-            (0.73200j, 1.0, 1.0),
-            KaonDatapoint(t=-0.73200j, is_charged=True, is_for_cross_section=True),
-            KaonDatapoint(t=-0.73200j, is_charged=True, is_for_cross_section=False),
-            (1.1230 - 0.73200j, 1.0, 1.0),
-            (1.1230 - 0.73200j, 1.0, 0.0),
+            KaonDatapoint(t=-1.1230, is_charged=True, is_for_cross_section=True),
+            KaonDatapoint(t=1.1230, is_charged=True, is_for_cross_section=False),
+            (0.73200, 1.0, 1.0),
+            KaonDatapoint(t=-0.73200, is_charged=True, is_for_cross_section=True),
+            KaonDatapoint(t=-0.73200, is_charged=True, is_for_cross_section=False),
+            (1.1230, 1.0, 1.0),
+            (-1.1230, 1.0, 0.0),
             (1.1230, 0.0, 1.0),
-            (1.1230, 0.0, 0.0),
-            KaonDatapoint(t=1.1230 + 0.73200j, is_charged=False, is_for_cross_section=True),
-            KaonDatapoint(t=0.73200j, is_charged=False, is_for_cross_section=True),
-            KaonDatapoint(t=0.73200j, is_charged=False, is_for_cross_section=False),
-            (-0.73200j, 0.0, 1.0),
-            (-0.73200j, 0.0, 0.0),
-            KaonDatapoint(t=1.1230 - 0.73200j, is_charged=False, is_for_cross_section=True),
+            (-1.1230, 0.0, 0.0),
+            KaonDatapoint(t=1.1230, is_charged=False, is_for_cross_section=True),
+            KaonDatapoint(t=0.73200, is_charged=False, is_for_cross_section=True),
+            KaonDatapoint(t=-0.73200, is_charged=False, is_for_cross_section=False),
+            (-0.73200, 0.0, 1.0),
+            (-0.73200, 0.0, 0.0),
+            KaonDatapoint(t=0.21, is_charged=False, is_for_cross_section=True),
         ]
 
         m_pion = 0.13957039
@@ -231,22 +229,22 @@ class TestCommonUtils(TestCase):
         )
 
         expected_values = [
-            1.422899583299445,
-            abs(7.322169806015914 + 5.145404160322535j),
-            1.15263870723164,
-            abs(43.88590980666062 - 8.017152698541237j),
-            abs(43.88590980666064 + 8.01715269854124j),
-            0.8365106906339028,
-            abs(7.32216980601591 - 5.145404160322531j),
-            1.1526387072316397,
-            0.5325913326692017,
-            0.7582611337995258,
-            abs(1.1155860768607209 + 0.7839399239773068j),
-            abs(1.5146068572452065 - 0.27669095858528914j),
-            0.15540282231450708,
-            abs(1.5146068572451994 + 0.27669095858528786j),
-            0.15540282231450672,
-            abs(1.115586076860725 - 0.7839399239773098j),
+            1.3305954557093416,
+            21.114735381127254,
+            1.1985185677395396,
+            15.598313561047673,
+            57.129214250267864,
+            0.7354479312680484,
+            1.3305954557093416,
+            0.6539850212443172,
+            0.9603086503862627,
+            0.07900049078778032,
+            0.9603086503862627,
+            13.135748921343643,
+            0.07036130192534568,
+            0.5229041915252842,
+            0.07036130192534568,
+            3.6192741050998296,
         ]
 
         for t, actual, expected in zip(ts, actual_values, expected_values):
