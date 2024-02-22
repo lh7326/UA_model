@@ -28,25 +28,25 @@ class TestConsistencyKaonModelVMDModel(TestCase):
             a_rho_prime=0.27,
             a_rho_double_prime=-0.14,
             mass_omega=0.23,
-            decay_rate_omega=0.0,
+            decay_rate_omega=1e-10,
             mass_omega_prime=0.47,
-            decay_rate_omega_prime=0.0,
+            decay_rate_omega_prime=1e-10,
             mass_omega_double_prime=0.89,
-            decay_rate_omega_double_prime=0.0,
+            decay_rate_omega_double_prime=1e-10,
             mass_phi=1.91,
-            decay_rate_phi=0.0,
+            decay_rate_phi=1e-10,
             mass_phi_prime=4.78,
-            decay_rate_phi_prime=0.0,
+            decay_rate_phi_prime=1e-10,
             mass_phi_double_prime=9.57,
-            decay_rate_phi_double_prime=0.0,
+            decay_rate_phi_double_prime=1e-10,
             mass_rho=1.42,
-            decay_rate_rho=0.0,
+            decay_rate_rho=1e-10,
             mass_rho_prime=7.15,
-            decay_rate_rho_prime=0.0,
+            decay_rate_rho_prime=1e-10,
             mass_rho_double_prime=28.1,
-            decay_rate_rho_double_prime=0.0,
+            decay_rate_rho_double_prime=1e-10,
             mass_rho_triple_prime=592.2,
-            decay_rate_rho_triple_prime=0.0,
+            decay_rate_rho_triple_prime=1e-10,
         )
 
         vmd_model = VMDModel.create([
@@ -62,8 +62,8 @@ class TestConsistencyKaonModelVMDModel(TestCase):
             {'coefficient': 0.45, 'mass': 592.2},
         ])
 
-        for t in [0.000, 0.00274, 0.871, 1.742, 7.81702, 9182.3891, 91884124214.21,
-                  0.7451 + 0.024j, 0.087912 - 0.912421j, 97.21 - 9985982.24j, 87672819487.42j]:
+        for t in [-73.85, -4.32, -1.20, -0.0024, 0.000, 0.00274, 0.871, 1.742,
+                  7.81702, 9182.3891, 91884124214.21]:
             with self.subTest(t=t):
                 self.assertTrue(cmath.isclose(
                     kaon_model(t),

@@ -38,9 +38,9 @@ class UAComponentVariantB(UAComponent):
         t = (meson_mass - 1j * meson_decay_rate / 2) ** 2
 
         w_1 = self.map_from_t_to_w.map_from_sheet(t, sheet=3)
-        self._poles.extend([w_1, w_1.conjugate()])
+        self.poles.extend([w_1, w_1.conjugate()])
 
         w_3 = self.map_from_t_to_w.map_from_sheet(t, sheet=4)
-        self._poles.extend([w_3, w_3.conjugate()])
+        self.poles.extend([w_3, w_3.conjugate()])
 
-        assert len(self._poles) == 4
+        assert len(self.poles) == 4

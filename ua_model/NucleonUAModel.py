@@ -1,3 +1,6 @@
+import functools
+import operator
+
 from ua_model.ua_components.UAComponent import UAComponent
 from ua_model.ua_components.UAComponentVariantA import UAComponentVariantA
 from ua_model.ua_components.UAComponentVariantB import UAComponentVariantB
@@ -164,12 +167,12 @@ class NucleonUAModel:
     def _eval_dirac_isoscalar_contribution(self, t: float) -> complex:
         w = self._t_to_W_dirac_isoscalar(t)
 
-        c_omega = self._get_mass_term(scalar=True, dirac=True, resonance='omega')
-        c_omega_prime = self._get_mass_term(scalar=True, dirac=True, resonance='omega_prime')
-        c_omega_double_prime = self._get_mass_term(scalar=True, dirac=True, resonance='omega_double_prime')
-        c_phi = self._get_mass_term(scalar=True, dirac=True, resonance='phi')
-        c_phi_prime = self._get_mass_term(scalar=True, dirac=True, resonance='phi_prime')
-        c_phi_double_prime = self._get_mass_term(scalar=True, dirac=True, resonance='phi_double_prime')
+        c_omega = self._get_mass_term(dirac=True, resonance='omega')
+        c_omega_prime = self._get_mass_term(dirac=True, resonance='omega_prime')
+        c_omega_double_prime = self._get_mass_term(dirac=True, resonance='omega_double_prime')
+        c_phi = self._get_mass_term(dirac=True, resonance='phi')
+        c_phi_prime = self._get_mass_term(dirac=True, resonance='phi_prime')
+        c_phi_double_prime = self._get_mass_term(dirac=True, resonance='phi_double_prime')
 
         return (
             0.5 * self._dirac_component_omega_double_prime(w) * self._dirac_component_phi_double_prime(w) +
@@ -214,9 +217,9 @@ class NucleonUAModel:
     def _eval_dirac_isovector_contribution(self, t: float) -> complex:
         w = self._t_to_W_dirac_isovector(t)
 
-        c_rho = self._get_mass_term(scalar=False, dirac=True, resonance='rho')
-        c_rho_prime = self._get_mass_term(scalar=False, dirac=True, resonance='rho_prime')
-        c_rho_double_prime = self._get_mass_term(scalar=False, dirac=True, resonance='rho_double_prime')
+        c_rho = self._get_mass_term(dirac=True, resonance='rho')
+        c_rho_prime = self._get_mass_term(dirac=True, resonance='rho_prime')
+        c_rho_double_prime = self._get_mass_term(dirac=True, resonance='rho_double_prime')
 
         return (
             0.5 * self._dirac_component_rho_prime(w) * self._dirac_component_rho_double_prime(w) +
@@ -234,12 +237,12 @@ class NucleonUAModel:
     def _eval_pauli_isoscalar_contribution(self, t: float) -> complex:
         w = self._t_to_W_pauli_isoscalar(t)
 
-        c_omega = self._get_mass_term(scalar=True, dirac=False, resonance='omega')
-        c_omega_prime = self._get_mass_term(scalar=True, dirac=False, resonance='omega_prime')
-        c_omega_double_prime = self._get_mass_term(scalar=True, dirac=False, resonance='omega_double_prime')
-        c_phi = self._get_mass_term(scalar=True, dirac=False, resonance='phi')
-        c_phi_prime = self._get_mass_term(scalar=True, dirac=False, resonance='phi_prime')
-        c_phi_double_prime = self._get_mass_term(scalar=True, dirac=False, resonance='phi_double_prime')
+        c_omega = self._get_mass_term(dirac=False, resonance='omega')
+        c_omega_prime = self._get_mass_term(dirac=False, resonance='omega_prime')
+        c_omega_double_prime = self._get_mass_term(dirac=False, resonance='omega_double_prime')
+        c_phi = self._get_mass_term(dirac=False, resonance='phi')
+        c_phi_prime = self._get_mass_term(dirac=False, resonance='phi_prime')
+        c_phi_double_prime = self._get_mass_term(dirac=False, resonance='phi_double_prime')
 
         norm = 0.5 * (self.magnetic_moment_proton + self.magnetic_moment_neutron - 1.0)
         return (
@@ -352,52 +355,29 @@ class NucleonUAModel:
         else:
             return UAComponentVariantB(mass, decay_rate, MapFromTtoW(t_0, t_in))
 
-    def _get_mass_term(self, scalar: bool, dirac: bool, resonance: str) -> complex:
-        key = self._build_cache_key(scalar, dirac, resonance)
+    def _get_mass_term(self, dirac: bool, resonance: str) -> complex:
+        key = self._build_cache_key(dirac, resonance)
         cached_val = self._mass_terms_cache.get(key, None)
         if cached_val:
             return cached_val
-        val = self._calculate_mass_term(scalar, dirac, resonance)
+        val = self._calculate_mass_term(dirac, resonance)
         self._mass_terms_cache[key] = val
         return val
 
     @staticmethod
-    def _build_cache_key(scalar: bool, dirac: bool, resonance: str) -> str:
-        key = 'isoscalar_' if scalar else 'isovector_'
-        key += 'dirac_' if dirac else 'pauli_'
+    def _build_cache_key(dirac: bool, resonance: str) -> str:
+        key = 'dirac_' if dirac else 'pauli_'
         return key + resonance
 
-    def _calculate_mass_term(self, scalar: bool, dirac: bool, resonance: str) -> complex:
-        if scalar and dirac:
-            t_to_w = self._t_to_W_dirac_isoscalar
-        elif scalar and not dirac:
-            t_to_w = self._t_to_W_pauli_isoscalar
-        elif not scalar and dirac:
-            t_to_w = self._t_to_W_dirac_isovector
-        else:  # not scalar and not dirac
-            t_to_w = self._t_to_W_pauli_isovector
+    def _calculate_mass_term(self, dirac: bool, resonance: str) -> complex:
+        component_type = '_dirac_component_' if dirac else '_pauli_component_'
+        component = self.__getattribute__(component_type + resonance)
 
-        mass = self.__getattribute__('mass_' + resonance)
-        decay_rate = self.__getattribute__('decay_rate_' + resonance)
-        pole = mass - 0.5j * decay_rate
-        w_resonance = t_to_w(pole**2)
-        w_norm = t_to_w(0)
-
-        if (pole**2).real < t_to_w.t_in:
-            return self._calculate_mass_term_a(w_resonance, w_norm)
-        else:
-            return self._calculate_mass_term_b(w_resonance, w_norm)
-
-    @staticmethod
-    def _calculate_mass_term_a(w_r: complex, w_n: complex) -> complex:
-        numerator = ((w_n - w_r) * (w_n - w_r.conjugate()) *
-                     (w_n - 1 / w_r) * (w_n - 1 / w_r.conjugate()))
-        denominator = - abs((w_r - 1 / w_r))**2
-        return numerator / denominator
-
-    @staticmethod
-    def _calculate_mass_term_b(w_r: complex, w_n: complex) -> complex:
-        numerator = ((w_n - w_r) * (w_n - w_r.conjugate()) *
-                     (w_n + w_r) * (w_n + w_r.conjugate()))
-        denominator = - abs((w_r - 1 / w_r)) ** 2
+        numerator = functools.reduce(
+            operator.mul,
+            [component.w_n - pole for pole in component.poles],
+            1,
+        )
+        pole = component.poles[0]  # we can pick any of the poles here
+        denominator = - abs((pole - 1 / pole)) ** 2
         return numerator / denominator

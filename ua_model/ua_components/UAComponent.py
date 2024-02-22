@@ -10,8 +10,8 @@ as individual objects is to allow us to conveniently select the appropriate form
 at the time of the initialization of the model.
 
 """
-import operator
 from abc import ABC, abstractmethod
+import operator
 import functools
 from ua_model.MapFromTtoW import MapFromTtoW
 
@@ -22,7 +22,7 @@ class UAComponent(ABC):
         self.w_n = map_from_t_to_w(0)
         self.map_from_t_to_w = map_from_t_to_w
 
-        self._poles = []
+        self.poles = []
         self._evaluate_poles(meson_mass, meson_decay_rate)
 
         # evaluate some further constants
@@ -50,18 +50,18 @@ class UAComponent(ABC):
     def _eval_resonant_factor(self, w: complex) -> complex:
         denominator = functools.reduce(
             operator.mul,
-            [w - pole for pole in self._poles],
+            [w - pole for pole in self.poles],
             1,
         )
         return self._resonant_factor_numerator / denominator
 
     def _eval_resonant_factor_numerator(self) -> complex:
-        if not len(self._poles) == 4:
+        if not len(self.poles) == 4:
             raise Exception('Poles have not been evaluated correctly yet!')
 
         return functools.reduce(
             operator.mul,
-            [self.w_n - pole for pole in self._poles],
+            [self.w_n - pole for pole in self.poles],
             1,
         )
 

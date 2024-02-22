@@ -107,17 +107,21 @@ class TestNucleonUAModel(TestCase):
 
         test_cases = [
             {'t': 1.7, 'proton': True, 'electric': False,
-             'expected_value': 9.713204625458062+0.07074134789291299j},
+             'expected_value': 8.972260723232754-0.08097671069792742j},
             {'t': 1.7, 'proton': False, 'electric': True,
-             'expected_value': 6.547797226498032-0.056748829988171726j},
-            {'t': 0.4+1.2j, 'proton': True, 'electric': True,
-             'expected_value': 0.7766084566142761+0.1483752192353497j},
-            {'t': 162.42-0.647j, 'proton': False, 'electric': False,
-             'expected_value': -0.0027582929607558046-2.5977732227335408e-05j},
-            {'t': 84.1-9124.1j, 'proton': True, 'electric': True,
-             'expected_value': -5.134294004614157e-06+7.80247424899727e-08j},
-            {'t': 62.4j, 'proton': False, 'electric': False,
-             'expected_value': 0.009663648292739201-0.009923990941913124j},
+             'expected_value': 6.320507139672983+0.05791961078606795j},
+            {'t': 0.4, 'proton': True, 'electric': True,
+             'expected_value': 1.128898770325619+0.007583282372907814j},
+            {'t': 162.42, 'proton': False, 'electric': False,
+             'expected_value': -0.0022334175594989425-5.74265198545485e-07j},
+            {'t': -84.1, 'proton': True, 'electric': True,
+             'expected_value': 0.03467943750296606},
+            {'t': -62.4, 'proton': False, 'electric': False,
+             'expected_value': -0.004900179317077261},
+            {'t': -0.72, 'proton': True, 'electric': False,
+             'expected_value': 0.08774079159952297},
+            {'t': -0.314, 'proton': True, 'electric': True,
+             'expected_value': 0.9413283852776785},
         ]
         for case in test_cases:
             with self.subTest(case=case):
@@ -228,17 +232,21 @@ class TestNucleonUAModel(TestCase):
 
         test_cases = [
             {'t': 1.7, 'proton': True, 'electric': False,
-             'expected_value': 2.5531762636133686+0.14269472551374163j},
+             'expected_value': -0.14365218375678368-8.24339222356179j},
             {'t': 1.7, 'proton': False, 'electric': True,
-             'expected_value': 2.668848634929326-1.181788739065921j},
-            {'t': 0.4+1.2j, 'proton': True, 'electric': True,
-             'expected_value': -0.20150599617334652+0.47887099129431737j},
-            {'t': 162.42-0.647j, 'proton': False, 'electric': False,
-             'expected_value': -7.783031593190773e-05+4.741099873637525e-06j},
-            {'t': 84.1-9124.1j, 'proton': True, 'electric': True,
-             'expected_value': -7.86703523408559e-09+3.207904724389229e-10j},
-            {'t': 62.4j, 'proton': False, 'electric': False,
-             'expected_value': 0.0005750756865537021+3.9141961722643786e-05j},
+             'expected_value': 2.106882439025776-0.989011386843067j},
+            {'t': 0.4, 'proton': True, 'electric': True,
+             'expected_value': 3.7404897015321517+0.9336260160656669j},
+            {'t': 162.42, 'proton': False, 'electric': False,
+             'expected_value': -6.655535947991295e-05+6.050192616845788e-06j},
+            {'t': 84.1, 'proton': True, 'electric': True,
+             'expected_value': 0.0002544489836485127-2.9935769943503916e-05j},
+            {'t': 62.4, 'proton': False, 'electric': False,
+             'expected_value': -0.0004588059239489811+7.062495618371208e-05j},
+            {'t': -0.2, 'proton': True, 'electric': False,
+             'expected_value': 1.755672971756961},
+            {'t': -1.234, 'proton': False, 'electric': True,
+             'expected_value': -0.02074309513296997},
         ]
         for case in test_cases:
             with self.subTest(case=case):

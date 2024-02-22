@@ -59,14 +59,21 @@ class TestKaonUAModel(TestCase):
             self.assertTrue(cmath.isclose(actual, expected, abs_tol=1.0e-15))
 
         test_cases = [
-            {'t': 1.7, 'charged_variant': True, 'expected_value': 3.073269926471771-0.02695425107525793j},
-            {'t': 1.7, 'charged_variant': False, 'expected_value': 1.8755035816025236+0.0038004114642766432j},
-            {'t': 0.4+1.2j, 'charged_variant': True, 'expected_value': 0.9475875980415935+0.33143141222536704j},
-            {'t': 162.42-0.647j, 'charged_variant': False,
-             'expected_value': 0.027789176727690115+0.00011725561280149965j},
-            {'t': 84.1-9124.1j, 'charged_variant': True,
-             'expected_value': -5.691108792051046e-06-0.0006893509534412159j},
-            {'t': 62.4j, 'charged_variant': False, 'expected_value': -0.012972244493240833-0.0646782195188189j},
+            {'t': 1.7, 'charged_variant': True, 'expected_value': 3.088449207387784+0.027191375915091832j},
+            {'t': 1.7, 'charged_variant': False, 'expected_value': 1.8770395762913819-0.003913624268268525j},
+            {'t': 0.4, 'charged_variant': True, 'expected_value': 1.132097271610998+0.005279178869720195j},
+            {'t': 0.4, 'charged_variant': False, 'expected_value': 0.08456425619618091-0.005279178869720157j},
+            {'t': 162.42, 'charged_variant': False,
+             'expected_value': 0.025070249020195834-2.324111484410312e-06j},
+            {'t': 162.42, 'charged_variant': True,
+             'expected_value': -0.03808351617135472-2.324111484493579e-06j},
+            {'t': 84.1, 'charged_variant': True,
+             'expected_value': -0.0775958247163283-6.814459894740306e-06j},
+            {'t': 62.4, 'charged_variant': False, 'expected_value': 0.07469605373290311-1.1384128793653114e-05j},
+            {'t': -0.07251, 'charged_variant': False, 'expected_value': -0.011141178522914796},
+            {'t': -0.07251, 'charged_variant': True, 'expected_value': 0.9799347315119209},
+            {'t': -3.13, 'charged_variant': False, 'expected_value': -0.16472201926655844},
+            {'t': -874.62, 'charged_variant': True, 'expected_value': 0.006639632380037791},
         ]
         for case in test_cases:
             with self.subTest(case=case):
@@ -115,11 +122,11 @@ class TestKaonUAModel(TestCase):
         )
 
         test_cases = [
-            {'t': 1.1230, 'charged_variant': True, 'expected_value': 1.2281718258244398-0.1663965540096885j},
-            {'t': 1.1230 + 0.73200j, 'charged_variant': True, 'expected_value': 1.0245709713591054+0.5280438561870465j},
-            {'t': 0.73200j, 'charged_variant': True, 'expected_value': 0.7804119622898475+0.3011765340455964j},
-            {'t': -0.73200j, 'charged_variant': True, 'expected_value': 0.7804119622898478-0.3011765340455964j},
-            {'t': 1.1230 - 0.73200j, 'charged_variant': True, 'expected_value': 1.0245709713591045-0.5280438561870471j},
+            {'t': 1.1230, 'charged_variant': True, 'expected_value': 1.1329198135973935+0.39107474116194807j},
+            {'t': 1.1230, 'charged_variant': False, 'expected_value': 0.9352574491884347-0.4024878422943864j},
+            {'t': 0.73200, 'charged_variant': True, 'expected_value': 0.8076427193134784+1.4488626501042385j},
+            {'t': -0.73200, 'charged_variant': False, 'expected_value': 0.07036130192534568},
+            {'t': -1.1230, 'charged_variant': True, 'expected_value': 0.6539850212443172},
         ]
         for case in test_cases:
             with self.subTest(case=case):
