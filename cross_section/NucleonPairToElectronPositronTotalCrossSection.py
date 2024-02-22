@@ -8,7 +8,7 @@ class NucleonPairToElectronPositronTotalCrossSection:
     def __init__(
             self,
             nucleon_mass: float,
-            form_factor_model: Callable[[complex], complex],
+            form_factor_model: Callable[[float], complex],
             config: ConfigParser
     ) -> None:
         """
@@ -31,7 +31,7 @@ class NucleonPairToElectronPositronTotalCrossSection:
         self._precalculated_coefficient_1 = self.hc_squared * 4 * math.pi * (self.alpha**2) / 3.0
         self._four_mass_squared = 4.0 * (self.nucleon_mass**2)
 
-    def __call__(self, t: complex) -> complex:
+    def __call__(self, t: float) -> float:
         """
         #TODO: update!
         Evaluate the total cross-section for the process electron + positron -> meson + anti-meson.
@@ -42,10 +42,10 @@ class NucleonPairToElectronPositronTotalCrossSection:
         We express the cross-section in nanobarns.
 
         Args:
-            t (complex): the square of the four-momentum of the collision
+            t (float): the square of the four-momentum of the collision
 
         Returns:
-            complex: the value of the total cross-section in nanobarns
+            float: the value of the total cross-section in nanobarns
 
         """
         self.form_factor.electric = True

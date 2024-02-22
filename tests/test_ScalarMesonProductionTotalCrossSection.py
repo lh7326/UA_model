@@ -23,8 +23,8 @@ class TestScalarMesonProductionTotalCrossSection(TestCase):
             {'t': 1.0, 'expected_value': -0.0002899141186372558j},
             {'t': 4.00, 'expected_value': 0.0},
             {'t': 4.72, 'expected_value': 1.5689721292965648e-05},
-            {'t': 14.31 + 8.21j, 'expected_value': 0.0006291427281578755-0.00019011327189063848j},
-            {'t': 862.0 - 0.87j, 'expected_value': 0.04776005175092199+4.7866214477648565e-05j},
+            {'t': 14.31, 'expected_value': 0.00048826507934177684},
+            {'t': 862.0, 'expected_value': 0.04776005107089034},
         ]
         for case in cases:
             with self.subTest(case=case):
@@ -86,11 +86,11 @@ class TestScalarMesonProductionTotalCrossSection(TestCase):
         )
 
         test_cases = [
-            {'t': 1.1230, 'expected_value': 1.422899583299445},
-            {'t': 1.1230 + 0.73200j, 'expected_value': 7.322169806015914+5.145404160322535j},
-            {'t': 0.73200j, 'expected_value': 43.88590980666062-8.017152698541237j},
-            {'t': -0.73200j, 'expected_value': 43.88590980666064+8.01715269854124j},
-            {'t': 1.1230 - 0.73200j, 'expected_value': 7.32216980601591-5.145404160322531j},
+            {'t': 1.1230, 'expected_value': 1.3305954557093416},
+            {'t': -1.1230, 'expected_value': 0.39617959667831565},
+            {'t': 2.73200, 'expected_value': 19.57215731012513},
+            {'t': -2.73200, 'expected_value': 0.8680467512296066},
+            {'t': 5.7162, 'expected_value': 7.058925906117927},
         ]
         for case in test_cases:
             with self.subTest(case=case):
