@@ -15,7 +15,7 @@ class ScalarMesonProductionTotalCrossSection:
     def __init__(
             self,
             meson_mass: float,
-            form_factor_model: Callable[[complex], complex],
+            form_factor_model: Callable[[float], complex],
             config: ConfigParser
     ) -> None:
         """
@@ -38,7 +38,7 @@ class ScalarMesonProductionTotalCrossSection:
         self._precalculated_coefficient_1 = self.hc_squared * math.pi * (self.alpha**2) / 3.0
         self._four_mass_squared = 4.0 * (self.meson_mass**2)
 
-    def __call__(self, t: complex) -> complex:
+    def __call__(self, t: float) -> float:
         """
         Evaluate the total cross-section for the process electron + positron -> meson + anti-meson.
 
@@ -48,14 +48,14 @@ class ScalarMesonProductionTotalCrossSection:
         We express the cross-section in nanobarns.
 
         Args:
-            t (complex): the square of the four-momentum of the collision
+            t (float): the square of the four-momentum of the collision
 
         Returns:
-            complex: the value of the total cross-section in nanobarns
+            float: the value of the total cross-section in nanobarns
 
         """
         form_factor_modulus = abs(self.form_factor(t))
 
-        return ((self._precalculated_coefficient_1 / t) *
-                ((1.0 - self._four_mass_squared / t) ** (3/2)) *
+        return ((self._precalculated_coefficient_1 / abs(t)) *
+                ((1.0 - self._four_mass_squared / abs(t)) ** (3/2)) *
                 form_factor_modulus ** 2)
