@@ -28,5 +28,4 @@ class TestUAComponentVariantB(TestCase):
             with self.subTest(case=case):
                 actual = component(case['w'])
                 expected = case['expected_value']
-                print(actual, expected)
                 self.assertTrue(cmath.isclose(actual, expected))
