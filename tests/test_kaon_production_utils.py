@@ -71,7 +71,8 @@ class TestKaonProductionUtils(TestCase):
         with self.subTest(msg='All parameters released'):
             self.kaon_parameters.release_all_parameters()
             f = make_partial_cross_section_for_parameters(
-                self.kaon_mass, self.alpha, self.hc_squared, self.kaon_parameters)
+                self.alpha, self.hc_squared, self.kaon_parameters,
+                charged_kaon_mass=self.kaon_mass, neutral_kaon_mass=self.kaon_mass)
             actual = f(self.ts, 0.7, 0.8, 0.1, 0.78266, 0.00868, 0.2, 1.410, 0.29,
                        0.15, 1.67, 0.315, 0.3, 1.019461, 0.004249, 0.35, 1.680, 0.150,
                        2.159, 0.137, 0.12, 0.77526, 0.1474, 0.13, 1.465, 0.4,
@@ -81,7 +82,8 @@ class TestKaonProductionUtils(TestCase):
         with self.subTest(msg='All parameters fixed'):
             self.kaon_parameters.fix_all_parameters()
             f = make_partial_cross_section_for_parameters(
-                self.kaon_mass, self.alpha, self.hc_squared, self.kaon_parameters)
+                self.alpha, self.hc_squared, self.kaon_parameters,
+                charged_kaon_mass = self.kaon_mass, neutral_kaon_mass = self.kaon_mass)
             actual = f(self.ts)
             self.assert_complex_list_close(actual, self.expected_for_kaon_parameters)
 
@@ -89,7 +91,8 @@ class TestKaonProductionUtils(TestCase):
             self.kaon_parameters.fix_all_parameters()
             self.kaon_parameters.release_parameters(['a_omega', 'mass_phi_prime', 'decay_rate_rho_double_prime'])
             f = make_partial_cross_section_for_parameters(
-                self.kaon_mass, self.alpha, self.hc_squared, self.kaon_parameters)
+                self.alpha, self.hc_squared, self.kaon_parameters,
+                charged_kaon_mass=self.kaon_mass, neutral_kaon_mass=self.kaon_mass)
             actual = f(self.ts, 0.1, 1.680, 0.25)
             self.assert_complex_list_close(actual, self.expected_for_kaon_parameters)
 
@@ -98,7 +101,8 @@ class TestKaonProductionUtils(TestCase):
         with self.subTest(msg='All parameters released'):
             self.kaon_parameters_simplified.release_all_parameters()
             f = make_partial_cross_section_for_parameters(
-                self.kaon_mass, self.alpha, self.hc_squared, self.kaon_parameters_simplified)
+                self.alpha, self.hc_squared, self.kaon_parameters_simplified,
+                charged_kaon_mass=self.kaon_mass, neutral_kaon_mass=self.kaon_mass)
             actual = f(self.ts, 0.7, 0.8, 0.2, 1.410, 0.29,
                        0.15, 1.67, 0.315, 0.3, 1.019461, 0.004249, 0.35, 1.680, 0.150,
                        2.159, 0.137, 0.13, 1.465, 0.4,
@@ -108,7 +112,8 @@ class TestKaonProductionUtils(TestCase):
         with self.subTest(msg='All parameters fixed'):
             self.kaon_parameters_simplified.fix_all_parameters()
             f = make_partial_cross_section_for_parameters(
-                self.kaon_mass, self.alpha, self.hc_squared, self.kaon_parameters_simplified)
+                self.alpha, self.hc_squared, self.kaon_parameters_simplified,
+                charged_kaon_mass=self.kaon_mass, neutral_kaon_mass=self.kaon_mass)
             actual = f(self.ts)
             self.assert_complex_list_close(actual, self.expected_for_kaon_parameters_simplified)
 
@@ -117,7 +122,8 @@ class TestKaonProductionUtils(TestCase):
             self.kaon_parameters_simplified.release_parameters(
                 ['a_omega_prime', 'mass_phi_prime', 'decay_rate_rho_double_prime'])
             f = make_partial_cross_section_for_parameters(
-                self.kaon_mass, self.alpha, self.hc_squared, self.kaon_parameters_simplified)
+                self.alpha, self.hc_squared, self.kaon_parameters_simplified,
+                charged_kaon_mass=self.kaon_mass, neutral_kaon_mass=self.kaon_mass)
             actual = f(self.ts, 0.2, 1.680, 0.25)
             print(actual, self.expected_for_kaon_parameters_simplified)
             self.assert_complex_list_close(actual, self.expected_for_kaon_parameters_simplified)

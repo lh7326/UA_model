@@ -13,7 +13,8 @@ class KaonCrossSectionPipeline(Pipeline):
                  tasks: List[Type[KaonCrossSectionTask]],
                  t_values_charged: List[float], cross_sections_charged: List[float], errors_charged: List[float],
                  t_values_neutral: List[float], cross_sections_neutral: List[float], errors_neutral: List[float],
-                 k_meson_mass: float, alpha: float, hc_squared: float, reports_dir: str,
+                 charged_kaon_mass: float, neutral_kaon_mass: float,
+                 alpha: float, hc_squared: float, reports_dir: str,
                  plot: bool = True, use_handpicked_bounds: bool = True) -> None:
         ts, css, errors = self._prepare_data(
             t_values_charged, cross_sections_charged, errors_charged,
@@ -23,7 +24,8 @@ class KaonCrossSectionPipeline(Pipeline):
         super().__init__(name, parameters, tasks,
                          ts, css, errors,
                          reports_dir, plot, use_handpicked_bounds)
-        self.k_meson_mass = k_meson_mass
+        self.charged_k_meson_mass = charged_kaon_mass
+        self.neutral_k_meson_mass = neutral_kaon_mass
         self.alpha = alpha
         self.hc_squared = hc_squared
 
@@ -31,7 +33,7 @@ class KaonCrossSectionPipeline(Pipeline):
         return task_class(
             task_name, self.parameters,
             self.ts, self.ys, self.errors,
-            self.k_meson_mass, self.alpha, self.hc_squared,
+            self.charged_k_meson_mass, self.neutral_k_meson_mass, self.alpha, self.hc_squared,
             self.reports_dir, self.plot, self.use_handpicked_bounds
         )
 

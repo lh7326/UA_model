@@ -29,4 +29,4 @@ class TwoPolesModelTask(Task):
                                              opt_params, self.name, show=self.should_plot, save_dir=self.reports_dir)
 
     def _set_up(self):
-        self.partial_f = make_partial_cross_section_for_parameters(0, 0, 0, self.parameters)
+        self.partial_f = make_partial_cross_section_for_parameters(0, 0, self.parameters)

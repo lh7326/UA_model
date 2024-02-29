@@ -13,15 +13,15 @@ class KaonCrossSectionIterativePipeline(KaonCrossSectionPipeline):
                                    KaonParametersSimplified, KaonParametersFixedSelected],
                  t_values_charged: List[float], cross_sections_charged: List[float], errors_charged: List[float],
                  t_values_neutral: List[float], cross_sections_neutral: List[float], errors_neutral: List[float],
-                 k_meson_mass: float, alpha: float, hc_squared: float,
+                 charged_kaon_mass: float, neutral_kaon_mass: float, alpha: float, hc_squared: float,
                  reports_dir: str, plot: bool = True, use_handpicked_bounds: bool = True,
                  nr_free_params: Tuple[int, ...] = (3, 5, 7, 10),
                  nr_iterations: Tuple[int, ...] = (10, 20, 20, 10),
                  nr_initial_rounds_with_fixed_resonances: int = 0) -> None:
 
         super().__init__(name, parameters, [], t_values_charged, cross_sections_charged, errors_charged,
-                         t_values_neutral, cross_sections_neutral, errors_neutral, k_meson_mass, alpha, hc_squared,
-                         reports_dir, plot, use_handpicked_bounds)
+                         t_values_neutral, cross_sections_neutral, errors_neutral, charged_kaon_mass, neutral_kaon_mass,
+                         alpha, hc_squared, reports_dir, plot, use_handpicked_bounds)
 
         self.free_params_numbers = []
         for free_pars, repetitions in zip(nr_free_params, nr_iterations):
@@ -38,7 +38,8 @@ class KaonCrossSectionIterativePipeline(KaonCrossSectionPipeline):
             task = TaskFixAccordingToParametersFit(
                 task_name, self.parameters,  # type: ignore
                 self.ts, self.ys, self.errors,
-                self.k_meson_mass, self.alpha, self.hc_squared,
+                self.charged_k_meson_mass, self.neutral_k_meson_mass,
+                self.alpha, self.hc_squared,
                 self.reports_dir, self.plot, self.use_handpicked_bounds
             )
 
@@ -56,7 +57,8 @@ class KaonCrossSectionIterativePipeline(KaonCrossSectionPipeline):
         task = TaskFullFit(
             task_name, self.parameters,  # type: ignore
             self.ts, self.ys, self.errors,
-            self.k_meson_mass, self.alpha, self.hc_squared,
+            self.charged_k_meson_mass, self.neutral_k_meson_mass,
+            self.alpha, self.hc_squared,
             self.reports_dir, self.plot, self.use_handpicked_bounds
         )
 

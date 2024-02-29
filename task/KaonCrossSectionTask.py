@@ -16,7 +16,8 @@ class KaonCrossSectionTask(Task, ABC):
                  ts: List[KaonDatapoint],
                  css: List[float],
                  errors: List[float],
-                 product_particle_mass: float,
+                 charged_kaon_mass: float,
+                 neutral_kaon_mass: float,
                  alpha: float,
                  hc_squared: float,
                  reports_dir: Optional[str] = None,
@@ -24,7 +25,8 @@ class KaonCrossSectionTask(Task, ABC):
                  use_handpicked_bounds: bool = True):
         super().__init__(name, parameters, ts, css, errors, plot, use_handpicked_bounds)
         self.reports_dir = reports_dir
-        self.product_particle_mass = product_particle_mass
+        self.charged_kaon_mass = charged_kaon_mass
+        self.neutral_kaon_mass = neutral_kaon_mass
         self.alpha = alpha
         self.hc_squared = hc_squared
 

@@ -122,7 +122,7 @@ class ResidualOscillationsTask(Task):
         # recover the background function
         self.parameters.fix_all_parameters()
         background_f = make_partial_cross_section_for_parameters(
-            self.product_particle_mass, self.alpha, self.hc_squared, self.parameters)
+            self.alpha, self.hc_squared, self.parameters)
         background_ys = background_f(self.ts)
 
         effective_ff_fit, effective_errs = zip(

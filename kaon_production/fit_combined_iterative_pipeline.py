@@ -1,8 +1,9 @@
 from configparser import ConfigParser
+import gc
 
 from kaon_production.data import (
     read_data_files_new, merge_statistical_and_systematic_errors, make_function_to_remove_fsr_effects)
-from model_parameters import KaonParametersFixedSelected
+from model_parameters import KaonParametersFixedSelected, Parameter
 from pipeline.KaonCombinedIterativePipeline import KaonCombinedIterativePipeline
 from common.utils import perturb_model_parameters
 

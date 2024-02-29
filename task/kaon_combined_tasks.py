@@ -10,7 +10,9 @@ class TaskFullFit(KaonCombinedTask):
     def _set_up(self):
         self.parameters.release_all_parameters()
         self.partial_f = make_partial_ff_or_cs_for_parameters(
-            self.product_particle_mass, self.alpha, self.hc_squared, self.parameters
+            self.alpha, self.hc_squared, self.parameters,
+            charged_kaon_mass=self.charged_kaon_mass,
+            neutral_kaon_mass=self.neutral_kaon_mass,
         )
 
 
@@ -21,7 +23,9 @@ class TaskFixedCouplingConstants(KaonCombinedTask):
         coupling_constants = [p.name for p in self.parameters if p.name[:2] == 'a_']
         self.parameters.fix_parameters(coupling_constants)
         self.partial_f = make_partial_ff_or_cs_for_parameters(
-            self.product_particle_mass, self.alpha, self.hc_squared, self.parameters
+            self.alpha, self.hc_squared, self.parameters,
+            charged_kaon_mass=self.charged_kaon_mass,
+            neutral_kaon_mass=self.neutral_kaon_mass,
         )
 
 
@@ -29,7 +33,9 @@ class TaskFixAccordingToParametersFit(KaonCombinedTask):
 
     def _set_up(self):
         self.partial_f = make_partial_ff_or_cs_for_parameters(
-            self.product_particle_mass, self.alpha, self.hc_squared, self.parameters
+            self.alpha, self.hc_squared, self.parameters,
+            charged_kaon_mass=self.charged_kaon_mass,
+            neutral_kaon_mass=self.neutral_kaon_mass,
         )
 
 
@@ -38,7 +44,9 @@ class TaskFullFitOnlyTimelike(KaonCombinedTask):
     def _set_up(self):
         self.parameters.release_all_parameters()
         self.partial_f = make_partial_ff_or_cs_for_parameters(
-            self.product_particle_mass, self.alpha, self.hc_squared, self.parameters
+            self.alpha, self.hc_squared, self.parameters,
+            charged_kaon_mass=self.charged_kaon_mass,
+            neutral_kaon_mass=self.neutral_kaon_mass,
         )
 
         self.ts_fit, self.ys_fit, self.errors_fit = zip(
@@ -52,7 +60,9 @@ class TaskFixAccordingToParametersFitOnlyTimelike(KaonCombinedTask):
 
     def _set_up(self):
         self.partial_f = make_partial_ff_or_cs_for_parameters(
-            self.product_particle_mass, self.alpha, self.hc_squared, self.parameters
+            self.alpha, self.hc_squared, self.parameters,
+            charged_kaon_mass=self.charged_kaon_mass,
+            neutral_kaon_mass=self.neutral_kaon_mass,
         )
 
         self.ts_fit, self.ys_fit, self.errors_fit = zip(
@@ -66,7 +76,9 @@ class TaskFixAccordingToParametersFitOnlyTimelikeSubsetOfDataset(KaonCombinedTas
 
     def _set_up(self):
         self.partial_f = make_partial_ff_or_cs_for_parameters(
-            self.product_particle_mass, self.alpha, self.hc_squared, self.parameters
+            self.alpha, self.hc_squared, self.parameters,
+            charged_kaon_mass=self.charged_kaon_mass,
+            neutral_kaon_mass=self.neutral_kaon_mass,
         )
 
         self.ts_fit, self.ys_fit, self.errors_fit = zip(

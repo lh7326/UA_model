@@ -1,7 +1,7 @@
 from unittest import TestCase
 import cmath
 
-from common.utils import function_cross_section, function_form_factor_or_cross_section
+from common.utils import function_kaon_cross_section, function_kaon_form_factor_or_cross_section
 from kaon_production.data import KaonDatapoint
 from model_parameters import KaonParameters, KaonParametersSimplified
 
@@ -61,9 +61,10 @@ class TestCommonUtils(TestCase):
             decay_rate_rho_triple_prime=0.25,
         )
 
-        actual_values = function_cross_section(
+        actual_values = function_kaon_cross_section(
             ts,
-            product_particle_mass=0.493677,
+            charged_kaon_mass=0.493677,
+            neutral_kaon_mass=0.493677,
             alpha=0.0072973525693,
             hc_squared=389379.3721,
             parameters=parameters,
@@ -88,9 +89,10 @@ class TestCommonUtils(TestCase):
 
         with self.subTest(msg='Test "cross section/form factor" datapoint validation'):
             with self.assertRaises(ValueError):
-                function_cross_section(
+                function_kaon_cross_section(
                     [KaonDatapoint(t=1.1230, is_charged=True, is_for_cross_section=False)],
-                    product_particle_mass=0.493677,
+                    charged_kaon_mass=0.493677,
+                    neutral_kaon_mass=0.493677,
                     alpha=0.0072973525693,
                     hc_squared=389379.3721,
                     parameters=parameters,
@@ -139,9 +141,10 @@ class TestCommonUtils(TestCase):
             mass_rho_triple_prime=1.720,
             decay_rate_rho_triple_prime=0.25,
         )
-        actual_values = function_cross_section(
+        actual_values = function_kaon_cross_section(
             ts,
-            product_particle_mass=0.493677,
+            charged_kaon_mass=0.493677,
+            neutral_kaon_mass=0.493677,
             alpha=0.0072973525693,
             hc_squared=389379.3721,
             parameters=parameters,
@@ -220,9 +223,10 @@ class TestCommonUtils(TestCase):
             decay_rate_rho_triple_prime=0.25,
         )
 
-        actual_values = function_form_factor_or_cross_section(
+        actual_values = function_kaon_form_factor_or_cross_section(
             ts,
-            product_particle_mass=0.493677,
+            charged_kaon_mass=0.493677,
+            neutral_kaon_mass=0.493677,
             alpha=0.0072973525693,
             hc_squared=389379.3721,
             parameters=parameters,

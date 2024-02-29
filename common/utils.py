@@ -120,6 +120,14 @@ def _is_kaon_type_model(ff_model: Callable) -> bool:
         raise f'Unknown model: {type(ff_model)}!'
 
 
+def _are_kaon_parameters(parameters: ModelParameters) -> bool:
+    return isinstance(
+        parameters,
+        (KaonParameters, KaonParametersB, KaonParametersSimplified,
+         KaonParametersFixedRhoOmega, KaonParametersFixedSelected)
+    )
+
+
 def function_form_factor(
         ts: Union[
             List[Union[KaonDatapoint, Tuple[float, float, float]]],
@@ -158,12 +166,10 @@ def function_form_factor(
     return results
 
 
-def function_cross_section(
-        ts: Union[
-            List[Union[KaonDatapoint, Tuple[float, float, float]]],
-            List[Union[NucleonDatapoint, Tuple[float, float, float]]],
-        ],
-        product_particle_mass: float,
+def function_kaon_cross_section(
+        ts:  List[Union[KaonDatapoint, Tuple[float, float, float]]],
+        charged_kaon_mass: float,
+        neutral_kaon_mass: float,
         alpha: float,
         hc_squared: float,
         parameters: ModelParameters,
@@ -174,85 +180,119 @@ def function_cross_section(
     config = ConfigParser()
     config['constants'] = {'alpha': str(alpha), 'hc_squared': str(hc_squared)}
     if _is_kaon_type_model(ff_model):
-        cross_section_model = ScalarMesonProductionTotalCrossSection(
-            product_particle_mass, ff_model, config)
-    elif isinstance(ff_model, (ETGMRModel, TwoPolesModel)):
-        # In these cases the model can describe (with suitable parameters)
-        # both form factors and cross-sections
-        cross_section_model = ff_model
+        cross_section_model_charged = ScalarMesonProductionTotalCrossSection(
+            charged_kaon_mass, ff_model, config)
+        cross_section_model_neutral = ScalarMesonProductionTotalCrossSection(
+            neutral_kaon_mass, ff_model, config)
     else:
-        cross_section_model = NucleonPairToElectronPositronTotalCrossSection(
-            product_particle_mass, ff_model, config
-        )
+        raise ValueError(f'Unexpected parameter type: {type(parameters)}')
 
     results = []
-    # TODO: refactor
-    if _is_kaon_type_model(ff_model):
-        for datapoint in ts:
-            t, is_charged, is_for_cross_section = _read_datapoint_kaon(datapoint)
-            if not is_for_cross_section:
-                raise ValueError('Datapoint {datapoint} is for form factor, not cross section!')
-            cross_section_model.form_factor.charged_variant = is_charged
-            results.append(abs(cross_section_model(t)))
-    else:  # a nucleon form factor model
-        for datapoint in ts:
-            t, is_proton, _ = _read_datapoint_nucleon(datapoint)  # type: ignore
-            cross_section_model.form_factor.proton = is_proton
-            results.append(abs(cross_section_model(t)))
+    for datapoint in ts:
+        t, is_charged, is_for_cross_section = _read_datapoint_kaon(datapoint)
+        if not is_for_cross_section:
+            raise ValueError('Datapoint {datapoint} is for form factor, not cross section!')
+        if is_charged:
+            cross_section_model_charged.form_factor.charged_variant = is_charged
+            results.append(abs(cross_section_model_charged(t)))
+        else:
+            cross_section_model_neutral.form_factor.charged_variant = is_charged
+            results.append(abs(cross_section_model_neutral(t)))
 
     return results
 
 
-# TODO: refactor!
-def function_form_factor_or_cross_section(
-        xs: Union[
+def function_nucleon_cross_section(
+        ts: List[Union[NucleonDatapoint, Tuple[float, float, float]]],
+        nucleon_mass: float,
+        alpha: float,
+        hc_squared: float,
+        parameters: ModelParameters,
+        ) -> List[complex]:
+
+    ff_model = _get_ff_model(parameters)
+    if _is_kaon_type_model(ff_model):
+        raise ValueError('Received kaon type parameters!')
+    if isinstance(ff_model, (ETGMRModel, TwoPolesModel)):
+        raise ValueError('Received ETGMR or TwoPoles parameters!')
+
+    config = ConfigParser()
+    config['constants'] = {'alpha': str(alpha), 'hc_squared': str(hc_squared)}
+
+    cross_section_model = NucleonPairToElectronPositronTotalCrossSection(
+        nucleon_mass, ff_model, config
+    )
+
+    results = []
+    for datapoint in ts:
+        t, is_proton, _ = _read_datapoint_nucleon(datapoint)  # type: ignore
+        cross_section_model.form_factor.proton = is_proton
+        results.append(abs(cross_section_model(t)))
+
+    return results
+
+
+def function_etgrm_or_twopoles_cross_section(
+        ts:  Union[
             List[Union[KaonDatapoint, Tuple[float, float, float]]],
             List[Union[NucleonDatapoint, Tuple[float, float, float]]],
         ],
-        product_particle_mass: float,
+        parameters: ModelParameters,
+        ) -> List[complex]:
+
+    ff_model = _get_ff_model(parameters)
+
+    if isinstance(ff_model, (ETGMRModel, TwoPolesModel)):
+        # In these cases the model can describe (with suitable parameters)
+        # both form factors and cross-sections
+        cross_section_model = ff_model
+    else:
+        raise ValueError(f'Unexpected parameter type: {type(parameters)}')
+
+    results = []
+    for datapoint in ts:
+        if isinstance(datapoint, (KaonDatapoint, NucleonDatapoint)):
+            t = datapoint.t
+        else:
+            t = float(datapoint[0])
+        results.append(abs(cross_section_model(t)))
+
+    return results
+
+
+def function_kaon_form_factor_or_cross_section(
+        xs: Union[List[Union[KaonDatapoint, Tuple[float, float, float]]]],
+        charged_kaon_mass: float,
+        neutral_kaon_mass: float,
         alpha: float,
         hc_squared: float,
         parameters: ModelParameters,
         ) -> List[float]:
 
+    if not _are_kaon_parameters(parameters):
+        raise ValueError(f'Expected kaon parameters, got {type(parameters)}!')
+
     ff_model = _get_ff_model(parameters)
     config = ConfigParser()
     config['constants'] = {'alpha': str(alpha), 'hc_squared': str(hc_squared)}
 
-    is_kaon_type = _is_kaon_type_model(ff_model)
-    if is_kaon_type:
-        cs_model = ScalarMesonProductionTotalCrossSection(
-            product_particle_mass, ff_model, config)
-    elif isinstance(ff_model, (ETGMRModel, TwoPolesModel)):
-        # In these cases the model can describe (with suitable parameters)
-        # both form factors and cross-sections
-        cs_model = ff_model
-    else:
-        cs_model = NucleonPairToElectronPositronTotalCrossSection(
-            product_particle_mass, ff_model, config
-        )
+    cs_model_charged = ScalarMesonProductionTotalCrossSection(
+        charged_kaon_mass, ff_model, config)
+    cs_model_neutral = ScalarMesonProductionTotalCrossSection(
+        neutral_kaon_mass, ff_model, config)
 
     results = []
-    if is_kaon_type:
-        for datapoint in xs:
-            t, is_charged, is_for_cross_section = _read_datapoint_kaon(datapoint)
-            if is_for_cross_section:
-                cs_model.form_factor.charged_variant = is_charged
-                results.append(abs(cs_model(t)))
-            else:
-                ff_model.charged_variant = is_charged
-                results.append(abs(ff_model(t)))
-    else:  # a nucleon form factor model
-        for datapoint in xs:
-            is_for_cross_section = True  # TODO: allow both cs and ff cases
-            t, is_proton, is_electric = _read_datapoint_nucleon(datapoint)  # type: ignore
-            if is_for_cross_section:
-                cs_model.form_factor.proton = is_proton
-                results.append(abs(cs_model(t)))
-            else:
-                ff_model.proton = is_proton
-                ff_model.electric = is_electric
-                results.append(abs(ff_model(t)))
+    for datapoint in xs:
+        t, is_charged, is_for_cross_section = _read_datapoint_kaon(datapoint)
+        if is_for_cross_section and is_charged:
+            cs_model_charged.form_factor.charged_variant = is_charged
+            results.append(abs(cs_model_charged(t)))
+        elif is_for_cross_section and not is_charged:
+            cs_model_neutral.form_factor.charged_variant = is_charged
+            results.append(abs(cs_model_neutral(t)))
+        else:
+            ff_model.charged_variant = is_charged
+            results.append(abs(ff_model(t)))
 
     return results
 
@@ -272,26 +312,54 @@ def make_partial_form_factor_for_parameters(
 
 
 def make_partial_cross_section_for_parameters(
-        product_particle_mass: float, alpha: float, hc_squared: float,
+        alpha: float, hc_squared: float,
         parameters: ModelParameters,
+        nucleon_mass: Optional[float] = None,
+        charged_kaon_mass: Optional[float] = None,
+        neutral_kaon_mass: Optional[float] = None,
 ) -> Callable:
     parameters = parameters.copy()
 
-    def partial_f(ts, *args):
-        parameters.update_free_values(list(args))
-        return function_cross_section(ts, product_particle_mass, alpha, hc_squared, parameters)
+    if _are_kaon_parameters(parameters):
+        assert charged_kaon_mass is not None
+        assert neutral_kaon_mass is not None
+
+        def partial_f(ts, *args):
+            parameters.update_free_values(list(args))
+            return function_kaon_cross_section(ts, charged_kaon_mass, neutral_kaon_mass, alpha, hc_squared, parameters)
+    elif isinstance(parameters, NucleonParameters):
+        assert nucleon_mass is not None
+
+        def partial_f(ts, *args):
+            parameters.update_free_values(list(args))
+            return function_nucleon_cross_section(ts, nucleon_mass, alpha, hc_squared, parameters)
+    elif isinstance(parameters, (ETGMRModelParameters, TwoPolesModelParameters)):
+        def partial_f(ts, *args):
+            parameters.update_free_values(list(args))
+            return function_etgrm_or_twopoles_cross_section(ts, parameters)
+    else:
+        raise ValueError(f'Unexpected type of parameters: {type(parameters)}!')
 
     return partial_f
 
 
 def make_partial_ff_or_cs_for_parameters(
-        product_particle_mass: float, alpha: float, hc_squared: float,
-        parameters: ModelParameters,
+        alpha: float, hc_squared: float, parameters: ModelParameters,
+        charged_kaon_mass: Optional[float] = None,
+        neutral_kaon_mass: Optional[float] = None
 ) -> Callable:
     parameters = parameters.copy()
 
+    # TODO: implement other cases
+    if not _are_kaon_parameters(parameters):
+        raise NotImplementedError
+
+    assert charged_kaon_mass is not None
+    assert neutral_kaon_mass is not None
+
     def partial_f(ts, *args):
         parameters.update_free_values(list(args))
-        return function_form_factor_or_cross_section(ts, product_particle_mass, alpha, hc_squared, parameters)
+        return function_kaon_form_factor_or_cross_section(ts, charged_kaon_mass, neutral_kaon_mass,
+                                                          alpha, hc_squared, parameters)
 
     return partial_f

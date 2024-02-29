@@ -1,3 +1,5 @@
+import warnings
+
 from ua_model.ua_components.UAComponent import UAComponent
 from ua_model.ua_components.UAComponentVariantA import UAComponentVariantA
 from ua_model.ua_components.UAComponentVariantB import UAComponentVariantB
@@ -163,8 +165,12 @@ class KaonUAModel:
     @staticmethod
     def _build_component(t_0: float, t_in: float, mass: float, decay_rate: float) -> UAComponent:
         t_meson_pole = (mass - 1j * decay_rate / 2) ** 2
-        if t_meson_pole.real < t_0:
+        if mass**2 <= t_0:
             raise ValueError('Mass squared of the resonance must be above the t_0 threshold!')
+        elif t_meson_pole.real < t_0:
+            warnings.warn(f'The real part of the meson pole {t_meson_pole} lies below t_0!'
+                          f'(mass = {mass}; width = {decay_rate})')
+            return UAComponentVariantA(mass, decay_rate, MapFromTtoW(t_0, t_in))
         elif t_meson_pole.real < t_in:
             return UAComponentVariantA(mass, decay_rate, MapFromTtoW(t_0, t_in))
         else:

@@ -13,7 +13,8 @@ class KaonCombinedIterativePipeline(KaonCombinedPipeline):
     def __init__(self, name: str,
                  parameters: Union[KaonParameters, KaonParametersB,
                                    KaonParametersSimplified, KaonParametersFixedSelected],
-                 k_meson_mass: float, alpha: float, hc_squared: float, reports_dir: str,
+                 charged_kaon_mass: float, neutral_kaon_mass: float,
+                 alpha: float, hc_squared: float, reports_dir: str,
                  t_cs_values_charged: Optional[List[float]] = None,
                  cross_sections_charged: Optional[List[float]] = None,
                  cs_errors_charged: Optional[List[float]] = None,
@@ -33,7 +34,8 @@ class KaonCombinedIterativePipeline(KaonCombinedPipeline):
                  nr_initial_rounds_on_partial_dataset: int = 0,
                  fit_on_timelike_data_only: bool = False) -> None:
 
-        super().__init__(name, parameters, [], k_meson_mass, alpha, hc_squared, reports_dir,
+        super().__init__(name, parameters, [], charged_kaon_mass, neutral_kaon_mass,
+                         alpha, hc_squared, reports_dir,
                          t_cs_values_charged, cross_sections_charged, cs_errors_charged,
                          t_cs_values_neutral, cross_sections_neutral, cs_errors_neutral,
                          t_ff_values_charged, form_factors_charged, ff_errors_charged,
@@ -70,7 +72,7 @@ class KaonCombinedIterativePipeline(KaonCombinedPipeline):
             task = task_class(  # type: ignore
                 task_name, self.parameters,
                 self.ts, self.ys, self.errors,
-                self.k_meson_mass, self.alpha, self.hc_squared,
+                self.charged_kaon_mass, self.neutral_kaon_mass, self.alpha, self.hc_squared,
                 self.reports_dir, self.plot, self.use_handpicked_bounds
             )
 
@@ -90,7 +92,7 @@ class KaonCombinedIterativePipeline(KaonCombinedPipeline):
         task = task_class(  # type: ignore
             task_name, self.parameters,
             self.ts, self.ys, self.errors,
-            self.k_meson_mass, self.alpha, self.hc_squared,
+            self.charged_kaon_mass, self.neutral_kaon_mass, self.alpha, self.hc_squared,
             self.reports_dir, self.plot, self.use_handpicked_bounds
         )
 

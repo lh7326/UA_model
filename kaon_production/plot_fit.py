@@ -8,10 +8,10 @@ from task.ResidualOscillationsTask import ResidualOscillationsTask
 
 
 def prepare_data(ts_charged, css_charged, errors_charged, ts_neutral, css_neutral, errors_neutral):
-    ts = [KaonDatapoint(t, True) for t in ts_charged]
+    ts = [KaonDatapoint(t, True, True) for t in ts_charged]
     cross_sections = list(css_charged)
     errors = list(errors_charged)
-    ts += [KaonDatapoint(t, False) for t in ts_neutral]
+    ts += [KaonDatapoint(t, False, True) for t in ts_neutral]
     cross_sections += list(css_neutral)
     errors += list(errors_neutral)
 
@@ -31,7 +31,7 @@ if __name__ == '__main__':
     t_0_isoscalar = (3 * pion_mass) ** 2
     t_0_isovector = (2 * pion_mass) ** 2
 
-    charged_ts, charged_cross_sections_values, charged_errors = read_data('charged_ff_2.csv')
+    charged_ts, charged_cross_sections_values, charged_errors = read_data('charged_ff_2.csv', '')
     ts, ffs, errs = prepare_data(charged_ts, charged_cross_sections_values, charged_errors, [], [], [])
 
     # parameters = KaonParametersB.from_ordered_values([
@@ -71,18 +71,20 @@ if __name__ == '__main__':
     )
     parameters.fix_all_parameters()
     f = make_partial_form_factor_for_parameters(parameters)
-    kaon_mass = config.getfloat('constants', 'charged_kaon_mass')
+    charged_kaon_mass = config.getfloat('constants', 'charged_kaon_mass')
+    neutral_kaon_mass = config.getfloat('constants', 'neutral_kaon_mass')
     alpha = config.getfloat('constants', 'alpha')
     hc_squared = config.getfloat('constants', 'hc_squared')
     g = make_partial_cross_section_for_parameters(
-        product_particle_mass=kaon_mass, alpha=alpha, hc_squared=hc_squared, parameters=parameters)
-    print(f([KaonDatapoint(t=8.0, is_charged=True)]))
-    print(g([KaonDatapoint(t=8.0, is_charged=True)]))
+        alpha=alpha, hc_squared=hc_squared, parameters=parameters,
+        charged_kaon_mass=charged_kaon_mass, neutral_kaon_mass=neutral_kaon_mass)
+    print(f([KaonDatapoint(t=8.0, is_charged=True, is_for_cross_section=True)]))
+    print(g([KaonDatapoint(t=8.0, is_charged=True, is_for_cross_section=True)]))
     plot_ff_fit_neutral_plus_charged(ts, ffs, errs, f, (), 'plot_fit', show=True, save_dir=None)
 
     task = ResidualOscillationsTask(
         'ResidualOscillationsTask', parameters, ts, ffs, errs,
-        product_particle_mass=kaon_mass, alpha=alpha, hc_squared=hc_squared,
+        product_particle_mass=charged_kaon_mass, alpha=alpha, hc_squared=hc_squared,
         reports_dir='/home/lukas/reports/ff', plot=True
     )
     task.run()

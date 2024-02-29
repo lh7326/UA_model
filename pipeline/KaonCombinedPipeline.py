@@ -11,7 +11,8 @@ class KaonCombinedPipeline(Pipeline):
     def __init__(self, name: str,
                  parameters: Union[KaonParameters, KaonParametersSimplified, KaonParametersFixedSelected],
                  tasks: List[Type[KaonCombinedTask]],
-                 k_meson_mass: float, alpha: float, hc_squared: float, reports_dir: str,
+                 charged_kaon_mass: float, neutral_kaon_mass: float,
+                 alpha: float, hc_squared: float, reports_dir: str,
                  t_cs_values_charged: Optional[List[float]] = None,
                  cross_sections_charged: Optional[List[float]] = None,
                  cs_errors_charged: Optional[List[float]] = None,
@@ -35,7 +36,8 @@ class KaonCombinedPipeline(Pipeline):
         super().__init__(name, parameters, tasks,
                          ts, ys, errors,
                          reports_dir, plot, use_handpicked_bounds)
-        self.k_meson_mass = k_meson_mass
+        self.charged_kaon_mass = charged_kaon_mass
+        self.neutral_kaon_mass = neutral_kaon_mass
         self.alpha = alpha
         self.hc_squared = hc_squared
 
@@ -43,7 +45,7 @@ class KaonCombinedPipeline(Pipeline):
         return task_class(
             task_name, self.parameters,
             self.ts, self.ys, self.errors,
-            self.k_meson_mass, self.alpha, self.hc_squared,
+            self.charged_kaon_mass, self.neutral_kaon_mass, self.alpha, self.hc_squared,
             self.reports_dir, self.plot, self.use_handpicked_bounds
         )
 

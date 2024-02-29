@@ -12,13 +12,16 @@ def calculate_deviations_from_fit(
         cross_section_values: List[float],
         errors: List[float],
         charged_kaons: bool,
-        kaon_mass: float,
+        charged_kaon_mass: float,
+        neutral_kaon_mass:float,
         alpha: float,
         hc_squared: float,
 ):
-    data = [KaonDatapoint(t=t, is_charged=charged_kaons) for t in ts]
+    data = [KaonDatapoint(t=t, is_charged=charged_kaons, is_for_cross_section=True) for t in ts]
     parameters.fix_all_parameters()
-    f = make_partial_cross_section_for_parameters(kaon_mass, alpha, hc_squared, parameters)
+    f = make_partial_cross_section_for_parameters(
+        alpha, hc_squared, parameters,
+        charged_kaon_mass=charged_kaon_mass, neutral_kaon_mass=neutral_kaon_mass)
     fit = f(data)
     return [
         (t, error, cs, fit_val, abs(cs - fit_val) / error)
@@ -33,14 +36,15 @@ if __name__ == '__main__':
     t_0_isoscalar = (3 * pion_mass) ** 2
     t_0_isovector = (2 * pion_mass) ** 2
 
-    kaon_mass = config.getfloat('constants', 'charged_kaon_mass')
+    charged_kaon_mass = config.getfloat('constants', 'charged_kaon_mass')
+    neutral_kaon_mass = config.getfloat('constants', 'neutral_kaon_mass')
     alpha = config.getfloat('constants', 'alpha')
     hc_squared = config.getfloat('constants', 'hc_squared')
 
     charged_ts, charged_cross_sections_values, charged_errors = read_data(
-        'charged_kaon_cropped_manually.csv')
+        'charged_kaon_cropped_manually.csv', '')
     neutral_ts, neutral_cross_sections_values, neutral_errors = read_data(
-        'neutral_kaon_cropped_manually.csv')
+        'neutral_kaon_cropped_manually.csv', '')
 
     # parameters = KaonParametersFixedRhoOmega.from_list([
     #     Parameter(name='t_0_isoscalar', value=0.17531904388276887, is_fixed=True),
@@ -81,7 +85,7 @@ if __name__ == '__main__':
     results = calculate_deviations_from_fit(
         parameters,
         neutral_ts, neutral_cross_sections_values, neutral_errors, False,
-        kaon_mass, alpha, hc_squared,
+        charged_kaon_mass, neutral_kaon_mass, alpha, hc_squared,
     )
     print('{0:^7s}    {1:^7s}    {2:^10s}    {3:^10s}    {4:^4s}'.format('t', 'error', 'measured', 'fit', 'deviation'))
     for r in results:
