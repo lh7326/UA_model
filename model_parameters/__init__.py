@@ -1,6 +1,7 @@
 from .ModelParameters import ModelParameters, Parameter
 from .KaonParameters import KaonParameters
 from .KaonParametersSimplified import KaonParametersSimplified
+from .KaonParametersPhiRatio import KaonParametersPhiRatio
 from .KaonParametersFixedRhoOmega import KaonParametersFixedRhoOmega
 from .KaonParametersFixedSelected import KaonParametersFixedSelected
 from .KaonParametersB import KaonParametersB
