@@ -134,3 +134,60 @@ class TestKaonUAModel(TestCase):
                 actual = kaon_model(case['t'])
                 expected = case['expected_value']
                 self.assertTrue(cmath.isclose(actual, expected, abs_tol=1.0e-15))
+
+    def test___call___3(self):
+
+        kaon_model = KaonUAModel(
+            charged_variant=True,
+            t_0_isoscalar=0.17531904388276887,
+            t_0_isovector=0.07791957505900839,
+            t_in_isoscalar=1.104311008558389,
+            t_in_isovector=0.07791957515900838,
+            a_omega=0.214583308332462,
+            mass_omega=0.78266,
+            decay_rate_omega=0.00868,
+            a_omega_prime=-0.055617850503062005,
+            mass_omega_prime=1.42,
+            decay_rate_omega_prime=0.3999999999,
+            a_omega_double_prime=0.14615912541811035,
+            mass_omega_double_prime=1.67,
+            decay_rate_omega_double_prime=0.36430453034304666,
+            a_phi=0.3259221151073392,
+            mass_phi=1.0190231488920904,
+            decay_rate_phi=0.004137613942140423,
+            a_phi_prime=-0.13695376832171244,
+            mass_phi_prime=1.6281320491079905,
+            decay_rate_phi_prime=0.1999999999,
+            mass_phi_double_prime=2.214009315075636,
+            decay_rate_phi_double_prime=0.12861529636279995,
+            a_rho=0.5382135523724917,
+            mass_rho=0.75823,
+            decay_rate_rho=0.14456,
+            a_rho_prime=-0.05697938737206197,
+            mass_rho_prime=1.4978428516637463,
+            decay_rate_rho_prime=0.2559163207981617,
+            a_rho_double_prime=-0.005776652522140661,
+            mass_rho_double_prime=1.60000000016,
+            decay_rate_rho_double_prime=0.15200331540032475,
+            mass_rho_triple_prime=2.0000000002,
+            decay_rate_rho_triple_prime=0.23535556317533463,
+        )
+
+        test_cases = [
+            {'t': 0.231, 'charged_variant': True, 'expected_value': 1.6096303372559104+0.1635654645218946j},
+            {'t': 0.231, 'charged_variant': False, 'expected_value': -0.16219344099896227-0.1535947795313988j},
+            {'t': 41.0182, 'charged_variant': True, 'expected_value': -0.017994986677043988+0.00034295589209233407j},
+            {'t': 41.0182, 'charged_variant': False, 'expected_value': -0.0035931246110197396+2.6676053459216952e-05j},
+            {'t': -1.123, 'charged_variant': True, 'expected_value': 0.36483031593213},
+            {'t': -1.123, 'charged_variant': False, 'expected_value': 0.04913451708065747},
+            {'t': 0.0081, 'charged_variant': True, 'expected_value': 1.014198640261849},
+            {'t': 0.0081, 'charged_variant': False, 'expected_value': -0.0035468832204239575},
+            {'t': 3.14, 'charged_variant': True, 'expected_value': 0.2687531089849076+0.11783672963604132j},
+            {'t': 3.14, 'charged_variant': False, 'expected_value': 0.060559948533961835+0.14523827456296962j},
+        ]
+        for case in test_cases:
+            with self.subTest(case=case):
+                kaon_model.charged_variant = case['charged_variant']
+                actual = kaon_model(case['t'])
+                expected = case['expected_value']
+                self.assertTrue(cmath.isclose(actual, expected, abs_tol=1.0e-15))
