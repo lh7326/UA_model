@@ -9,18 +9,20 @@ from cross_section.NucleonPairToElectronPositronTotalCrossSection import Nucleon
 from ua_model.KaonUAModel import KaonUAModel
 from ua_model.KaonUAModelSimplified import KaonUAModelSimplified
 from ua_model.KaonUAModelB import KaonUAModelB
+from ua_model.KaonUAModelPhiRatio import KaonUAModelPhiRatio
 from ua_model.NucleonUAModel import NucleonUAModel
 from other_models import ETGMRModel, TwoPolesModel
 from model_parameters import (ModelParameters, KaonParameters, KaonParametersB, KaonParametersSimplified,
-                              KaonParametersFixedRhoOmega, KaonParametersFixedSelected, ETGMRModelParameters,
-                              TwoPolesModelParameters, NucleonParameters)
+                              KaonParametersFixedRhoOmega, KaonParametersFixedSelected, KaonParametersPhiRatio,
+                              ETGMRModelParameters, TwoPolesModelParameters, NucleonParameters)
 from kaon_production.data import KaonDatapoint
 from nucleon_production.data import NucleonDatapoint
 
 
 T = TypeVar(
     'T', KaonParameters, KaonParametersB, KaonParametersSimplified, KaonParametersFixedRhoOmega,
-    KaonParametersFixedSelected, ETGMRModelParameters, TwoPolesModelParameters, NucleonParameters,
+    KaonParametersFixedSelected, KaonParametersPhiRatio, ETGMRModelParameters, TwoPolesModelParameters,
+    NucleonParameters,
 )
 
 
@@ -74,7 +76,8 @@ def perturb_model_parameters(
 
 def _get_ff_model(
         parameters: ModelParameters,
-) -> Union[KaonUAModel, KaonUAModelB, KaonUAModelSimplified, ETGMRModel, TwoPolesModel, NucleonUAModel]:
+) -> Union[KaonUAModel, KaonUAModelB, KaonUAModelSimplified, KaonUAModelPhiRatio,
+           ETGMRModel, TwoPolesModel, NucleonUAModel]:
     if isinstance(parameters, KaonParameters):
         return KaonUAModel(charged_variant=True, **{p.name: p.value for p in parameters})
     elif isinstance(parameters, KaonParametersB):
@@ -85,6 +88,8 @@ def _get_ff_model(
         return KaonUAModel(charged_variant=True, **{p.name: p.value for p in parameters})
     elif isinstance(parameters, KaonParametersFixedSelected):
         return KaonUAModel(charged_variant=True, **{p.name: p.value for p in parameters})
+    elif isinstance(parameters, KaonParametersPhiRatio):
+        return KaonUAModelPhiRatio(charged_variant=True, **{p.name: p.value for p in parameters})
     elif isinstance(parameters, NucleonParameters):
         return NucleonUAModel(proton=True, electric=True, **{p.name: p.value for p in parameters})
     elif isinstance(parameters, ETGMRModelParameters):
@@ -112,7 +117,7 @@ def _read_datapoint_nucleon(
 
 
 def _is_kaon_type_model(ff_model: Callable) -> bool:
-    if isinstance(ff_model, (KaonUAModel, KaonUAModelB, KaonUAModelSimplified)):
+    if isinstance(ff_model, (KaonUAModel, KaonUAModelB, KaonUAModelSimplified, KaonUAModelPhiRatio)):
         return True
     elif isinstance(ff_model, (NucleonUAModel, ETGMRModel, TwoPolesModel)):
         return False
@@ -123,7 +128,7 @@ def _is_kaon_type_model(ff_model: Callable) -> bool:
 def _are_kaon_parameters(parameters: ModelParameters) -> bool:
     return isinstance(
         parameters,
-        (KaonParameters, KaonParametersB, KaonParametersSimplified,
+        (KaonParameters, KaonParametersB, KaonParametersSimplified, KaonParametersPhiRatio,
          KaonParametersFixedRhoOmega, KaonParametersFixedSelected)
     )
 

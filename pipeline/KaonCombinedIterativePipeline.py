@@ -2,7 +2,8 @@ from typing import List, Optional, Tuple, Union
 from random import sample
 
 from pipeline.KaonCombinedPipeline import KaonCombinedPipeline
-from model_parameters import KaonParameters, KaonParametersB, KaonParametersSimplified, KaonParametersFixedSelected
+from model_parameters import (KaonParameters, KaonParametersB, KaonParametersSimplified,
+                              KaonParametersFixedSelected, KaonParametersPhiRatio)
 from task.kaon_combined_tasks import (TaskFixAccordingToParametersFit, TaskFullFit,
                                       TaskFixAccordingToParametersFitOnlyTimelike, TaskFullFitOnlyTimelike,
                                       TaskFixAccordingToParametersFitOnlyTimelikeSubsetOfDataset)
@@ -11,7 +12,7 @@ from task.kaon_combined_tasks import (TaskFixAccordingToParametersFit, TaskFullF
 class KaonCombinedIterativePipeline(KaonCombinedPipeline):
 
     def __init__(self, name: str,
-                 parameters: Union[KaonParameters, KaonParametersB,
+                 parameters: Union[KaonParameters, KaonParametersB, KaonParametersPhiRatio,
                                    KaonParametersSimplified, KaonParametersFixedSelected],
                  charged_kaon_mass: float, neutral_kaon_mass: float,
                  alpha: float, hc_squared: float, reports_dir: str,
