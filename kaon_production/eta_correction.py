@@ -66,6 +66,43 @@ def _calculate_eta(beta: float) -> float:
     return intermediate_result + 1.5 * (1 + beta**2) / (beta**2)
 
 
+def calculate_sommerfeld_gamow_sakharov_factor(s: float, alpha: float, final_particle_mass: float) -> float:
+    beta = calculate_beta(s, final_particle_mass)
+    x = math.pi * alpha / beta
+    return (x / (1 - math.exp(-x))) * (1 + alpha**2 / (4.0 * beta**2))
+
+
+def calculate_cremmer_gourdin_factor_only_coulomb(s: float, alpha: float, final_particle_mass: float) -> float:
+    beta = calculate_beta(s, final_particle_mass)
+    return 1.0 + alpha * math.pi * (1.0 + beta**2) / (2 * beta)
+
+
+def calculate_cremmer_gourdin_factor(
+        s: float,
+        alpha: float,
+        final_particle_mass: float,
+        delta_e: float = 0.001
+) -> float:
+    """
+    As given by Bramon et al. in eq. (6).
+    http://arxiv.org/abs/hep-ph/0003273v2
+
+    """
+    beta = calculate_beta(s, final_particle_mass)
+    a = (1.0 + beta**2) / (2.0 * beta)
+    l_val = math.log((1.0 - beta)/(1.0 + beta))
+
+    term1 = (math.pi**2) * a
+    term2 = -2.0 * (1.0 + math.log(2.0 * delta_e / final_particle_mass)) * (1.0 + a * l_val)
+    term3 = (-1.0 / beta) * l_val
+    term4 = -0.5 * a * l_val * math.log((1.0 - beta**2) / 4.0)
+    term5 = -a * (dilogarithm(2.0 * beta / (1 + beta)) - dilogarithm(-2.0 * beta / (1 - beta)))
+    term6 = a * (dilogarithm((1 + beta) / 2) - dilogarithm((1 - beta) / 2))
+    term7 = -2.0 * a * (dilogarithm(beta) - dilogarithm(-beta))
+
+    return 1.0 + (alpha / math.pi) * (term1 + term2 + term3 + term4 + term5 + term6 + term7)
+
+
 def add_fsr_effects(
         cs_value: float,
         s: float,
@@ -115,34 +152,54 @@ def remove_fsr_effects(
 
 
 if __name__ == '__main__':
-    betas = [x / 100.0 for x in range(1, 100)]
-    etas = [_calculate_eta(beta) for beta in betas]
-    _, ax = plt.subplots()
-    ax.set_title('Eta correction')
-    ax.set_xlabel('Beta [1]')
-    ax.set_ylabel('Eta [1]')
-    ax.scatter(betas, etas)
-    plt.show()
-    plt.close()
+    # betas = [x / 100.0 for x in range(1, 100)]
+    # etas = [_calculate_eta(beta) for beta in betas]
+    # _, ax = plt.subplots()
+    # ax.set_title('Eta correction')
+    # ax.set_xlabel('Beta [1]')
+    # ax.set_ylabel('Eta [1]')
+    # ax.scatter(betas, etas)
+    # plt.show()
+    # plt.close()
 
-    ss = [x / 100.0 for x in range(10, 100)]
-    corrections = [add_fsr_effects(1.0, s, 0.13957039, 0.0072973525693)
-                   for s in ss]
+    # ss = [x / 100.0 for x in range(10, 100)]
+    # corrections = [add_fsr_effects(1.0, s, 0.13957039, 0.0072973525693)
+    #                for s in ss]
+    # _, ax = plt.subplots()
+    # ax.set_title('FSR correction')
+    # ax.set_xlabel('s [GeV^2]')
+    # ax.set_ylabel('FSR correction [1]')
+    # ax.scatter(ss, corrections)
+    # plt.show()
+    # plt.close()
+
+    # sqrt_s_list = [x / 100.0 for x in range(40, 200)]
+    # beta_list = [calculate_beta(sqrt_s**2, 0.13957039) for sqrt_s in sqrt_s_list]
+    # eta_list = [_calculate_eta(beta) for beta in beta_list]
+    # _, ax = plt.subplots()
+    # ax.set_title('Eta correction')
+    # ax.set_xlabel('sqrt(s) [GeV]')
+    # ax.set_ylabel('Eta [1]')
+    # ax.scatter(sqrt_s_list, eta_list)
+    # plt.show()
+    # plt.close()
+
+    alpha = 0.0072973525693
+    charged_kaon_mass = 0.493677
+    ss = [x / 10000.0 for x in range(10385, 10405)]
+    eta_corrections = [add_fsr_effects(1.0, s, charged_kaon_mass, alpha)
+                       for s in ss]
+    c_corrections = [calculate_sommerfeld_gamow_sakharov_factor(s, alpha, charged_kaon_mass)
+                     for s in ss]
+    cg_corrections = [calculate_cremmer_gourdin_factor(s, alpha, charged_kaon_mass)
+                      for s in ss]
     _, ax = plt.subplots()
-    ax.set_title('FSR correction')
+    ax.set_title('Correction near the Phi peak')
     ax.set_xlabel('s [GeV^2]')
-    ax.set_ylabel('FSR correction [1]')
-    ax.scatter(ss, corrections)
-    plt.show()
-    plt.close()
-
-    sqrt_s_list = [x / 100.0 for x in range(40, 200)]
-    beta_list = [calculate_beta(sqrt_s**2, 0.13957039) for sqrt_s in sqrt_s_list]
-    eta_list = [_calculate_eta(beta) for beta in beta_list]
-    _, ax = plt.subplots()
-    ax.set_title('Eta correction')
-    ax.set_xlabel('sqrt(s) [GeV]')
-    ax.set_ylabel('Eta [1]')
-    ax.scatter(sqrt_s_list, eta_list)
+    ax.set_ylabel('[1]')
+    ax.plot(ss, eta_corrections, 'o-', color='blue', label='ETA')
+    ax.plot(ss, c_corrections, 'o-', color='black', label='Sommerfeld-Gamow-Sakharov')
+    ax.plot(ss, cg_corrections, 'o-', color='red', label='Cremmer-Gourdin')
+    plt.legend()
     plt.show()
     plt.close()
