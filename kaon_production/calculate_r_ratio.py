@@ -73,6 +73,29 @@ def calculate_r_ratio_with_error(
     return radiative_correction * kinematic_factor * (coupling_constants_ratio**2), err
 
 
+def read_error_from_report(report_filepath):
+    from model_parameters import Parameter
+    from numpy import array
+
+    def find(pars, name):
+        for i, p in enumerate(pars):
+            if p.name == name:
+                return i
+        else:
+            raise ValueError(f'Cannot find: {name}')
+
+    def get_errors(data):
+        errors_list = data['parameter_errors']
+        final_parameters = data['final_parameters']
+        free_parameters = [p for p in final_parameters if not p.is_fixed]
+        return [errors_list[find(free_parameters, name)] for name
+                in ['mass_phi', 'a_phi_charged', 'a_phi_neutral']]
+
+    with open(report_filepath, 'r') as f:
+        data = eval(f.read())
+
+    return get_errors(data)
+
 if __name__ == '__main__':
     config = ConfigParser(inline_comment_prefixes='#')
     config.read('../configuration.ini')
