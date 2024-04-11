@@ -7,7 +7,7 @@ from kaon_production.data import (
     read_data_files_new, merge_statistical_and_systematic_errors,
     make_function_to_remove_fsr_effects, generate_monte_carlo_data_sample,
 )
-from model_parameters import KaonParametersFixedSelected
+from model_parameters import KaonParametersFixedSelected, KaonParametersPhiRatio
 from pipeline.KaonCombinedIterativePipeline import KaonCombinedIterativePipeline
 
 
@@ -39,9 +39,7 @@ def _generate_data_set(
         for filepath in files_neutral_timelike
     ])
     (timelike_neutral_ts, timelike_neutral_cross_sections_values,
-     timelike_neutral_errors) = remove_fsr_effects_function(
-        *merge_statistical_and_systematic_errors(*timelike_neutral_data)
-    )
+     timelike_neutral_errors) = merge_statistical_and_systematic_errors(*timelike_neutral_data)
 
     (spacelike_charged_ts, spacelike_charged_form_factor_values,
      space_charged_errors) = merge_statistical_and_systematic_errors(
@@ -56,7 +54,7 @@ def _generate_data_set(
 
 
 def _run_pipeline(save_dir, name, starting_parameters,
-                  kaon_mass, alpha, hc_squared,
+                  charged_kaon_mass, neutral_kaon_mass, alpha, hc_squared,
                   timelike_charged_ts,
                   timelike_charged_cross_sections_values, timelike_charged_errors,
                   timelike_neutral_ts, timelike_neutral_cross_sections_values,
@@ -66,7 +64,7 @@ def _run_pipeline(save_dir, name, starting_parameters,
     repetitions = (5, 2, 3, 4)
     pipeline = KaonCombinedIterativePipeline(
         name, starting_parameters,
-        kaon_mass, alpha, hc_squared, save_dir,
+        charged_kaon_mass, neutral_kaon_mass, alpha, hc_squared, save_dir,
         t_cs_values_charged=timelike_charged_ts,
         cross_sections_charged=timelike_charged_cross_sections_values,
         cs_errors_charged=timelike_charged_errors,
@@ -79,20 +77,22 @@ def _run_pipeline(save_dir, name, starting_parameters,
         plot=False, use_handpicked_bounds=False,
         nr_free_params=numbers, nr_iterations=repetitions,
         nr_initial_rounds_with_fixed_resonances=2,
+        nr_initial_rounds_on_partial_dataset=5,
         fit_on_timelike_data_only=True,
     )
     return pipeline.run()
 
 
 def _generate_monte_carlo_parameters(
-        original_parameters, kaon_mass, alpha, hc_squared, files_charged_timelike, files_neutral_timelike,
-        files_charged_spacelike, remove_fsr_effects_function, nr_to_generate, save_dir):
-    os.makedirs(save_dir, exist_ok=False)
-    for n in range(nr_to_generate):
+        original_parameters, charged_kaon_mass, neutral_kaon_mass, alpha, hc_squared,
+        files_charged_timelike, files_neutral_timelike, files_charged_spacelike,
+        remove_fsr_effects_function, nr_to_generate, save_dir, dir_exist_ok=False, start_n=0):
+    os.makedirs(save_dir, exist_ok=dir_exist_ok)
+    for n in range(start_n, start_n + nr_to_generate):
         name = f'item_{n}'
         _run_pipeline(
             save_dir, name, original_parameters,
-            kaon_mass, alpha, hc_squared,
+            charged_kaon_mass, neutral_kaon_mass, alpha, hc_squared,
             *_generate_data_set(files_charged_timelike, files_neutral_timelike,
                                 files_charged_spacelike, remove_fsr_effects_function)
         )
@@ -101,7 +101,7 @@ def _generate_monte_carlo_parameters(
 def _read_parameters_in_dir(dirpath):
     filenames = os.listdir(dirpath)
     return [
-        KaonParametersFixedSelected.load_from_serialized_parameters(
+        KaonParametersPhiRatio.load_from_serialized_parameters(
             os.path.join(dirpath, filename, 'final_fit_parameters.pickle')
         ) for filename in filenames
     ]
@@ -127,11 +127,12 @@ if __name__ == '__main__':
     config = ConfigParser(inline_comment_prefixes='#')
     config.read('../configuration.ini')
 
-    kaon_mass = config.getfloat('constants', 'charged_kaon_mass')
+    charged_kaon_mass = config.getfloat('constants', 'charged_kaon_mass')
+    neutral_kaon_mass = config.getfloat('constants', 'neutral_kaon_mass')
     alpha = config.getfloat('constants', 'alpha')
     hc_squared = config.getfloat('constants', 'hc_squared')
 
-    remove_fsr_effects = make_function_to_remove_fsr_effects(kaon_mass, alpha)
+    remove_fsr_effects = make_function_to_remove_fsr_effects(charged_kaon_mass, alpha)
 
     files_charged_timelike = [
         'babar_2013_charged_kaons_undressed.csv',
@@ -144,19 +145,38 @@ if __name__ == '__main__':
         'BESIII_neutral_kaons_2021_undressed.csv',
     ]
     files_charged_spacelike = [
-        'spacelike_charged_kaons_formfactor_1980_undressed.csv',
-        'spacelike_charged_kaons_formfactor_1986_undressed.csv',
+        #'spacelike_charged_kaons_formfactor_1980_undressed.csv',
+        #'spacelike_charged_kaons_formfactor_1986_undressed.csv',
     ]
 
-    source_pars_directory = '/home/lukas/reports/kaons/run4_3'
+    source_pars_directory = '/home/lukas/reports/kaons/article_fit'
     save_dir = os.path.join(source_pars_directory, 'monte_carlo')
-    original_parameters = KaonParametersFixedSelected.load_from_serialized_parameters(
+    original_parameters = KaonParametersPhiRatio.load_from_serialized_parameters(
         os.path.join(source_pars_directory, 'final_fit_parameters.pickle')
     )
 
-    # _generate_monte_carlo_parameters(
-    #     original_parameters, kaon_mass, alpha, hc_squared, files_charged_timelike, files_neutral_timelike,
-    #     files_charged_spacelike, remove_fsr_effects, 5, save_dir
-    # )
+    _generate_monte_carlo_parameters(
+         original_parameters, charged_kaon_mass, neutral_kaon_mass, alpha, hc_squared,
+         files_charged_timelike, files_neutral_timelike, files_charged_spacelike,
+         remove_fsr_effects, 15, save_dir, dir_exist_ok=True, start_n=185,
+    )
 
     print(_calculate_parameter_mean_and_std(_read_parameters_in_dir(save_dir)))
+
+    from calculate_r_ratio import calculate_cross_sections_ratio_at_phi_peak, calculate_r_ratio
+
+    def get_r_ratio(pars):
+        return calculate_r_ratio(pars, charged_kaon_mass, neutral_kaon_mass, alpha, True)
+
+
+    def get_r_ratio_no_rc(pars):
+        return calculate_r_ratio(pars, charged_kaon_mass, neutral_kaon_mass, alpha, False)
+
+    def get_cs_ratio(pars):
+        return calculate_cross_sections_ratio_at_phi_peak(
+            pars, charged_kaon_mass, neutral_kaon_mass, alpha, hc_squared, False,
+        )
+
+    print(f'r_ratio: {_calculate_mean_and_std_of_function_values(get_r_ratio,  _read_parameters_in_dir(save_dir))}')
+    print(f'r_ratio_no_rc: {_calculate_mean_and_std_of_function_values(get_r_ratio_no_rc,  _read_parameters_in_dir(save_dir))}')
+    print(f'cs_ratio: {_calculate_mean_and_std_of_function_values(get_cs_ratio, _read_parameters_in_dir(save_dir))}')
