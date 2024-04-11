@@ -2,7 +2,7 @@ from typing import List, Optional, Tuple, Type, Union
 
 from kaon_production.data import KaonDatapoint
 from model_parameters import (KaonParameters, KaonParametersSimplified, KaonParametersFixedSelected,
-                              KaonParametersPhiRatio)
+                              KaonParametersPhiRatio, KaonParametersPhiRatioSimple)
 from pipeline.Pipeline import Pipeline
 from task.KaonCombinedTask import KaonCombinedTask
 
@@ -11,7 +11,7 @@ class KaonCombinedPipeline(Pipeline):
 
     def __init__(self, name: str,
                  parameters: Union[KaonParameters, KaonParametersSimplified, KaonParametersFixedSelected,
-                                   KaonParametersPhiRatio],
+                                   KaonParametersPhiRatio, KaonParametersPhiRatioSimple],
                  tasks: List[Type[KaonCombinedTask]],
                  charged_kaon_mass: float, neutral_kaon_mass: float,
                  alpha: float, hc_squared: float, reports_dir: str,

@@ -14,6 +14,7 @@ from ua_model.NucleonUAModel import NucleonUAModel
 from other_models import ETGMRModel, TwoPolesModel
 from model_parameters import (ModelParameters, KaonParameters, KaonParametersB, KaonParametersSimplified,
                               KaonParametersFixedRhoOmega, KaonParametersFixedSelected, KaonParametersPhiRatio,
+                              KaonParametersPhiRatioSimple,
                               ETGMRModelParameters, TwoPolesModelParameters, NucleonParameters)
 from kaon_production.data import KaonDatapoint
 from nucleon_production.data import NucleonDatapoint
@@ -21,8 +22,8 @@ from nucleon_production.data import NucleonDatapoint
 
 T = TypeVar(
     'T', KaonParameters, KaonParametersB, KaonParametersSimplified, KaonParametersFixedRhoOmega,
-    KaonParametersFixedSelected, KaonParametersPhiRatio, ETGMRModelParameters, TwoPolesModelParameters,
-    NucleonParameters,
+    KaonParametersFixedSelected, KaonParametersPhiRatio, KaonParametersPhiRatioSimple,
+    ETGMRModelParameters, TwoPolesModelParameters, NucleonParameters,
 )
 
 
@@ -90,6 +91,8 @@ def _get_ff_model(
         return KaonUAModel(charged_variant=True, **{p.name: p.value for p in parameters})
     elif isinstance(parameters, KaonParametersPhiRatio):
         return KaonUAModelPhiRatio(charged_variant=True, **{p.name: p.value for p in parameters})
+    elif isinstance(parameters, KaonParametersPhiRatioSimple):
+        return KaonUAModelPhiRatio(charged_variant=True, **{p.name: p.value for p in parameters})
     elif isinstance(parameters, NucleonParameters):
         return NucleonUAModel(proton=True, electric=True, **{p.name: p.value for p in parameters})
     elif isinstance(parameters, ETGMRModelParameters):
@@ -129,7 +132,7 @@ def _are_kaon_parameters(parameters: ModelParameters) -> bool:
     return isinstance(
         parameters,
         (KaonParameters, KaonParametersB, KaonParametersSimplified, KaonParametersPhiRatio,
-         KaonParametersFixedRhoOmega, KaonParametersFixedSelected)
+         KaonParametersPhiRatioSimple, KaonParametersFixedRhoOmega, KaonParametersFixedSelected)
     )
 
 

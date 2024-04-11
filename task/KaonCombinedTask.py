@@ -4,7 +4,7 @@ from typing import List, Union, Optional
 from kaon_production.data import KaonDatapoint
 from plotting.plot_fit import plot_combined_fit
 from model_parameters import (KaonParameters, KaonParametersB, KaonParametersSimplified, KaonParametersFixedSelected,
-                              KaonParametersPhiRatio)
+                              KaonParametersPhiRatio, KaonParametersPhiRatioSimple)
 from task.Task import Task
 
 
@@ -13,7 +13,7 @@ class KaonCombinedTask(Task, ABC):
     def __init__(self,
                  name: str,
                  parameters: Union[KaonParameters, KaonParametersB, KaonParametersPhiRatio,
-                                   KaonParametersSimplified, KaonParametersFixedSelected],
+                                   KaonParametersPhiRatioSimple, KaonParametersSimplified, KaonParametersFixedSelected],
                  ts: List[KaonDatapoint],
                  ys: List[float],
                  errors: List[float],

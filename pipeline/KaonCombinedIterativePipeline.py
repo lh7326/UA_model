@@ -3,7 +3,7 @@ from random import sample
 
 from pipeline.KaonCombinedPipeline import KaonCombinedPipeline
 from model_parameters import (KaonParameters, KaonParametersB, KaonParametersSimplified,
-                              KaonParametersFixedSelected, KaonParametersPhiRatio)
+                              KaonParametersFixedSelected, KaonParametersPhiRatio, KaonParametersPhiRatioSimple)
 from task.kaon_combined_tasks import (TaskFixAccordingToParametersFit, TaskFullFit,
                                       TaskFixAccordingToParametersFitOnlyTimelike, TaskFullFitOnlyTimelike,
                                       TaskFixAccordingToParametersFitOnlyTimelikeSubsetOfDataset)
@@ -13,7 +13,7 @@ class KaonCombinedIterativePipeline(KaonCombinedPipeline):
 
     def __init__(self, name: str,
                  parameters: Union[KaonParameters, KaonParametersB, KaonParametersPhiRatio,
-                                   KaonParametersSimplified, KaonParametersFixedSelected],
+                                   KaonParametersPhiRatioSimple, KaonParametersSimplified, KaonParametersFixedSelected],
                  charged_kaon_mass: float, neutral_kaon_mass: float,
                  alpha: float, hc_squared: float, reports_dir: str,
                  t_cs_values_charged: Optional[List[float]] = None,
