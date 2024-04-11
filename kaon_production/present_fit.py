@@ -1,27 +1,96 @@
 from configparser import ConfigParser
+import matplotlib.pyplot as plt
+from typing import List, Optional, Tuple
 
-from kaon_production.data import read_data, KaonDatapoint
-from common.utils import make_partial_form_factor_for_parameters, make_partial_cross_section_for_parameters
-from model_parameters import KaonParametersB, Parameter
-from plotting.plot_fit import plot_ff_fit_neutral_plus_charged
-from task.ResidualOscillationsTask import ResidualOscillationsTask
+from kaon_production.data import (
+    read_data_files_new, merge_statistical_and_systematic_errors, make_function_to_remove_fsr_effects,
+    KaonDatapoint)
+from common.utils import make_partial_ff_or_cs_for_parameters
+from model_parameters import KaonParametersPhiRatio
+from plotting.plot_fit import plot_combined_fit
 
 
-def prepare_data(ts_charged, css_charged, errors_charged, ts_neutral, css_neutral, errors_neutral):
-    ts = [KaonDatapoint(t, True, True) for t in ts_charged]
-    cross_sections = list(css_charged)
-    errors = list(errors_charged)
-    ts += [KaonDatapoint(t, False, True) for t in ts_neutral]
-    cross_sections += list(css_neutral)
-    errors += list(errors_neutral)
+def plot_data(xss: List[List[float]], yss: List[List[float]],
+              errorss: List[List[float]], labels: List[str], xlabel: str, ylabel: str, title: str,
+              ylog=False, xlog=False, only_peak=False, f=None, charged=True, filepath=None):
 
-    ts, cross_sections, errors = zip(
+    fig, ax = plt.subplots()
+    ax.set_title(title, fontsize=16)
+    ax.set_xlabel(xlabel, fontsize=16)
+    ax.set_ylabel(ylabel, fontsize=16)
+    formats = ['ok', '^b', 'vg', 'sr', '8c', 'py', '*m']
+    assert len(formats) >= len(xss)
+    formats = formats[:len(xss)]
+    estimates = []
+    for xs, ys, errors, legend, fmt in zip(xss, yss, errorss, labels, formats):
+        if only_peak:
+            filtered = list(filter(lambda t: 1.025 < t[0] < 1.055, zip(xs, ys, errors)))
+            if not filtered:
+                continue
+            xs, ys, errors = zip(*filtered)
+        ax.errorbar(xs, ys, yerr=errors, fmt=fmt, elinewidth=1, markersize=2, label=legend)
+        if f:
+            new_xs = list(xs)
+            for x_low, x_high in zip(xs[:-1],xs[1:]):
+                new_xs.extend([x_low + 0.1 * i * (x_high - x_low) for i in range(1, 10)])
+
+            estimates.extend(zip(new_xs, f([[x, charged, True] for x in new_xs])))
+
+    ax.legend(loc='upper right')
+    if estimates:
+        estimates = sorted(estimates, key=lambda est: est[0])
+        all_xs, all_fit_vals = zip(*estimates)
+        ax.plot(all_xs, all_fit_vals, '-k')
+
+    if ylog:
+        ax.set_yscale('log')
+    if xlog:
+        ax.set_xscale('log')
+    if filepath:
+        plt.savefig(filepath, format='pdf')
+    plt.show()
+    plt.close()
+
+
+def _prepare_data(
+        ts_cs_charged: Optional[List[float]] = None, css_charged: Optional[List[float]] = None,
+        cs_errors_charged: Optional[List[float]] = None,
+        ts_cs_neutral: Optional[List[float]] = None, css_neutral: Optional[List[float]] = None,
+        cs_errors_neutral: Optional[List[float]] = None,
+        ts_ff_charged: Optional[List[float]] = None, ffs_charged: Optional[List[float]] = None,
+        ff_errors_charged: Optional[List[float]] = None,
+        ts_ff_neutral: Optional[List[float]] = None, ffs_neutral: Optional[List[float]] = None,
+        ff_errors_neutral: Optional[List[float]] = None,
+) -> Tuple[List[KaonDatapoint], List[float], List[float]]:
+    ts, ys, errors = [], [], []
+    if ts_cs_charged is not None:
+        assert len(ts_cs_charged) == len(css_charged or []) == len(cs_errors_charged or [])
+        ts += [KaonDatapoint(t, True, True) for t in ts_cs_charged]
+        ys += list(css_charged or [])
+        errors += list(cs_errors_charged or [])
+    if ts_cs_neutral is not None:
+        assert len(ts_cs_neutral) == len(css_neutral or []) == len(cs_errors_neutral or [])
+        ts += [KaonDatapoint(t, False, True) for t in ts_cs_neutral]
+        ys += list(css_neutral or [])
+        errors += list(cs_errors_neutral or [])
+    if ts_ff_charged is not None:
+        assert len(ts_ff_charged) == len(ffs_charged or []) == len(ff_errors_charged or [])
+        ts += [KaonDatapoint(t, True, False) for t in ts_ff_charged]
+        ys += list(ffs_charged or [])
+        errors += list(ff_errors_charged or [])
+    if ts_ff_neutral is not None:
+        assert len(ts_ff_neutral) == len(ffs_neutral or []) == len(ff_errors_neutral or [])
+        ts += [KaonDatapoint(t, False, False) for t in ts_ff_neutral]
+        ys += list(ffs_neutral or [])
+        errors += list(ff_errors_neutral or [])
+
+    ts, ys, errors = zip(
         *sorted(
-            zip(ts, cross_sections, errors),
+            zip(ts, ys, errors),
             key=lambda tup: tup[0].t,
         )
     )
-    return ts, cross_sections, errors
+    return ts, ys, errors
 
 
 if __name__ == '__main__':
@@ -31,60 +100,117 @@ if __name__ == '__main__':
     t_0_isoscalar = (3 * pion_mass) ** 2
     t_0_isovector = (2 * pion_mass) ** 2
 
-    charged_ts, charged_cross_sections_values, charged_errors = read_data('charged_ff_2.csv', '')
-    ts, ffs, errs = prepare_data(charged_ts, charged_cross_sections_values, charged_errors, [], [], [])
-
-    # parameters = KaonParametersB.from_ordered_values([
-    #     0.9392300073668993, 1.0843211231100962, 0.7597833518800249, 1.5382094504664614, 1.7735588154198763,
-    #     0.16077299740026443, 0.40224673665593264, 0.252229778815626, 0.389265219800551, 0.017898033984832362,
-    #     0.7390610355192804, -2.92865863357512, 1.6958225009234162, 1.0190481914084335, 2.4746696999190707,
-    #     0.014220156941473517, 0.44554987184578027, 0.3406412462563918, -0.004188802154015758, 4.16507760424825,
-    #     0.4794865915790986, -0.005663957075199569, -0.20861912682917905, 0.3336407756472722
-    # ], t_0_isoscalar=0.17531904388276887, t_0_isovector=0.07791957505900839)
-    parameters = KaonParametersB.from_list([
-        Parameter(name='t_0_isoscalar', value=0.17531904388276887, is_fixed=True),
-        Parameter(name='t_0_isovector', value=0.07791957505900839, is_fixed=True),
-        Parameter(name='t_in_isoscalar', value=3.2291595069331067, is_fixed=False),
-        Parameter(name='t_in_isovector', value=0.5835126419012053, is_fixed=False),
-        Parameter(name='a_omega', value=0.32729801061391034, is_fixed=False),
-        Parameter(name='mass_omega', value=0.78266, is_fixed=True),
-        Parameter(name='decay_rate_omega', value=0.00868, is_fixed=True),
-        Parameter(name='a_omega_double_prime', value=-0.1322560747876571, is_fixed=False),
-        Parameter(name='mass_omega_double_prime', value=1.67, is_fixed=True),
-        Parameter(name='decay_rate_omega_double_prime', value=0.315, is_fixed=True),
-        Parameter(name='a_phi', value=0.33178701236457975, is_fixed=False),
-        Parameter(name='mass_phi', value=1.0190536833008472, is_fixed=False),
-        Parameter(name='decay_rate_phi', value=0.004229702507790191, is_fixed=False),
-        Parameter(name='a_phi_prime', value=0.08303027600714324, is_fixed=False),
-        Parameter(name='mass_phi_prime', value=3.0321618703565654, is_fixed=False),
-        Parameter(name='decay_rate_phi_prime', value=1.7409626508527738, is_fixed=False),
-        Parameter(name='mass_phi_double_prime', value=1.984329537423646, is_fixed=False),
-        Parameter(name='decay_rate_phi_double_prime', value=0.6816716770166859, is_fixed=False),
-        Parameter(name='a_rho', value=0.5456549089807899, is_fixed=False),
-        Parameter(name='mass_rho', value=0.76388, is_fixed=True),
-        Parameter(name='decay_rate_rho', value=0.14428, is_fixed=True),
-        Parameter(name='a_rho_prime', value=-0.03127769956987407, is_fixed=False),
-        Parameter(name='mass_rho_prime', value=1.32635, is_fixed=True),
-        Parameter(name='decay_rate_rho_prime', value=0.32413, is_fixed=True),
-        Parameter(name='mass_rho_double_prime', value=1.77054, is_fixed=True),
-        Parameter(name='decay_rate_rho_double_prime', value=0.26898, is_fixed=True)]
-    )
-    parameters.fix_all_parameters()
-    f = make_partial_form_factor_for_parameters(parameters)
     charged_kaon_mass = config.getfloat('constants', 'charged_kaon_mass')
     neutral_kaon_mass = config.getfloat('constants', 'neutral_kaon_mass')
     alpha = config.getfloat('constants', 'alpha')
     hc_squared = config.getfloat('constants', 'hc_squared')
-    g = make_partial_cross_section_for_parameters(
-        alpha=alpha, hc_squared=hc_squared, parameters=parameters,
-        charged_kaon_mass=charged_kaon_mass, neutral_kaon_mass=neutral_kaon_mass)
-    print(f([KaonDatapoint(t=8.0, is_charged=True, is_for_cross_section=True)]))
-    print(g([KaonDatapoint(t=8.0, is_charged=True, is_for_cross_section=True)]))
-    plot_ff_fit_neutral_plus_charged(ts, ffs, errs, f, (), 'plot_fit', show=True, save_dir=None)
 
-    task = ResidualOscillationsTask(
-        'ResidualOscillationsTask', parameters, ts, ffs, errs,
-        product_particle_mass=charged_kaon_mass, alpha=alpha, hc_squared=hc_squared,
-        reports_dir='/home/lukas/reports/ff', plot=True
+    path_to_reports = '/home/lukas/reports/kaons'
+
+    remove_fsr_effects = make_function_to_remove_fsr_effects(charged_kaon_mass, alpha)
+
+    def discard_above_threshold(threshold, xs, ys, ers):
+        return list(zip(*filter(lambda t: t[0] < threshold, zip(xs, ys, ers))))
+
+    THRESHOLD = 10  # GeV^2
+
+    (timelike_charged_ts, timelike_charged_cross_sections_values,
+     timelike_charged_errors) = discard_above_threshold(THRESHOLD, *remove_fsr_effects(
+        *merge_statistical_and_systematic_errors(
+            *read_data_files_new(
+                file_names=[
+                    'cmd_3_charged_kaons_undressed.csv',
+                    'babar_2013_charged_kaons_undressed.csv',
+                    'BESIII_charged_kaons_2019_undressed.csv',
+                ]
+            )
+        )
+    ))
+    (timelike_neutral_ts, timelike_neutral_cross_sections_values,
+     timelike_neutral_errors) = discard_above_threshold(THRESHOLD, *merge_statistical_and_systematic_errors(
+            *read_data_files_new(
+                file_names=[
+                    'cmd_3_neutral_kaons_undressed.csv',
+                    'babar_neutral_kaons_2014_undressed.csv',
+                    'BESIII_neutral_kaons_2021_undressed.csv',
+                ]
+            )
+    ))
+
+    (spacelike_charged_ts, spacelike_charged_form_factor_values,
+     space_charged_errors) = merge_statistical_and_systematic_errors(
+        *read_data_files_new(
+            file_names=[
+                'spacelike_charged_kaons_formfactor_1980_undressed.csv',
+                'spacelike_charged_kaons_formfactor_1986_undressed.csv',
+            ]
+        )
     )
-    task.run()
+
+    ts, ys, errs = _prepare_data(
+        ts_cs_charged=timelike_charged_ts, css_charged=timelike_charged_cross_sections_values,
+        cs_errors_charged=timelike_charged_errors,
+        ts_cs_neutral=timelike_neutral_ts, css_neutral=timelike_neutral_cross_sections_values,
+        cs_errors_neutral=timelike_neutral_errors,
+        ts_ff_charged=spacelike_charged_ts, ffs_charged=spacelike_charged_form_factor_values,
+        ff_errors_charged=space_charged_errors,
+    )
+
+    kaon_parameters_filepath = f'/home/lukas/reports/kaons/article_fit/final_fit_parameters.pickle'
+    kaon_parameters = KaonParametersPhiRatio.load_from_serialized_parameters(kaon_parameters_filepath)
+
+    free_pars = kaon_parameters.get_free_values()
+    kaon_parameters.fix_all_parameters()
+    f = make_partial_ff_or_cs_for_parameters(
+        alpha, hc_squared, kaon_parameters,
+        charged_kaon_mass=charged_kaon_mass,
+        neutral_kaon_mass=neutral_kaon_mass,
+    )
+
+    fit_ys = f(ts)
+    r_squared = [(data - fit) ** 2 for data, fit in zip(ys, fit_ys)]
+    chi_squared_total = (
+        sum([r2 / (err ** 2) for r2, err in zip(r_squared, errs)])
+    ) / (len(r_squared) - len(free_pars))
+
+    training_ts, training_ys, training_errs = zip(
+        *filter(lambda tup: tup[0].is_for_cross_section,
+                zip(ts, ys, errs))
+    )
+    fit_training_ys = f(training_ts)
+    r_squared_training = [(data - fit) ** 2 for data, fit in zip(training_ys, fit_training_ys)]
+    chi_squared_training_set = (
+        sum([r2 / (err ** 2) for r2, err in zip(r_squared_training, training_errs)])
+    ) / (len(r_squared_training) - len(free_pars))
+
+    print(f'Chi squared total: {chi_squared_total}\nChi squared training set: {chi_squared_training_set}')
+    print(kaon_parameters.to_list())
+
+    xss, yss, errss, labels = [], [], [], []
+    # for label, filename in [
+    #     ('CMD3', 'cmd_3_charged_kaons_undressed.csv') ,
+    #     ('BaBar', 'babar_2013_charged_kaons_undressed.csv'),
+    #     ('BESIII', 'BESIII_charged_kaons_2019_undressed.csv'),
+    #     ]:
+    #     ts, css, errs = discard_above_threshold(THRESHOLD, *remove_fsr_effects(
+    #         *merge_statistical_and_systematic_errors(*read_data_files_new(file_names=[filename]))))
+    #     xss.append(ts)
+    #     yss.append(css)
+    #     errss.append(errs)
+    #     labels.append(label)
+
+    for label, filename in [
+        ('CMD3', 'cmd_3_neutral_kaons_undressed.csv') ,
+        ('BaBar', 'babar_neutral_kaons_2014_undressed.csv'),
+        ('BESIII', 'BESIII_neutral_kaons_2021_undressed.csv'),
+        ]:
+        ts, css, errs = discard_above_threshold(THRESHOLD, *remove_fsr_effects(
+            *merge_statistical_and_systematic_errors(*read_data_files_new(file_names=[filename]))))
+        xss.append(ts)
+        yss.append(css)
+        errss.append(errs)
+        labels.append(label)
+
+    plot_data(xss, yss, errss, labels, 's [GeV^2]', 'Cross section [nb]', 'Neutral kaons fit',
+              ylog=False, only_peak=True, f=f, charged=False,
+              filepath='/home/lukas/latex_projects/R_ratio/article/figs/fit_neutral_kaons_data_detail.pdf')
