@@ -256,21 +256,39 @@ if __name__ == '__main__':
   #      'babar_charged_kaons_2015_undressed.csv',
   #      'BESIII_charged_kaons_2019_undressed.csv',
   #  ]
-    filenames = [
-   #    'cmd_3_neutral_kaons_undressed.csv',
-   #    'cmd_2_neutral_kaons_undressed.csv',
-   #    'snd_neutral_kaons_charged_mode_undressed.csv',
-   #    'snd_neutral_kaons_neutral_mode_undressed.csv',
-   #    'babar_neutral_kaons_2014_undressed.csv',
-   #    'BESIII_neutral_kaons_2021_undressed.csv',
-    ]
-    remove_fsr_filenames = [
-       'cmd_3_neutral_kaons_undressed.csv',
-       'cmd_2_neutral_kaons_undressed.csv',
-   #    'snd_neutral_kaons_charged_mode_undressed.csv',
-   #    'snd_neutral_kaons_neutral_mode_undressed.csv',
-       'babar_neutral_kaons_2014_undressed.csv',
-       'BESIII_neutral_kaons_2021_undressed.csv',
-    ]
+  #   filenames = [
+  #  #    'cmd_3_neutral_kaons_undressed.csv',
+  #  #    'cmd_2_neutral_kaons_undressed.csv',
+  #  #    'snd_neutral_kaons_charged_mode_undressed.csv',
+  #  #    'snd_neutral_kaons_neutral_mode_undressed.csv',
+  #  #    'babar_neutral_kaons_2014_undressed.csv',
+  #  #    'BESIII_neutral_kaons_2021_undressed.csv',
+  #   ]
+  #   remove_fsr_filenames = [
+  #      'cmd_3_neutral_kaons_undressed.csv',
+  #      'cmd_2_neutral_kaons_undressed.csv',
+  #  #    'snd_neutral_kaons_charged_mode_undressed.csv',
+  #  #    'snd_neutral_kaons_neutral_mode_undressed.csv',
+  #      'babar_neutral_kaons_2014_undressed.csv',
+  #      'BESIII_neutral_kaons_2021_undressed.csv',
+  #   ]
+  #
+  #   plot_data(filenames, remove_fsr_filenames, 'new', 'Cross sections --- Neutral kaons', 's[GeV^2]', 'sigma[nb]')
 
-    plot_data(filenames, remove_fsr_filenames, 'new', 'Cross sections --- Neutral kaons', 's[GeV^2]', 'sigma[nb]')
+
+    def _process_for_dubnicka(filenames, subdir_name, output_name):
+        ts, css, errs_stat, errs_sys = read_data_files_new(file_names=filenames, subdir_name=subdir_name)
+        ts, css, errs = merge_statistical_and_systematic_errors(ts, css, errs_stat, errs_sys)
+        errs = [round(er, 4) for er in errs]
+        converted = filter(lambda t: t[0] < 10, sorted(zip(ts, css, errs), key=lambda t: t[0]))
+
+        with open(f'../data/pre_dubnicku/{output_name}', 'w') as f:
+            writer = csv.writer(f, delimiter=' ', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+            writer.writerows(converted)
+
+    _process_for_dubnicka(
+        filenames=[
+            'babar_neutral_kaons_2014_undressed.csv',
+            'cmd_3_neutral_kaons_undressed.csv',
+            'BESIII_neutral_kaons_2021_undressed.csv',
+        ], subdir_name='new', output_name='neutral_kaons.csv')
