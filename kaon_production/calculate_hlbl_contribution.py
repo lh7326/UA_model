@@ -137,21 +137,19 @@ def _calculate_capital_x(q1squared: float, q2squared: float, tau: float, muon_ma
 
 def calculate_t_n(q1squared, q2squared, q3squared, n, muon_mass):
     muon_mass_squared = muon_mass**2
+    sigma1 = _calculate_sigma(q1squared, muon_mass_squared)
+    sigma2 = _calculate_sigma(q2squared, muon_mass_squared)
+    q1 = math.sqrt(q1squared)
+    q2 = math.sqrt(q2squared)
+    tau = _calculate_tau(q1squared, q2squared, q3squared)
     if n == 1:
-        sigma1 = _calculate_sigma(q1squared, muon_mass_squared)
-        sigma2 = _calculate_sigma(q2squared, muon_mass_squared)
-        q1q2 = math.sqrt(q1squared) * math.sqrt(q2squared)
-        tau = _calculate_tau(q1squared, q2squared, q3squared)
+        q1q2 = q1 * q2
         num = q1squared * tau * (sigma1 - 1.0) * (sigma1 + 5.0)
         num += q2squared * tau * (sigma2 - 1.0) * (sigma2 + 5.0)
         num += 4.0 * q1q2 * (sigma1 + sigma2 - 2.0)
         num -= 8 * tau * muon_mass_squared
         return num / (2 * q1q2 * q3squared * muon_mass_squared)
     elif n == 2:
-        tau = _calculate_tau(q1squared, q2squared, q3squared)
-        sigma1 = _calculate_sigma(q1squared, muon_mass_squared)
-        q1 = math.sqrt(q1squared)
-        q2 = math.sqrt(q2squared)
         a = q1 * (sigma1 - 1.0) * (q1 * tau * (sigma1 + 1.0) + 4.0 * q2 * (tau**2 - 1)) - 4 * tau * muon_mass_squared
         a = a / (q1 * q2 * q3squared * muon_mass_squared)
         b = _calculate_capital_x(
@@ -160,11 +158,6 @@ def calculate_t_n(q1squared, q2squared, q3squared, n, muon_mass):
         b = b / (q3squared * muon_mass_squared)
         return a + b
     elif n == 4:
-        sigma1 = _calculate_sigma(q1squared, muon_mass_squared)
-        sigma2 = _calculate_sigma(q2squared, muon_mass_squared)
-        q1 = math.sqrt(q1squared)
-        q2 = math.sqrt(q2squared)
-        tau = _calculate_tau(q1squared, q2squared, q3squared)
         a = -2.0 * (sigma1 + sigma2 - 2.0) / muon_mass_squared
         b = -1.0 * q1 * tau * (sigma1 - 1.0) * (sigma1 + 7.0) / (2.0 * q2 * muon_mass_squared)
         c = -1.0 * q2 * tau * (sigma2 - 1.0) * (sigma2 + 7.0) / (2.0 * q1 * muon_mass_squared)
@@ -176,11 +169,6 @@ def calculate_t_n(q1squared, q2squared, q3squared, n, muon_mass):
             q1squared, q2squared, tau, muon_mass_squared)
         return first_part + second_part
     elif n == 5:
-        sigma1 = _calculate_sigma(q1squared, muon_mass_squared)
-        sigma2 = _calculate_sigma(q2squared, muon_mass_squared)
-        q1 = math.sqrt(q1squared)
-        q2 = math.sqrt(q2squared)
-        tau = _calculate_tau(q1squared, q2squared, q3squared)
         a = 4.0 * ((tau**2) * (sigma1 - 1.0) + sigma2 - 1.0) / muon_mass_squared
         b = -1.0 * q1 * tau * (sigma1 - 5.0) * (sigma1 - 1.0) / (q2 * muon_mass_squared)
         c = 4.0 * tau / (q1 * q2)
@@ -192,11 +180,6 @@ def calculate_t_n(q1squared, q2squared, q3squared, n, muon_mass):
         g = (g1 + g2) * _calculate_capital_x(q1squared, q2squared, tau, muon_mass_squared)
         return (a + b + c + d + e + f + g) / q3squared
     elif n == 7:
-        sigma1 = _calculate_sigma(q1squared, muon_mass_squared)
-        sigma2 = _calculate_sigma(q2squared, muon_mass_squared)
-        q1 = math.sqrt(q1squared)
-        q2 = math.sqrt(q2squared)
-        tau = _calculate_tau(q1squared, q2squared, q3squared)
         a = q1squared * (
             ((tau**2) * (sigma1 - 1.0) * (sigma1 + 3.0) + 4.0 * (sigma1 + sigma2 - 2.0))/(2 * muon_mass_squared)
             - 4.0/q2squared
@@ -212,11 +195,6 @@ def calculate_t_n(q1squared, q2squared, q3squared, n, muon_mass):
         f = (f0 + f1 + f2 + f3) * _calculate_capital_x(q1squared, q2squared, tau, muon_mass_squared)
         return (a + b + c + d + e + f) / q3squared
     elif n == 9:
-        sigma1 = _calculate_sigma(q1squared, muon_mass_squared)
-        sigma2 = _calculate_sigma(q2squared, muon_mass_squared)
-        q1 = math.sqrt(q1squared)
-        q2 = math.sqrt(q2squared)
-        tau = _calculate_tau(q1squared, q2squared, q3squared)
         a = q1squared * (
                 (tau**2) * ((sigma1 - 22.0) * sigma1 - 8.0 * sigma2 + 29.0)
                 + 2.0 * (-5.0 * sigma1 + sigma2 + 4.0)
@@ -251,11 +229,6 @@ def calculate_t_n(q1squared, q2squared, q3squared, n, muon_mass):
         g = (g0 + g1 + g2 + g3 + g4 + g5) * _calculate_capital_x(q1squared, q2squared, tau, muon_mass_squared)
         return (a + b + c + d + e + f + g) / q3squared
     elif n == 10:
-        sigma1 = _calculate_sigma(q1squared, muon_mass_squared)
-        sigma2 = _calculate_sigma(q2squared, muon_mass_squared)
-        q1 = math.sqrt(q1squared)
-        q2 = math.sqrt(q2squared)
-        tau = _calculate_tau(q1squared, q2squared, q3squared)
         a = q1squared * (
             2.0 * (sigma1 + sigma2 - 2.0)
             - (tau**2) * ((sigma1 + 10.0) * sigma1 + 8.0 * sigma2 - 19.0)
@@ -278,11 +251,6 @@ def calculate_t_n(q1squared, q2squared, q3squared, n, muon_mass):
         f = (f0 + f1 + f2 + f3) * _calculate_capital_x(q1squared, q2squared, tau, muon_mass_squared)
         return (a + b + c + d + e + f) / q3squared
     elif n == 11:
-        sigma1 = _calculate_sigma(q1squared, muon_mass_squared)
-        sigma2 = _calculate_sigma(q2squared, muon_mass_squared)
-        q1 = math.sqrt(q1squared)
-        q2 = math.sqrt(q2squared)
-        tau = _calculate_tau(q1squared, q2squared, q3squared)
         a = q1squared * (
             4.0 / q2squared - 2.0 * (2.0 * (tau**2) + 1.0) * (sigma1 + sigma2 - 2.0) / muon_mass_squared
         )
@@ -300,11 +268,6 @@ def calculate_t_n(q1squared, q2squared, q3squared, n, muon_mass):
         e = (e0 + e1 + e2) * _calculate_capital_x(q1squared, q2squared, tau, muon_mass_squared)
         return (a + b + c + d + e) / q3squared
     elif n == 17:
-        sigma1 = _calculate_sigma(q1squared, muon_mass_squared)
-        sigma2 = _calculate_sigma(q2squared, muon_mass_squared)
-        q1 = math.sqrt(q1squared)
-        q2 = math.sqrt(q2squared)
-        tau = _calculate_tau(q1squared, q2squared, q3squared)
         a = q3squared * (
             (sigma1 - 1.0) / (q2squared * muon_mass_squared) +
             (sigma2 - 1.0) / (q1squared * muon_mass_squared) -
@@ -316,11 +279,6 @@ def calculate_t_n(q1squared, q2squared, q3squared, n, muon_mass):
         b = (b0 + b1 + b2) * _calculate_capital_x(q1squared, q2squared, tau, muon_mass_squared)
         return a + b
     elif n == 39:
-        sigma1 = _calculate_sigma(q1squared, muon_mass_squared)
-        sigma2 = _calculate_sigma(q2squared, muon_mass_squared)
-        q1 = math.sqrt(q1squared)
-        q2 = math.sqrt(q2squared)
-        tau = _calculate_tau(q1squared, q2squared, q3squared)
         capital_x = _calculate_capital_x(q1squared, q2squared, tau, muon_mass_squared)
         a = -1.0 * q1squared * (
             (tau**2) * (sigma1 - 1.0) * (sigma1 + 3.0) + 2.0 * (sigma1 + sigma2 - 2.0)
@@ -339,11 +297,6 @@ def calculate_t_n(q1squared, q2squared, q3squared, n, muon_mass):
         return (a + b + c + d + e + f + g) / (2.0 * q3squared) + (
                 2.0 * (q1 * q2 * tau + q1squared + q2squared) / muon_mass_squared) * capital_x
     elif n == 50:
-        sigma1 = _calculate_sigma(q1squared, muon_mass_squared)
-        sigma2 = _calculate_sigma(q2squared, muon_mass_squared)
-        q1 = math.sqrt(q1squared)
-        q2 = math.sqrt(q2squared)
-        tau = _calculate_tau(q1squared, q2squared, q3squared)
         capital_x = _calculate_capital_x(q1squared, q2squared, tau, muon_mass_squared)
         a = q2squared * q2squared * q2 * tau * (-6.0 * sigma2 + sigma2**2 + 5.0)
         b = 8.0 * q1squared * q1squared * q1 * (
@@ -373,11 +326,6 @@ def calculate_t_n(q1squared, q2squared, q3squared, n, muon_mass):
         g = -8.0 * muon_mass_squared * (g0 + g1 + g2 + g3 + g4)
         return (a + b + c + d + e + f + g) / (2.0 * muon_mass_squared * q1 * q2squared * q3squared)
     elif n == 54:
-        sigma1 = _calculate_sigma(q1squared, muon_mass_squared)
-        sigma2 = _calculate_sigma(q2squared, muon_mass_squared)
-        q1 = math.sqrt(q1squared)
-        q2 = math.sqrt(q2squared)
-        tau = _calculate_tau(q1squared, q2squared, q3squared)
         capital_x = _calculate_capital_x(q1squared, q2squared, tau, muon_mass_squared)
         a = q2squared * tau * (
                 -1.0 * q3squared * sigma2**2 + q2squared * (6.0 * sigma2 - 5.0) - 8.0 * muon_mass_squared)
