@@ -30,6 +30,7 @@ def _make_partial_for_pion_parameters(pion_parameters: PionParameters) -> Callab
 
 def _calculate_i_n(x, y, q1squared, q2squared, q3squared, n, particle_mass):
     m2 = particle_mass**2
+
     def _calculate_delta_2q(k1squared, k2squared):
         return m2 - x * (1 - x) * k1squared - y * (1 - y) * k2squared
 
@@ -39,14 +40,14 @@ def _calculate_i_n(x, y, q1squared, q2squared, q3squared, n, particle_mass):
     if n == 1:
         delta_123 = _calculate_delta_3q(q1squared, q2squared, q3squared)
         delta_23 = _calculate_delta_2q(q2squared, q3squared)
-        return 8 * x * y * (1 - 2*x) * (1 - 2 * y) / (delta_123 * delta_23)
+        return 8 * x * y * (1 - 2*x) * (1 - 2*y) / (delta_123 * delta_23)
     elif n == 4:
         delta_321 = _calculate_delta_3q(q3squared, q2squared, q1squared)
         delta_21 = _calculate_delta_2q(q2squared, q1squared)
         return (
             (4 * (1 - x - y) * (1 - 2*x - 2*y) * delta_21 / delta_321**2) *
             ((1 - 2*x - 2*y)**2 / delta_321 - (1 - x * (3 - 2*x) - y * (3 - 2*y)) / delta_21)
-        + 16 * x * y * (1 - 2*x) * (1 - 2*y) / (delta_321 * delta_21))
+            + 16 * x * y * (1 - 2*x) * (1 - 2*y) / (delta_321 * delta_21))
     elif n == 7:
         delta_123 = _calculate_delta_3q(q1squared, q2squared, q3squared)
         return -8 * x * y * (1 - x - y) * ((1 - 2*x)**2) * (1 - 2*y) / (delta_123**3)
@@ -74,7 +75,7 @@ def _calculate_pi_n(form_factor_function, q1squared, q2squared, q3squared, n, pa
         raise NotImplementedError
     integral = dblquad(
         lambda y, x: _calculate_i_n(x, y, q1squared, q2squared, q3squared, n, particle_mass),
-        a=0, b=1, gfun=0, hfun=lambda x: 1-x,
+        a=0, b=1, gfun=0, hfun=lambda x: 1-x, epsrel=1.49e-3
     )[0]
     return (
         form_factor_function(q1squared) * form_factor_function(q2squared) *
@@ -83,6 +84,10 @@ def _calculate_pi_n(form_factor_function, q1squared, q2squared, q3squared, n, pa
 
 
 def calculate_pi_n(form_factor_function, q1squared, q2squared, q3squared, n, particle_mass):
+    # we pass from Euclidean to Minkowskian quantities
+    q1squared = -q1squared
+    q2squared = -q2squared
+    q3squared = -q3squared
     if n in {1, 4, 7, 17, 39, 54}:
         return _calculate_pi_n(form_factor_function, q1squared, q2squared, q3squared, n, particle_mass)
     elif n == 2:
