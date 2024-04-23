@@ -1,13 +1,25 @@
+"""
+Based on the article
+Colangelo, G., Hoferichter, M., Procura, M. et al.
+Dispersion relation for hadronic light-by-light scattering: two-pion contributions.
+J. High Energ. Phys. 2017, 161 (2017)
+https://doi.org/10.1007/JHEP04(2017)161
+
+(An alternative link:  https://link.springer.com/article/10.1007/JHEP04(2017)161)
+
+"""
 from configparser import ConfigParser
 from typing import Callable, Tuple
 from common.utils import make_partial_form_factor_for_parameters
-from model_parameters import KaonParametersSimplified, Parameter, PionParameters
+from model_parameters import KaonParametersSimplified
 from kaon_production.data import KaonDatapoint
-from ua_model.PionUAModel import PionUAModel
 
 import math
 import numpy
 from scipy.integrate import dblquad, tplquad
+
+REL_ERROR_INNER_INTEGRAL = 1.49e-1
+REL_ERROR_OUTER_INTEGRAL = 1.49e-1
 
 
 def _wrap_partial_form_factor_function(partial_f: Callable, charged: bool = True) -> Callable:
@@ -18,25 +30,25 @@ def _wrap_partial_form_factor_function(partial_f: Callable, charged: bool = True
     return wrapped
 
 
-def _make_partial_for_pion_parameters(pion_parameters: PionParameters) -> Callable:
-    pion_parameters = pion_parameters.copy()
-    ff_model = PionUAModel(**{p.name: p.value for p in pion_parameters})
+def _calculate_i_n(
+        x: float, y: float, q1squared: float, q2squared: float, q3squared: float,
+        n: int, particle_mass: float) -> float:
+    """
+    These quantities figure in the equation (2.28).
+    Their form (used in this function) is specified in Appendix C.
 
-    def wrapped(s):
-        res = ff_model(s).real
-        return res
-    return wrapped
-
-
-def _calculate_i_n(x, y, q1squared, q2squared, q3squared, n, particle_mass):
+    """
     m2 = particle_mass**2
 
     def _calculate_delta_2q(k1squared, k2squared):
+        # equation (C.3)(b)
         return m2 - x * (1 - x) * k1squared - y * (1 - y) * k2squared
 
     def _calculate_delta_3q(k1squared, k2_squared, k3_squared):
+        # equation (C.3)(a)
         return m2 - x * y * k1squared - x * (1 - x - y) * k2_squared - y * (1 - x - y) * k3_squared
 
+    # equations (C.2)
     if n == 1:
         delta_123 = _calculate_delta_3q(q1squared, q2squared, q3squared)
         delta_23 = _calculate_delta_2q(q2squared, q3squared)
@@ -70,12 +82,22 @@ def _calculate_i_n(x, y, q1squared, q2squared, q3squared, n, particle_mass):
         raise NotImplementedError
 
 
-def _calculate_pi_n(form_factor_function, q1squared, q2squared, q3squared, n, particle_mass):
+def _calculate_pi_n(
+        form_factor_function: Callable, q1squared: float, q2squared: float, q3squared: float,
+        n: int, particle_mass: float) -> float:
+    """
+    This calculation should correspond to equation (2.28). (Or, (C.1).)
+
+    Note: The momenta (squared) entering this calculation should be Minkowskian;
+    that is, according to (2.23) they should correspond to minus the squares of Euclidean
+    momenta: q^2 = -Q^2.
+
+    """
     if n not in {1, 4, 7, 17, 39, 54}:
         raise NotImplementedError
     integral = dblquad(
         lambda y, x: _calculate_i_n(x, y, q1squared, q2squared, q3squared, n, particle_mass),
-        a=0, b=1, gfun=0, hfun=lambda x: 1-x, epsrel=1.49e-3
+        a=0, b=1, gfun=0, hfun=lambda x: 1-x, epsrel=REL_ERROR_INNER_INTEGRAL
     )[0]
     return (
         form_factor_function(q1squared) * form_factor_function(q2squared) *
@@ -83,7 +105,19 @@ def _calculate_pi_n(form_factor_function, q1squared, q2squared, q3squared, n, pa
     )
 
 
-def calculate_pi_n(form_factor_function, q1squared, q2squared, q3squared, n, particle_mass):
+def calculate_pi_n(
+        form_factor_function: Callable, q1squared: float, q2squared: float, q3squared: float,
+        n: int, particle_mass: float) -> float:
+    """
+    In this function we use crossing relations (2.16) to calculate
+    structures 2, 5, 9, 10, 11, 50. The other structures (1, 4, 7, 17, 39, 54)
+    are defined explicitly in the function _calculate_pi_n.
+
+    Note also that the squared momenta entering this function are supposed to be
+    Euclidean (in the article denoted by uppercase Q^2), so we invert them to obtain the corresponding
+    Minkowskian values (in the article denoted by lowercase q^2).
+
+    """
     # we pass from Euclidean to Minkowskian quantities
     q1squared = -q1squared
     q2squared = -q2squared
@@ -109,6 +143,8 @@ def calculate_pi_n(form_factor_function, q1squared, q2squared, q3squared, n, par
 def _transform_variables(sigma: float, r: float, phi: float) -> Tuple[float, float, float]:
     """
     Calculate variables q1squared, q2squared, q3squared from sigma, r, phi.
+    The momenta squared here are Euclidean.
+    This corresponds to equation (2.24).
 
     Returns:
         q1squared, q2squared, q3squared
@@ -121,17 +157,34 @@ def _transform_variables(sigma: float, r: float, phi: float) -> Tuple[float, flo
 
 
 def _calculate_sigma(q_squared: float, muon_mass_squared: float) -> float:
+    """
+    This is a part of equation (B.2). The squared momentum here is Euclidean.
+
+    """
     return math.sqrt(1.0 + 4.0 * muon_mass_squared / q_squared)
 
 
 def _calculate_tau(q1squared: float, q2squared: float, q3squared: float) -> float:
+    """
+    This is taken from equation (2.24)(c):
+    Q_3^2 = Q_1^2 + Q_2^2 + 2 Q_1 Q_2 tau
+
+    (And again, momenta here are Euclidean.)
+
+    """
     return (
         (q3squared - q1squared - q2squared)
         / (2.0 * math.sqrt(q1squared) * math.sqrt(q2squared))
     )
 
 
-def _calculate_capital_x(q1squared: float, q2squared: float, tau: float, muon_mass_squared: float) -> float:
+def _calculate_capital_x(
+        q1squared: float, q2squared: float, tau: float, muon_mass_squared: float
+) -> float:
+    """
+    This is a part of equation (B.2). The squared momenta here are Euclidean.
+
+    """
     x = math.sqrt(1 - tau**2)
     q1 = math.sqrt(q1squared)
     q2 = math.sqrt(q2squared)
@@ -141,6 +194,13 @@ def _calculate_capital_x(q1squared: float, q2squared: float, tau: float, muon_ma
 
 
 def calculate_t_n(q1squared, q2squared, q3squared, n, muon_mass):
+    """
+    The expressions in this function should correspond to equations in Appendix B,
+    namely (B.1).
+
+    Squared momenta in the argument are supposed to be Euclidean.
+
+    """
     muon_mass_squared = muon_mass**2
     sigma1 = _calculate_sigma(q1squared, muon_mass_squared)
     sigma2 = _calculate_sigma(q2squared, muon_mass_squared)
@@ -153,7 +213,11 @@ def calculate_t_n(q1squared, q2squared, q3squared, n, muon_mass):
         num += q2squared * tau * (sigma2 - 1.0) * (sigma2 + 5.0)
         num += 4.0 * q1q2 * (sigma1 + sigma2 - 2.0)
         num -= 8 * tau * muon_mass_squared
-        return num / (2 * q1q2 * q3squared * muon_mass_squared)
+        a = num / (2 * q1q2 * q3squared * muon_mass_squared)
+        b = _calculate_capital_x(q1squared, q2squared, tau, muon_mass_squared) * (
+            8.0 * (tau**2 - 1.0) / q3squared - 4.0 / muon_mass_squared
+        )
+        return a + b
     elif n == 2:
         a = q1 * (sigma1 - 1.0) * (q1 * tau * (sigma1 + 1.0) + 4.0 * q2 * (tau**2 - 1)) - 4 * tau * muon_mass_squared
         a = a / (q1 * q2 * q3squared * muon_mass_squared)
@@ -208,7 +272,7 @@ def calculate_t_n(q1squared, q2squared, q3squared, n, muon_mass):
             q2 * tau * (
                 2.0 * (tau**2) * ((sigma2 - 3.0)**2 - 4.0 * sigma1)
                 - 26.0 * sigma1 + sigma2 * (sigma2 - 12.0) + 37.0
-        ) / (2 * muon_mass_squared) - 4.0 * tau /q2
+        ) / (2 * muon_mass_squared) - 4.0 * tau / q2
         )
         c = q2squared * (
                 (tau**2) * (-8.0 * sigma1 + sigma2 * (5.0 * sigma2 - 26.0) + 29.0)
@@ -279,7 +343,7 @@ def calculate_t_n(q1squared, q2squared, q3squared, n, muon_mass):
             2.0 / (q1squared * q2squared)
         )
         b0 = -2.0 * q3squared / muon_mass_squared
-        b1 = 8.0 * q2 * tau / q1  + 8.0 * q1 * tau / q2
+        b1 = 8.0 * q2 * tau / q1 + 8.0 * q1 * tau / q2
         b2 = 8.0 * (tau**2 + 1.0)
         b = (b0 + b1 + b2) * _calculate_capital_x(q1squared, q2squared, tau, muon_mass_squared)
         return a + b
@@ -357,7 +421,13 @@ def calculate_t_n(q1squared, q2squared, q3squared, n, muon_mass):
         raise ValueError(f'Unsupported value of n: {n}')
 
 
-def calculate_hlbl_contribution(form_factor_function, alpha, particle_mass, muon_mass):
+def calculate_hlbl_contribution(
+        form_factor_function: Callable, alpha: float, particle_mass: float, muon_mass: float
+) -> float:
+    """
+    Equation (2.25).
+
+    """
     def integrand(phi, r, sigma):
         q1squared, q2squared, q3squared = _transform_variables(sigma, r, phi)
         acc = 0
@@ -365,9 +435,14 @@ def calculate_hlbl_contribution(form_factor_function, alpha, particle_mass, muon
             kernel = calculate_t_n(q1squared, q2squared, q3squared, n, muon_mass)
             pi = calculate_pi_n(form_factor_function, q1squared, q2squared, q3squared, n, particle_mass)
             acc += kernel * pi
+        print(f'integrand({phi}, {r}, {sigma})={acc}')
         return acc
-    return (alpha**3 / (432 * (math.pi**2)) ) * tplquad(
-        integrand, a=0, b=numpy.inf, gfun=0, hfun=1, qfun=0, rfun=2*math.pi)[0]
+    integral = tplquad(
+        integrand, a=0, b=numpy.inf, gfun=0, hfun=1, qfun=0, rfun=2*math.pi, epsrel=REL_ERROR_OUTER_INTEGRAL)
+    c = alpha**3 / (432 * (math.pi**2))
+    result = (c * integral[0], c * integral[1])
+    print(f'Result = {result}')
+    return result[0]
 
 
 if __name__ == '__main__':
