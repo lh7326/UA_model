@@ -499,8 +499,9 @@ def calculate_hlbl_contribution(
             kernel = calculate_t_n(q1squared, q2squared, q3squared, n, muon_mass)
             pi = calculate_pi_n(form_factor_function, q1squared, q2squared, q3squared, n, particle_mass)
             acc += kernel * pi
-        print(f'integrand({phi}, {r}, {sigma})={acc}')
-        return acc
+        integral_value = (sigma**3) * r * math.sqrt(1.0 - r**2) * acc
+        #print(f'integrand({phi}, {r}, {sigma})={integral_value}')
+        return integral_value
     integral = tplquad(
         integrand, a=0, b=numpy.inf, gfun=0, hfun=1, qfun=0, rfun=2*math.pi, epsrel=REL_ERROR_OUTER_INTEGRAL)
     c = alpha**3 / (432 * (math.pi**2))
