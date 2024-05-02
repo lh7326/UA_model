@@ -105,6 +105,70 @@ def _calculate_pi_n(
     )
 
 
+def calculate_hlbl_contribution__alternative(
+        form_factor_function: Callable, alpha: float, particle_mass: float, muon_mass: float
+) -> float:
+    def integrand(phi, r, sigma):
+        print(f'Calculating for: phi={phi}, r={r}, sigma={sigma}')
+        q1squared, q2squared, q3squared = _transform_variables(sigma, r, phi)
+        return (sigma**3) * r * math.sqrt(1.0 - r**2) * _calculate_inner_integral__alternative(
+            form_factor_function, q1squared, q2squared, q3squared, particle_mass, muon_mass)
+    integral = tplquad(
+        integrand, a=0, b=numpy.inf, gfun=0, hfun=1, qfun=0, rfun=2*math.pi, epsrel=REL_ERROR_OUTER_INTEGRAL)
+        #integrand, a=100.0, b=numpy.inf, gfun=0, hfun=1, qfun=0, rfun=2 * math.pi,
+        #epsrel=REL_ERROR_OUTER_INTEGRAL, epsabs=ABS_ERROR_OUTER_INTEGRAL)
+    c = alpha**3 / (432 * (math.pi**2))
+    result = (c * integral[0], c * integral[1])
+    print(f'Result = {result}')
+    return result[0]
+
+
+def _calculate_inner_integral__alternative(
+        form_factor_function: Callable, q1squared: float, q2squared: float, q3squared: float,
+        particle_mass: float, muon_mass: float
+) -> float:
+    q1squared_minkowski = -q1squared
+    q2squared_minkowski = -q2squared
+    q3squared_minkowski = -q3squared
+
+    def integrand(x, y):
+        acc = 0
+        for n in [1, 2, 4, 5, 7, 9, 10, 11, 17, 39, 50, 54]:
+            kernel = calculate_t_n(q1squared, q2squared, q3squared, n, muon_mass)
+            i_n = _calculate_i_n__alternative(x, y, q1squared_minkowski, q2squared_minkowski, q3squared_minkowski,
+                                              n, particle_mass)
+            acc += kernel * i_n
+        return acc
+    integral = dblquad(
+        lambda y, x: integrand(x, y),
+        a=0, b=1, gfun=0, hfun=lambda x: 1 - x, epsrel=REL_ERROR_INNER_INTEGRAL
+    )[0]
+    print(f'Inner integral({q1squared}, {q2squared}, {q3squared}) = {integral}')
+    return (form_factor_function(q1squared_minkowski) * form_factor_function(q2squared_minkowski) *
+            form_factor_function(q3squared_minkowski) * integral / (16 * (math.pi**2)))
+
+
+def _calculate_i_n__alternative(
+        x: float, y: float, q1squared: float, q2squared: float, q3squared: float,
+        n: int, particle_mass: float) -> float:
+    if n in {1, 4, 7, 17, 39, 54}:
+        return _calculate_i_n(x, y, q1squared, q2squared, q3squared, n, particle_mass)
+    elif n == 2:
+        return _calculate_i_n(x, y, q1squared, q3squared, q2squared, 1, particle_mass)
+    elif n == 5:
+        return _calculate_i_n(x, y, q1squared, q3squared, q2squared, 4, particle_mass)
+    elif n == 9:
+        return _calculate_i_n(x, y, q3squared, q1squared, q2squared, 7, particle_mass)
+    elif n == 10:
+        return _calculate_i_n(x, y, q1squared, q3squared, q2squared, 7, particle_mass)
+    elif n == 11:
+        return _calculate_i_n(x, y, q3squared, q2squared, q1squared, 17, particle_mass)
+    elif n == 50:
+        return -1 * _calculate_i_n(x, y, q1squared, q3squared, q2squared, 54, particle_mass)
+    else:
+        ValueError(f'Unexpected value of n={n}!')
+
+
 def calculate_pi_n(
         form_factor_function: Callable, q1squared: float, q2squared: float, q3squared: float,
         n: int, particle_mass: float) -> float:
@@ -464,27 +528,27 @@ if __name__ == '__main__':
         em_mass2_charged_kaon = calculate_hlbl_contribution(f, alpha, charged_kaon_mass, muon_mass)
         print(f'{kaon_parameters_filepath} HLbL contribution charged kaon: {em_mass2_charged_kaon}')
 
-        f = _wrap_partial_form_factor_function(
-            make_partial_form_factor_for_parameters(kaon_parameters, return_absolute_value=False),
-            charged=False
-        )
-        em_mass2_neutral_kaon = calculate_hlbl_contribution(f, alpha, charged_kaon_mass, muon_mass)
-        print(f'{kaon_parameters_filepath} HLbL neutral kaon: {em_mass2_neutral_kaon}')
-
-    for i in [37, 113, 160, 165]:
-        kaon_parameters_filepath = f'/home/lukas/reports/kaons/runTestDressedsimplified_{i}/final_fit_parameters.pickle'
-        kaon_parameters = KaonParametersSimplified.load_from_serialized_parameters(kaon_parameters_filepath)
-        kaon_parameters.fix_all_parameters()
-        f = _wrap_partial_form_factor_function(
-            make_partial_form_factor_for_parameters(kaon_parameters, return_absolute_value=False),
-            charged=True
-        )
-        em_mass2_charged_kaon = calculate_hlbl_contribution(f, alpha, charged_kaon_mass, muon_mass)
-        print(f'{kaon_parameters_filepath} HLbL contribution charged kaon: {em_mass2_charged_kaon}')
-
-        f = _wrap_partial_form_factor_function(
-            make_partial_form_factor_for_parameters(kaon_parameters, return_absolute_value=False),
-            charged=False
-        )
-        em_mass2_neutral_kaon = calculate_hlbl_contribution(f, alpha, charged_kaon_mass, muon_mass)
-        print(f'{kaon_parameters_filepath} HLbL contribution neutral kaon: {em_mass2_neutral_kaon}')
+    #     f = _wrap_partial_form_factor_function(
+    #         make_partial_form_factor_for_parameters(kaon_parameters, return_absolute_value=False),
+    #         charged=False
+    #     )
+    #     em_mass2_neutral_kaon = calculate_hlbl_contribution(f, alpha, charged_kaon_mass, muon_mass)
+    #     print(f'{kaon_parameters_filepath} HLbL neutral kaon: {em_mass2_neutral_kaon}')
+    #
+    # for i in [37, 113, 160, 165]:
+    #     kaon_parameters_filepath = f'/home/lukas/reports/kaons/runTestDressedsimplified_{i}/final_fit_parameters.pickle'
+    #     kaon_parameters = KaonParametersSimplified.load_from_serialized_parameters(kaon_parameters_filepath)
+    #     kaon_parameters.fix_all_parameters()
+    #     f = _wrap_partial_form_factor_function(
+    #         make_partial_form_factor_for_parameters(kaon_parameters, return_absolute_value=False),
+    #         charged=True
+    #     )
+    #     em_mass2_charged_kaon = calculate_hlbl_contribution(f, alpha, charged_kaon_mass, muon_mass)
+    #     print(f'{kaon_parameters_filepath} HLbL contribution charged kaon: {em_mass2_charged_kaon}')
+    #
+    #     f = _wrap_partial_form_factor_function(
+    #         make_partial_form_factor_for_parameters(kaon_parameters, return_absolute_value=False),
+    #         charged=False
+    #     )
+    #     em_mass2_neutral_kaon = calculate_hlbl_contribution(f, alpha, charged_kaon_mass, muon_mass)
+    #     print(f'{kaon_parameters_filepath} HLbL contribution neutral kaon: {em_mass2_neutral_kaon}')
