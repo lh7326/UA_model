@@ -6,14 +6,19 @@ from kaon_production.data import (
     read_data_files_new, merge_statistical_and_systematic_errors, make_function_to_remove_fsr_effects,
     KaonDatapoint)
 from common.utils import make_partial_ff_or_cs_for_parameters
-from model_parameters import KaonParametersPhiRatio
+from model_parameters import KaonParametersSimplified
 from plotting.plot_fit import plot_combined_fit
 
 
 def plot_data(xss: List[List[float]], yss: List[List[float]],
               errorss: List[List[float]], labels: List[str], xlabel: str, ylabel: str, title: str,
-              ylog=False, xlog=False, only_peak=False, f=None, charged=True, filepath=None):
+              ylog=False, xlog=False, only_peak=False, f=None, charged=True, filepath=None,
+              s_min=None, s_max=None, cross_section=True):
 
+    assert (s_min is None and s_max is None) or not only_peak
+    if only_peak:
+        s_min = 1.025
+        s_max = 1.055
     fig, ax = plt.subplots()
     ax.set_title(title, fontsize=16)
     ax.set_xlabel(xlabel, fontsize=16)
@@ -23,20 +28,25 @@ def plot_data(xss: List[List[float]], yss: List[List[float]],
     formats = formats[:len(xss)]
     estimates = []
     for xs, ys, errors, legend, fmt in zip(xss, yss, errorss, labels, formats):
-        if only_peak:
-            filtered = list(filter(lambda t: 1.025 < t[0] < 1.055, zip(xs, ys, errors)))
+        if s_min is not None or s_max is not None:
+            if s_max is None:
+                filtered = list(filter(lambda t: s_min < t[0], zip(xs, ys, errors)))
+            elif s_min is None:
+                filtered = list(filter(lambda t: t[0] < s_max, zip(xs, ys, errors)))
+            else:
+                filtered = list(filter(lambda t: s_min < t[0] < s_max, zip(xs, ys, errors)))
             if not filtered:
                 continue
             xs, ys, errors = zip(*filtered)
-        ax.errorbar(xs, ys, yerr=errors, fmt=fmt, elinewidth=1, markersize=2, label=legend)
+        ax.errorbar(xs, ys, yerr=errors, fmt=fmt, elinewidth=2, markersize=3.5, label=legend)
         if f:
             new_xs = list(xs)
             for x_low, x_high in zip(xs[:-1],xs[1:]):
-                new_xs.extend([x_low + 0.1 * i * (x_high - x_low) for i in range(1, 10)])
+                new_xs.extend([x_low + 0.01 * i * (x_high - x_low) for i in range(1, 100)])
 
-            estimates.extend(zip(new_xs, f([[x, charged, True] for x in new_xs])))
+            estimates.extend(zip(new_xs, f([[x, charged, cross_section] for x in new_xs])))
 
-    ax.legend(loc='upper right')
+    ax.legend(loc='upper right', prop={'size': 14})
     if estimates:
         estimates = sorted(estimates, key=lambda est: est[0])
         all_xs, all_fit_vals = zip(*estimates)
@@ -110,7 +120,8 @@ if __name__ == '__main__':
     remove_fsr_effects = make_function_to_remove_fsr_effects(charged_kaon_mass, alpha)
 
     def discard_above_threshold(threshold, xs, ys, ers):
-        return list(zip(*filter(lambda t: t[0] < threshold, zip(xs, ys, ers))))
+        return xs, ys, ers
+        # return list(zip(*filter(lambda t: t[0] < threshold, zip(xs, ys, ers))))
 
     THRESHOLD = 10  # GeV^2
 
@@ -121,6 +132,7 @@ if __name__ == '__main__':
                 file_names=[
                     'cmd_3_charged_kaons_undressed.csv',
                     'babar_2013_charged_kaons_undressed.csv',
+                    'babar_charged_kaons_2015_undressed.csv',
                     'BESIII_charged_kaons_2019_undressed.csv',
                 ]
             )
@@ -130,6 +142,7 @@ if __name__ == '__main__':
      timelike_neutral_errors) = discard_above_threshold(THRESHOLD, *merge_statistical_and_systematic_errors(
             *read_data_files_new(
                 file_names=[
+                    'cmd_2_neutral_kaons_undressed.csv',  # added
                     'cmd_3_neutral_kaons_undressed.csv',
                     'babar_neutral_kaons_2014_undressed.csv',
                     'BESIII_neutral_kaons_2021_undressed.csv',
@@ -156,8 +169,37 @@ if __name__ == '__main__':
         ff_errors_charged=space_charged_errors,
     )
 
-    kaon_parameters_filepath = f'/home/lukas/reports/kaons/article_fit/final_fit_parameters.pickle'
-    kaon_parameters = KaonParametersPhiRatio.load_from_serialized_parameters(kaon_parameters_filepath)
+    #kaon_parameters_filepath = f'/home/lukas/reports/kaons/article_fit/final_fit_parameters.pickle'
+    kaon_parameters_filepath = f'/home/lukas/reports/kaons/article2_fit/final_fit_parameters.pickle'
+    kaon_parameters = KaonParametersSimplified.load_from_serialized_parameters(kaon_parameters_filepath)
+    # kaon_parameters = KaonParametersSimplified(
+    #     t_0_isoscalar=0.17531904388276887,
+    #     t_0_isovector=0.07791957505900839,
+    #     t_in_isoscalar=0.61253717,
+    #     t_in_isovector=1.77195907,
+    #     a_omega=0.19772368,
+    #     mass_omega=0.78266,
+    #     decay_rate_omega=0.00868,
+    #     a_omega_double_prime=0.15791981,
+    #     mass_omega_double_prime=1.67,
+    #     decay_rate_omega_double_prime=0.32915526,
+    #     a_phi=0.32426641,
+    #     mass_phi=1.01903667,
+    #     decay_rate_phi=0.004139,
+    #     a_phi_prime=-0.18332132,
+    #     mass_phi_prime=1.63963787,
+    #     decay_rate_phi_prime=0.23220697,
+    #     mass_phi_double_prime=2.20628006,
+    #     decay_rate_phi_double_prime=0.1000116,
+    #     a_rho=0.53077563,
+    #     mass_rho=0.75823,
+    #     decay_rate_rho=0.14456,
+    #     a_rho_prime=-0.13076398,
+    #     mass_rho_prime=1.46675669,
+    #     decay_rate_rho_prime=0.79642807,
+    #     mass_rho_double_prime=1.86404824,
+    #     decay_rate_rho_double_prime=0.48068968,
+    # )
 
     free_pars = kaon_parameters.get_free_values()
     kaon_parameters.fix_all_parameters()
@@ -189,7 +231,8 @@ if __name__ == '__main__':
     xss, yss, errss, labels = [], [], [], []
     # for label, filename in [
     #     ('CMD3', 'cmd_3_charged_kaons_undressed.csv') ,
-    #     ('BaBar', 'babar_2013_charged_kaons_undressed.csv'),
+    #     ('BaBar2013', 'babar_2013_charged_kaons_undressed.csv'),
+    #     ('BaBar2015', 'babar_charged_kaons_2015_undressed.csv'),
     #     ('BESIII', 'BESIII_charged_kaons_2019_undressed.csv'),
     #     ]:
     #     ts, css, errs = discard_above_threshold(THRESHOLD, *remove_fsr_effects(
@@ -199,18 +242,30 @@ if __name__ == '__main__':
     #     errss.append(errs)
     #     labels.append(label)
 
+    # for label, filename in [
+    #     ('CMD2', 'cmd_2_neutral_kaons_undressed.csv'),
+    #     ('CMD3', 'cmd_3_neutral_kaons_undressed.csv') ,
+    #     ('BaBar', 'babar_neutral_kaons_2014_undressed.csv'),
+    #     ('BESIII', 'BESIII_neutral_kaons_2021_undressed.csv'),
+    #     ]:
+    #     ts, css, errs = discard_above_threshold(THRESHOLD, *remove_fsr_effects(
+    #         *merge_statistical_and_systematic_errors(*read_data_files_new(file_names=[filename]))))
+    #     xss.append(ts)
+    #     yss.append(css)
+    #     errss.append(errs)
+    #     labels.append(label)
+
     for label, filename in [
-        ('CMD3', 'cmd_3_neutral_kaons_undressed.csv') ,
-        ('BaBar', 'babar_neutral_kaons_2014_undressed.csv'),
-        ('BESIII', 'BESIII_neutral_kaons_2021_undressed.csv'),
-        ]:
-        ts, css, errs = discard_above_threshold(THRESHOLD, *remove_fsr_effects(
-            *merge_statistical_and_systematic_errors(*read_data_files_new(file_names=[filename]))))
+        ('Dally et al.', 'spacelike_charged_kaons_formfactor_1980_undressed.csv'),
+        ('Amendolia et al.', 'spacelike_charged_kaons_formfactor_1986_undressed.csv'),
+    ]:
+        ts, css, errs = merge_statistical_and_systematic_errors(*read_data_files_new(file_names=[filename]))
         xss.append(ts)
         yss.append(css)
         errss.append(errs)
         labels.append(label)
 
-    plot_data(xss, yss, errss, labels, 's [GeV^2]', 'Cross section [nb]', 'Neutral kaons fit',
-              ylog=False, only_peak=True, f=f, charged=False,
-              filepath='/home/lukas/latex_projects/R_ratio/article/figs/fit_neutral_kaons_data_detail.pdf')
+    plot_data(xss, yss, errss, labels, 's [GeV^2]', 'Form factor', 'Charged kaons fit',
+              ylog=False, only_peak=False, f=f, charged=True,
+              s_min=None, s_max=None, cross_section=False,
+              filepath='/home/lukas/latex_projects/clanok_kaon_model/figures/charged_kaons_fit_spacelike.pdf')
