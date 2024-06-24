@@ -1,12 +1,13 @@
 from configparser import ConfigParser
 import matplotlib.pyplot as plt
 from typing import List, Optional, Tuple
+from scipy.stats import norm
 
 from kaon_production.data import (
     read_data_files_new, merge_statistical_and_systematic_errors, make_function_to_remove_fsr_effects,
     KaonDatapoint)
 from common.utils import make_partial_ff_or_cs_for_parameters
-from model_parameters import KaonParametersSimplified
+from model_parameters import KaonParametersSimplified, KaonParametersPhiRatio
 from plotting.plot_fit import plot_combined_fit
 
 
@@ -56,6 +57,29 @@ def plot_data(xss: List[List[float]], yss: List[List[float]],
         ax.set_yscale('log')
     if xlog:
         ax.set_xscale('log')
+    if filepath:
+        plt.savefig(filepath, format='pdf')
+    plt.show()
+    plt.close()
+
+
+def plot_distribution_of_normalized_residuals(
+        normalized_residuals: List[float],
+        title: str,
+        bins: int = 10,
+        filepath: Optional[str] = None,
+) -> None:
+    fig, ax = plt.subplots()
+    ax.set_title(title, fontsize=16)
+    ax.hist(normalized_residuals, bins=bins, histtype='step', color='black')
+    min_x = min(normalized_residuals)
+    max_x = max(normalized_residuals)
+    area = len(normalized_residuals) * (max_x - min_x) / bins
+
+    xs = [t * (max_x - min_x) / 1000 + min_x for t in range(1000)]
+    ys = [area * norm.pdf(x) for x in xs]
+    ax.plot(xs, ys, '-k', color='blue')
+
     if filepath:
         plt.savefig(filepath, format='pdf')
     plt.show()
@@ -119,36 +143,37 @@ if __name__ == '__main__':
 
     remove_fsr_effects = make_function_to_remove_fsr_effects(charged_kaon_mass, alpha)
 
-    def discard_above_threshold(threshold, xs, ys, ers):
-        return xs, ys, ers
-        # return list(zip(*filter(lambda t: t[0] < threshold, zip(xs, ys, ers))))
+    def discard_above_threshold(xs, ys, ers, threshold=None):
+        if threshold is None:
+            return xs, ys, ers
+        return list(zip(*filter(lambda t: t[0] < threshold, zip(xs, ys, ers))))
 
     THRESHOLD = 10  # GeV^2
 
     (timelike_charged_ts, timelike_charged_cross_sections_values,
-     timelike_charged_errors) = discard_above_threshold(THRESHOLD, *remove_fsr_effects(
+     timelike_charged_errors) = discard_above_threshold(*remove_fsr_effects(
         *merge_statistical_and_systematic_errors(
             *read_data_files_new(
                 file_names=[
                     'cmd_3_charged_kaons_undressed.csv',
                     'babar_2013_charged_kaons_undressed.csv',
-                    'babar_charged_kaons_2015_undressed.csv',
+                    # 'babar_charged_kaons_2015_undressed.csv',
                     'BESIII_charged_kaons_2019_undressed.csv',
                 ]
             )
         )
-    ))
+    ), THRESHOLD)
     (timelike_neutral_ts, timelike_neutral_cross_sections_values,
-     timelike_neutral_errors) = discard_above_threshold(THRESHOLD, *merge_statistical_and_systematic_errors(
+     timelike_neutral_errors) = discard_above_threshold(*merge_statistical_and_systematic_errors(
             *read_data_files_new(
                 file_names=[
-                    'cmd_2_neutral_kaons_undressed.csv',  # added
+                    # 'cmd_2_neutral_kaons_undressed.csv',  # added
                     'cmd_3_neutral_kaons_undressed.csv',
                     'babar_neutral_kaons_2014_undressed.csv',
                     'BESIII_neutral_kaons_2021_undressed.csv',
                 ]
             )
-    ))
+    ), THRESHOLD)
 
     (spacelike_charged_ts, spacelike_charged_form_factor_values,
      space_charged_errors) = merge_statistical_and_systematic_errors(
@@ -169,37 +194,9 @@ if __name__ == '__main__':
         ff_errors_charged=space_charged_errors,
     )
 
-    #kaon_parameters_filepath = f'/home/lukas/reports/kaons/article_fit/final_fit_parameters.pickle'
-    kaon_parameters_filepath = f'/home/lukas/reports/kaons/article2_fit/final_fit_parameters.pickle'
-    kaon_parameters = KaonParametersSimplified.load_from_serialized_parameters(kaon_parameters_filepath)
-    # kaon_parameters = KaonParametersSimplified(
-    #     t_0_isoscalar=0.17531904388276887,
-    #     t_0_isovector=0.07791957505900839,
-    #     t_in_isoscalar=0.61253717,
-    #     t_in_isovector=1.77195907,
-    #     a_omega=0.19772368,
-    #     mass_omega=0.78266,
-    #     decay_rate_omega=0.00868,
-    #     a_omega_double_prime=0.15791981,
-    #     mass_omega_double_prime=1.67,
-    #     decay_rate_omega_double_prime=0.32915526,
-    #     a_phi=0.32426641,
-    #     mass_phi=1.01903667,
-    #     decay_rate_phi=0.004139,
-    #     a_phi_prime=-0.18332132,
-    #     mass_phi_prime=1.63963787,
-    #     decay_rate_phi_prime=0.23220697,
-    #     mass_phi_double_prime=2.20628006,
-    #     decay_rate_phi_double_prime=0.1000116,
-    #     a_rho=0.53077563,
-    #     mass_rho=0.75823,
-    #     decay_rate_rho=0.14456,
-    #     a_rho_prime=-0.13076398,
-    #     mass_rho_prime=1.46675669,
-    #     decay_rate_rho_prime=0.79642807,
-    #     mass_rho_double_prime=1.86404824,
-    #     decay_rate_rho_double_prime=0.48068968,
-    # )
+    kaon_parameters_filepath = f'/home/lukas/reports/kaons/article_fit/final_fit_parameters.pickle'
+    #kaon_parameters_filepath = f'/home/lukas/reports/kaons/article2_fit/final_fit_parameters.pickle'
+    kaon_parameters = KaonParametersPhiRatio.load_from_serialized_parameters(kaon_parameters_filepath)
 
     free_pars = kaon_parameters.get_free_values()
     kaon_parameters.fix_all_parameters()
@@ -220,13 +217,28 @@ if __name__ == '__main__':
                 zip(ts, ys, errs))
     )
     fit_training_ys = f(training_ts)
-    r_squared_training = [(data - fit) ** 2 for data, fit in zip(training_ys, fit_training_ys)]
-    chi_squared_training_set = (
-        sum([r2 / (err ** 2) for r2, err in zip(r_squared_training, training_errs)])
-    ) / (len(r_squared_training) - len(free_pars))
+    residuals_training = [data - fit for data, fit in zip(training_ys, fit_training_ys)]
+    normalized_residuals_training = [r / abs(sigma) for r, sigma in zip(residuals_training, training_errs)]
+    chi_squared_per_ndf_training_set = (
+            sum([nr ** 2 for nr in normalized_residuals_training])
+            / (len(normalized_residuals_training) - len(free_pars))
+    )
+    chi_squared_per_datapoint_training_set = (
+            sum([nr ** 2 for nr in normalized_residuals_training])
+            / len(normalized_residuals_training)
+    )
 
-    print(f'Chi squared total: {chi_squared_total}\nChi squared training set: {chi_squared_training_set}')
+    print(f'Chi squared / ndf total: {chi_squared_total}\n'
+          f'Chi squared / ndf training set: {chi_squared_per_ndf_training_set}\n'
+          f'Chi squared / # data training set: {chi_squared_per_datapoint_training_set}')
     print(kaon_parameters.to_list())
+
+    plot_distribution_of_normalized_residuals(
+        normalized_residuals_training,
+        'Histogram of fit residuals',
+        35,
+        '/home/lukas/latex_projects/R_ratio/article/submission/fit_residuals.pdf'
+    )
 
     xss, yss, errss, labels = [], [], [], []
     # for label, filename in [
@@ -255,17 +267,17 @@ if __name__ == '__main__':
     #     errss.append(errs)
     #     labels.append(label)
 
-    for label, filename in [
-        ('Dally et al.', 'spacelike_charged_kaons_formfactor_1980_undressed.csv'),
-        ('Amendolia et al.', 'spacelike_charged_kaons_formfactor_1986_undressed.csv'),
-    ]:
-        ts, css, errs = merge_statistical_and_systematic_errors(*read_data_files_new(file_names=[filename]))
-        xss.append(ts)
-        yss.append(css)
-        errss.append(errs)
-        labels.append(label)
-
-    plot_data(xss, yss, errss, labels, 's [GeV^2]', 'Form factor', 'Charged kaons fit',
-              ylog=False, only_peak=False, f=f, charged=True,
-              s_min=None, s_max=None, cross_section=False,
-              filepath='/home/lukas/latex_projects/clanok_kaon_model/figures/charged_kaons_fit_spacelike.pdf')
+    # for label, filename in [
+    #     ('Dally et al.', 'spacelike_charged_kaons_formfactor_1980_undressed.csv'),
+    #     ('Amendolia et al.', 'spacelike_charged_kaons_formfactor_1986_undressed.csv'),
+    # ]:
+    #     ts, css, errs = merge_statistical_and_systematic_errors(*read_data_files_new(file_names=[filename]))
+    #     xss.append(ts)
+    #     yss.append(css)
+    #     errss.append(errs)
+    #     labels.append(label)
+    #
+    # plot_data(xss, yss, errss, labels, 's [GeV^2]', 'Form factor', 'Charged kaons fit',
+    #           ylog=False, only_peak=False, f=f, charged=True,
+    #           s_min=None, s_max=None, cross_section=False,
+    #           filepath='/home/lukas/latex_projects/clanok_kaon_model/figures/charged_kaons_fit_spacelike.pdf')
