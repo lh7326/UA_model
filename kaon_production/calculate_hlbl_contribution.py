@@ -518,38 +518,69 @@ if __name__ == '__main__':
     charged_kaon_mass = config.getfloat('constants', 'charged_kaon_mass')
     muon_mass = config.getfloat('constants', 'muon_mass')
 
-    for i in [2, 29, 40, 125, 151]:
-        kaon_parameters_filepath = f'/home/lukas/reports/kaons/run9simplified_{i}/final_fit_parameters.pickle'
-        kaon_parameters = KaonParametersSimplified.load_from_serialized_parameters(kaon_parameters_filepath)
+    # for i in [2, 29, 40, 125, 151]:
+    #     kaon_parameters_filepath = f'/home/lukas/reports/kaons/run9simplified_{i}/final_fit_parameters.pickle'
+    #     kaon_parameters = KaonParametersSimplified.load_from_serialized_parameters(kaon_parameters_filepath)
+    #     kaon_parameters.fix_all_parameters()
+    #     f = _wrap_partial_form_factor_function(
+    #         make_partial_form_factor_for_parameters(kaon_parameters, return_absolute_value=False),
+    #         charged=True
+    #     )
+    #     em_mass2_charged_kaon = calculate_hlbl_contribution(f, alpha, charged_kaon_mass, muon_mass)
+    #     print(f'{kaon_parameters_filepath} HLbL contribution charged kaon: {em_mass2_charged_kaon}')
+    #
+    #     f = _wrap_partial_form_factor_function(
+    #         make_partial_form_factor_for_parameters(kaon_parameters, return_absolute_value=False),
+    #         charged=False
+    #     )
+    #     em_mass2_neutral_kaon = calculate_hlbl_contribution(f, alpha, charged_kaon_mass, muon_mass)
+    #     print(f'{kaon_parameters_filepath} HLbL neutral kaon: {em_mass2_neutral_kaon}')
+    #
+    # for i in [37, 113, 160, 165]:
+    #     kaon_parameters_filepath = f'/home/lukas/reports/kaons/runTestDressedsimplified_{i}/final_fit_parameters.pickle'
+    #     kaon_parameters = KaonParametersSimplified.load_from_serialized_parameters(kaon_parameters_filepath)
+    #     kaon_parameters.fix_all_parameters()
+    #     f = _wrap_partial_form_factor_function(
+    #         make_partial_form_factor_for_parameters(kaon_parameters, return_absolute_value=False),
+    #         charged=True
+    #     )
+    #     em_mass2_charged_kaon = calculate_hlbl_contribution(f, alpha, charged_kaon_mass, muon_mass)
+    #     print(f'{kaon_parameters_filepath} HLbL contribution charged kaon: {em_mass2_charged_kaon}')
+    #
+    #     f = _wrap_partial_form_factor_function(
+    #         make_partial_form_factor_for_parameters(kaon_parameters, return_absolute_value=False),
+    #         charged=False
+    #     )
+    #     em_mass2_neutral_kaon = calculate_hlbl_contribution(f, alpha, charged_kaon_mass, muon_mass)
+    #     print(f'{kaon_parameters_filepath} HLbL contribution neutral kaon: {em_mass2_neutral_kaon}')
+
+    def write(line, filepath):
+        with open(filepath, 'a') as f:
+            f.write(line + '\n')
+
+    report_filepath = '/home/lukas/git_repos/UA_model/hlbl_report.txt'
+    write('hlbl report', report_filepath)
+    write('Start date: 21. 6. 2024', report_filepath)
+
+    filepaths = ['/home/lukas/reports/kaons/article2_fit/final_fit_parameters.pickle']
+    for i in range(10):
+        filepaths.append(f'/home/lukas/reports/kaons/article2_fit/monte_carlo/item_{i}/final_fit_parameters.pickle')
+
+    for filepath in filepaths:
+        kaon_parameters = KaonParametersSimplified.load_from_serialized_parameters(filepath)
         kaon_parameters.fix_all_parameters()
         f = _wrap_partial_form_factor_function(
             make_partial_form_factor_for_parameters(kaon_parameters, return_absolute_value=False),
             charged=True
         )
-        em_mass2_charged_kaon = calculate_hlbl_contribution(f, alpha, charged_kaon_mass, muon_mass)
-        print(f'{kaon_parameters_filepath} HLbL contribution charged kaon: {em_mass2_charged_kaon}')
+        res1 = calculate_hlbl_contribution(f, alpha, charged_kaon_mass, muon_mass)
+        print(f'{filepath} HLbL contribution charged kaon: {res1}')
+        write(f'{filepath} HLbL contribution charged kaon: {res1}', report_filepath)
 
         f = _wrap_partial_form_factor_function(
             make_partial_form_factor_for_parameters(kaon_parameters, return_absolute_value=False),
             charged=False
         )
-        em_mass2_neutral_kaon = calculate_hlbl_contribution(f, alpha, charged_kaon_mass, muon_mass)
-        print(f'{kaon_parameters_filepath} HLbL neutral kaon: {em_mass2_neutral_kaon}')
-
-    for i in [37, 113, 160, 165]:
-        kaon_parameters_filepath = f'/home/lukas/reports/kaons/runTestDressedsimplified_{i}/final_fit_parameters.pickle'
-        kaon_parameters = KaonParametersSimplified.load_from_serialized_parameters(kaon_parameters_filepath)
-        kaon_parameters.fix_all_parameters()
-        f = _wrap_partial_form_factor_function(
-            make_partial_form_factor_for_parameters(kaon_parameters, return_absolute_value=False),
-            charged=True
-        )
-        em_mass2_charged_kaon = calculate_hlbl_contribution(f, alpha, charged_kaon_mass, muon_mass)
-        print(f'{kaon_parameters_filepath} HLbL contribution charged kaon: {em_mass2_charged_kaon}')
-
-        f = _wrap_partial_form_factor_function(
-            make_partial_form_factor_for_parameters(kaon_parameters, return_absolute_value=False),
-            charged=False
-        )
-        em_mass2_neutral_kaon = calculate_hlbl_contribution(f, alpha, charged_kaon_mass, muon_mass)
-        print(f'{kaon_parameters_filepath} HLbL contribution neutral kaon: {em_mass2_neutral_kaon}')
+        res2 = calculate_hlbl_contribution(f, alpha, charged_kaon_mass, muon_mass)
+        print(f'{filepath} HLbL neutral kaon: {res2}')
+        write(f'{filepath} HLbL neutral kaon: {res2}', report_filepath)

@@ -7,7 +7,7 @@ from kaon_production.data import (
     read_data_files_new, merge_statistical_and_systematic_errors,
     make_function_to_remove_fsr_effects, generate_monte_carlo_data_sample,
 )
-from model_parameters import KaonParametersFixedSelected, KaonParametersPhiRatio
+from model_parameters import KaonParametersFixedSelected, KaonParametersPhiRatio, KaonParametersSimplified
 from pipeline.KaonCombinedIterativePipeline import KaonCombinedIterativePipeline
 
 
@@ -100,11 +100,13 @@ def _generate_monte_carlo_parameters(
 
 def _read_parameters_in_dir(dirpath):
     filenames = os.listdir(dirpath)
-    return [
-        KaonParametersPhiRatio.load_from_serialized_parameters(
+    parameters_list = [
+        KaonParametersSimplified.load_from_serialized_parameters(
             os.path.join(dirpath, filename, 'final_fit_parameters.pickle')
         ) for filename in filenames
     ]
+    print(f'Loaded {len(parameters_list)} sets of parameters from {dirpath}')
+    return parameters_list
 
 
 def _calculate_parameter_mean_and_std(list_pars):
@@ -123,6 +125,12 @@ def _calculate_mean_and_std_of_function_values(f, list_pars):
     return {'mean': statistics.mean(values), 'standard_deviation': statistics.stdev(values)}
 
 
+def report(msg: str, filepath: str):
+    with open(filepath, 'a') as f:
+        f.write(msg + '\n')
+    print(msg)
+
+
 if __name__ == '__main__':
     config = ConfigParser(inline_comment_prefixes='#')
     config.read('../configuration.ini')
@@ -135,11 +143,13 @@ if __name__ == '__main__':
     remove_fsr_effects = make_function_to_remove_fsr_effects(charged_kaon_mass, alpha)
 
     files_charged_timelike = [
+        'cmd_3_charged_kaons_undressed.csv',  # added
         'babar_2013_charged_kaons_undressed.csv',
         'babar_charged_kaons_2015_undressed.csv',
         'BESIII_charged_kaons_2019_undressed.csv',
     ]
     files_neutral_timelike = [
+        'cmd_2_neutral_kaons_undressed.csv',  # added
         'cmd_3_neutral_kaons_undressed.csv',
         'babar_neutral_kaons_2014_undressed.csv',
         'BESIII_neutral_kaons_2021_undressed.csv',
@@ -149,34 +159,68 @@ if __name__ == '__main__':
         #'spacelike_charged_kaons_formfactor_1986_undressed.csv',
     ]
 
-    source_pars_directory = '/home/lukas/reports/kaons/article_fit'
+    source_pars_directory = '/home/lukas/reports/kaons/article2_fit'
     save_dir = os.path.join(source_pars_directory, 'monte_carlo')
-    original_parameters = KaonParametersPhiRatio.load_from_serialized_parameters(
-        os.path.join(source_pars_directory, 'final_fit_parameters.pickle')
+    original_parameters = KaonParametersSimplified.load_from_serialized_parameters(
+       os.path.join(source_pars_directory, 'final_fit_parameters.pickle')
     )
+    #
+    # _generate_monte_carlo_parameters(
+    #      original_parameters, charged_kaon_mass, neutral_kaon_mass, alpha, hc_squared,
+    #      files_charged_timelike, files_neutral_timelike, files_charged_spacelike,
+    #      remove_fsr_effects, 10, save_dir, dir_exist_ok=True, start_n=405,
+    # )
 
-    _generate_monte_carlo_parameters(
-         original_parameters, charged_kaon_mass, neutral_kaon_mass, alpha, hc_squared,
-         files_charged_timelike, files_neutral_timelike, files_charged_spacelike,
-         remove_fsr_effects, 15, save_dir, dir_exist_ok=True, start_n=185,
+    report_filepath = '/home/lukas/git_repos/UA_model/charge_radii_report.txt'
+    report('Parameters statistics:', report_filepath)
+    report(str(_calculate_parameter_mean_and_std(_read_parameters_in_dir(save_dir))), report_filepath)
+
+    report('Charge radii:', report_filepath)
+
+    from calculate_charge_radius import wrap_partial_form_factor_function, calculate_charge_radius
+    from common.utils import make_partial_form_factor_for_parameters
+
+    def make_calculate_charge_radius_from_parameters(charged):
+        def f(parameters):
+            parameters.fix_all_parameters()
+            partial = make_partial_form_factor_for_parameters(parameters, return_absolute_value=False)
+            ff = wrap_partial_form_factor_function(partial, charged=charged)
+            return calculate_charge_radius(ff, hc_squared)
+        return f
+
+
+    charged_f = make_calculate_charge_radius_from_parameters(charged=True)
+    charge_radii_statistics = _calculate_mean_and_std_of_function_values(
+        charged_f, _read_parameters_in_dir(save_dir),
     )
+    report('Charged', report_filepath)
+    report(str(charge_radii_statistics), report_filepath)
+    report('Fit: ' + str(charged_f(original_parameters)), report_filepath)
 
-    print(_calculate_parameter_mean_and_std(_read_parameters_in_dir(save_dir)))
+    neutral_f = make_calculate_charge_radius_from_parameters(charged=False)
+    charge_radii_statistics = _calculate_mean_and_std_of_function_values(
+        neutral_f, _read_parameters_in_dir(save_dir),
+    )
+    report('Neutral', report_filepath)
+    report(str(charge_radii_statistics), report_filepath)
+    report('Fit: ' + str(neutral_f(original_parameters)), report_filepath)
 
-    from calculate_r_ratio import calculate_cross_sections_ratio_at_phi_peak, calculate_r_ratio
 
-    def get_r_ratio(pars):
-        return calculate_r_ratio(pars, charged_kaon_mass, neutral_kaon_mass, alpha, True)
-
-
-    def get_r_ratio_no_rc(pars):
-        return calculate_r_ratio(pars, charged_kaon_mass, neutral_kaon_mass, alpha, False)
-
-    def get_cs_ratio(pars):
-        return calculate_cross_sections_ratio_at_phi_peak(
-            pars, charged_kaon_mass, neutral_kaon_mass, alpha, hc_squared, False,
-        )
-
-    print(f'r_ratio: {_calculate_mean_and_std_of_function_values(get_r_ratio,  _read_parameters_in_dir(save_dir))}')
-    print(f'r_ratio_no_rc: {_calculate_mean_and_std_of_function_values(get_r_ratio_no_rc,  _read_parameters_in_dir(save_dir))}')
-    print(f'cs_ratio: {_calculate_mean_and_std_of_function_values(get_cs_ratio, _read_parameters_in_dir(save_dir))}')
+    #
+    # from calculate_r_ratio import calculate_cross_sections_ratio_at_phi_peak, calculate_r_ratio
+    #
+    # def get_r_ratio(pars):
+    #     return calculate_r_ratio(pars, charged_kaon_mass, neutral_kaon_mass, alpha, True)
+    #
+    #
+    # def get_r_ratio_no_rc(pars):
+    #     return calculate_r_ratio(pars, charged_kaon_mass, neutral_kaon_mass, alpha, False)
+    #
+    # def get_cs_ratio(pars):
+    #     return calculate_cross_sections_ratio_at_phi_peak(
+    #         pars, charged_kaon_mass, neutral_kaon_mass, alpha, hc_squared, False,
+    #     )
+    #
+    # print(f'r_ratio: {_calculate_mean_and_std_of_function_values(get_r_ratio,  _read_parameters_in_dir(save_dir))}')
+    # print(f'r_ratio_no_rc: {_calculate_mean_and_std_of_function_values(get_r_ratio_no_rc,  _read_parameters_in_dir(save_dir))}')
+    # print(f'cs_ratio: {_calculate_mean_and_std_of_function_values(get_cs_ratio, _read_parameters_in_dir(save_dir))}')

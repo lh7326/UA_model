@@ -10,7 +10,7 @@ from scipy.misc import derivative
 
 # TODO: Use a different implementation. (scipy.misc.derivative is deprecated)
 
-def _wrap_partial_form_factor_function(partial_f: Callable, charged: bool = True) -> Callable:
+def wrap_partial_form_factor_function(partial_f: Callable, charged: bool = True) -> Callable:
     def wrapped(s):
         datapoint = KaonDatapoint(t=s, is_charged=charged, is_for_cross_section=False)
         res = partial_f([datapoint])[0].real
@@ -46,14 +46,14 @@ if __name__ == '__main__':
         kaon_parameters_filepath = f'/home/lukas/reports/kaons/run9simplified_{i}/final_fit_parameters.pickle'
         kaon_parameters = KaonParametersSimplified.load_from_serialized_parameters(kaon_parameters_filepath)
         kaon_parameters.fix_all_parameters()
-        f = _wrap_partial_form_factor_function(
+        f = wrap_partial_form_factor_function(
             make_partial_form_factor_for_parameters(kaon_parameters, return_absolute_value=False),
             charged=True
         )
         charge_radius_charged = calculate_charge_radius(f, hc_squared)
         print(f'{kaon_parameters_filepath} Charge radius charged kaon: {charge_radius_charged}')
 
-        f = _wrap_partial_form_factor_function(
+        f = wrap_partial_form_factor_function(
             make_partial_form_factor_for_parameters(kaon_parameters, return_absolute_value=False),
             charged=False
         )
@@ -64,14 +64,14 @@ if __name__ == '__main__':
         kaon_parameters_filepath = f'/home/lukas/reports/kaons/runTestDressedsimplified_{i}/final_fit_parameters.pickle'
         kaon_parameters = KaonParametersSimplified.load_from_serialized_parameters(kaon_parameters_filepath)
         kaon_parameters.fix_all_parameters()
-        f = _wrap_partial_form_factor_function(
+        f = wrap_partial_form_factor_function(
             make_partial_form_factor_for_parameters(kaon_parameters, return_absolute_value=False),
             charged=True
         )
         charge_radius_charged = calculate_charge_radius(f, hc_squared)
         print(f'{kaon_parameters_filepath} Charge radius charged kaon: {charge_radius_charged}')
 
-        f = _wrap_partial_form_factor_function(
+        f = wrap_partial_form_factor_function(
             make_partial_form_factor_for_parameters(kaon_parameters, return_absolute_value=False),
             charged=False
         )
