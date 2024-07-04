@@ -91,7 +91,7 @@ def _generate_monte_carlo_parameters(
     for n in range(start_n, start_n + nr_to_generate):
         name = f'item_{n}'
         _run_pipeline(
-            save_dir, name, original_parameters,
+            save_dir, name, original_parameters.copy(),
             charged_kaon_mass, neutral_kaon_mass, alpha, hc_squared,
             *_generate_data_set(files_charged_timelike, files_neutral_timelike,
                                 files_charged_spacelike, remove_fsr_effects_function)
