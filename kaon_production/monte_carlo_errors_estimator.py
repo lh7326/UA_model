@@ -2,12 +2,14 @@ import os
 import os.path
 import statistics
 from configparser import ConfigParser
+import random
 
 from kaon_production.data import (
     read_data_files_new, merge_statistical_and_systematic_errors,
     make_function_to_remove_fsr_effects, generate_monte_carlo_data_sample,
 )
-from model_parameters import KaonParametersFixedSelected, KaonParametersPhiRatio, KaonParametersSimplified
+from model_parameters import (KaonParametersFixedSelected, KaonParametersPhiRatio, KaonParametersSimplified,
+                              Parameter, PionParameters)
 from pipeline.KaonCombinedIterativePipeline import KaonCombinedIterativePipeline
 
 
@@ -95,6 +97,27 @@ def _generate_monte_carlo_parameters(
             charged_kaon_mass, neutral_kaon_mass, alpha, hc_squared,
             *_generate_data_set(files_charged_timelike, files_neutral_timelike,
                                 files_charged_spacelike, remove_fsr_effects_function)
+        )
+
+
+def _generate_monte_carlo_parameters_from_errors(
+        original_parameters, parameter_errors, nr_to_generate, save_dir, dir_exist_ok=False):
+    for n in range(0, nr_to_generate):
+        name = f'item_{n}'
+        os.makedirs(os.path.join(save_dir, name), exist_ok=dir_exist_ok)
+        res = []
+        for par in original_parameters:
+            if par.is_fixed:
+                assert parameter_errors.get(par.name, 0) == 0
+                res.append(Parameter(par.name, par.value, par.is_fixed))
+            else:
+                error = parameter_errors[par.name]
+                new_value = random.gauss(mu=par.value, sigma=error)
+                res.append(Parameter(par.name, new_value, par.is_fixed))
+        new_parameters = type(original_parameters).from_list(res)
+        print(f'Generated parameters {name}: {new_parameters.to_list()}')
+        new_parameters.serialize_parameters_into(
+            os.path.join(save_dir, name, 'final_fit_parameters.pickle')
         )
 
 
