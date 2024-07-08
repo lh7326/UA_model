@@ -121,13 +121,20 @@ def _generate_monte_carlo_parameters_from_errors(
         )
 
 
-def _read_parameters_in_dir(dirpath):
+def _read_parameters_in_dir(dirpath, pion=False):
     filenames = os.listdir(dirpath)
-    parameters_list = [
-        KaonParametersSimplified.load_from_serialized_parameters(
-            os.path.join(dirpath, filename, 'final_fit_parameters.pickle')
-        ) for filename in filenames
-    ]
+    if pion:
+        parameters_list = [
+            PionParameters.load_from_serialized_parameters(
+                os.path.join(dirpath, filename, 'final_fit_parameters.pickle')
+            ) for filename in filenames
+        ]
+    else:
+        parameters_list = [
+            KaonParametersSimplified.load_from_serialized_parameters(
+                os.path.join(dirpath, filename, 'final_fit_parameters.pickle')
+            ) for filename in filenames
+        ]
     print(f'Loaded {len(parameters_list)} sets of parameters from {dirpath}')
     return parameters_list
 
@@ -160,6 +167,7 @@ if __name__ == '__main__':
 
     charged_kaon_mass = config.getfloat('constants', 'charged_kaon_mass')
     neutral_kaon_mass = config.getfloat('constants', 'neutral_kaon_mass')
+    charged_pion_mass = config.getfloat('constants', 'charged_pion_mass')
     alpha = config.getfloat('constants', 'alpha')
     hc_squared = config.getfloat('constants', 'hc_squared')
 
@@ -183,10 +191,51 @@ if __name__ == '__main__':
     ]
 
     source_pars_directory = '/home/lukas/reports/kaons/article2_fit'
-    save_dir = os.path.join(source_pars_directory, 'monte_carlo')
+    # save_dir = '/home/lukas/reports/kaons/article2_fit/pion_parameters/monte_carlo'
+    # save_dir = os.path.join(source_pars_directory, 'monte_carlo')
     original_parameters = KaonParametersSimplified.load_from_serialized_parameters(
        os.path.join(source_pars_directory, 'final_fit_parameters.pickle')
     )
+    original_parameters_pion = PionParameters.from_list([
+        Parameter(name='t_0_isovector', value=0.07791957505900839, is_fixed=True),
+        Parameter(name='t_in_isovector', value=1.2733, is_fixed=False),
+        Parameter(name='mass_rho', value=0.7621, is_fixed=False),
+        Parameter(name='decay_rate_rho', value=0.14423672, is_fixed=False),
+        Parameter(name='a_rho_prime', value=-0.07060638, is_fixed=False),
+        Parameter(name='mass_rho_prime', value=1.3500, is_fixed=False),
+        Parameter(name='decay_rate_rho_prime', value=0.3319913, is_fixed=False),
+        Parameter(name='a_rho_double_prime', value=0.05785514, is_fixed=False),
+        Parameter(name='mass_rho_double_prime', value=1.76928672, is_fixed=False),
+        Parameter(name='decay_rate_rho_double_prime', value=0.25311443, is_fixed=False),
+        Parameter(name='a_rho_triple_prime', value=0.00208887, is_fixed=False),
+        Parameter(name='mass_rho_triple_prime', value=2.24674832, is_fixed=False),
+        Parameter(name='decay_rate_rho_triple_prime', value=0.0700, is_fixed=False),
+        Parameter(name='w_pole', value=0.38329263, is_fixed=False),
+        Parameter(name='w_zero', value=0.2844582, is_fixed=False),
+    ])
+    #
+    # parameter_errors = {
+    #     't_0_isovector': 0.0,
+    #     't_in_isovector': 0.013,
+    #     'mass_rho': 0.0080,
+    #     'decay_rate_rho': 0.0014,
+    #     'a_rho_prime': 0.0012,
+    #     'mass_rho_prime': 0.011,
+    #     'decay_rate_rho_prime': 0.0033,
+    #     'a_rho_double_prime': 0.0010,
+    #     'mass_rho_double_prime': 0.018,
+    #     'decay_rate_rho_double_prime': 0.0025,
+    #     'a_rho_triple_prime': 0.0005,
+    #     'mass_rho_triple_prime': 0.011,
+    #     'decay_rate_rho_triple_prime': 0.0007,
+    #     'w_pole': 0.0060,
+    #     'w_zero': 0.0033,
+    # }
+    #
+    # _generate_monte_carlo_parameters_from_errors(
+    #     original_parameters, parameter_errors, 1000, save_dir, True
+    # )
+
     #
     # _generate_monte_carlo_parameters(
     #      original_parameters, charged_kaon_mass, neutral_kaon_mass, alpha, hc_squared,
@@ -194,40 +243,40 @@ if __name__ == '__main__':
     #      remove_fsr_effects, 10, save_dir, dir_exist_ok=True, start_n=405,
     # )
 
-    report_filepath = '/home/lukas/git_repos/UA_model/charge_radii_report.txt'
-    report('Parameters statistics:', report_filepath)
-    report(str(_calculate_parameter_mean_and_std(_read_parameters_in_dir(save_dir))), report_filepath)
-
-    report('Charge radii:', report_filepath)
-
-    from calculate_charge_radius import wrap_partial_form_factor_function, calculate_charge_radius
-    from common.utils import make_partial_form_factor_for_parameters
-
-    def make_calculate_charge_radius_from_parameters(charged):
-        def f(parameters):
-            parameters.fix_all_parameters()
-            partial = make_partial_form_factor_for_parameters(parameters, return_absolute_value=False)
-            ff = wrap_partial_form_factor_function(partial, charged=charged)
-            return calculate_charge_radius(ff, hc_squared)
-        return f
-
-
-    charged_f = make_calculate_charge_radius_from_parameters(charged=True)
-    charge_radii_statistics = _calculate_mean_and_std_of_function_values(
-        charged_f, _read_parameters_in_dir(save_dir),
-    )
-    report('Charged', report_filepath)
-    report(str(charge_radii_statistics), report_filepath)
-    report('Fit: ' + str(charged_f(original_parameters)), report_filepath)
-
-    neutral_f = make_calculate_charge_radius_from_parameters(charged=False)
-    charge_radii_statistics = _calculate_mean_and_std_of_function_values(
-        neutral_f, _read_parameters_in_dir(save_dir),
-    )
-    report('Neutral', report_filepath)
-    report(str(charge_radii_statistics), report_filepath)
-    report('Fit: ' + str(neutral_f(original_parameters)), report_filepath)
-
+    # report_filepath = '/home/lukas/git_repos/UA_model/charge_radii_report.txt'
+    # report('Parameters statistics:', report_filepath)
+    # report(str(_calculate_parameter_mean_and_std(_read_parameters_in_dir(save_dir))), report_filepath)
+    #
+    # report('Charge radii:', report_filepath)
+    #
+    # from calculate_charge_radius import wrap_partial_form_factor_function, calculate_charge_radius
+    # from common.utils import make_partial_form_factor_for_parameters
+    #
+    # def make_calculate_charge_radius_from_parameters(charged):
+    #     def f(parameters):
+    #         parameters.fix_all_parameters()
+    #         partial = make_partial_form_factor_for_parameters(parameters, return_absolute_value=False)
+    #         ff = wrap_partial_form_factor_function(partial, charged=charged)
+    #         return calculate_charge_radius(ff, hc_squared)
+    #     return f
+    #
+    #
+    # charged_f = make_calculate_charge_radius_from_parameters(charged=True)
+    # charge_radii_statistics = _calculate_mean_and_std_of_function_values(
+    #     charged_f, _read_parameters_in_dir(save_dir),
+    # )
+    # report('Charged', report_filepath)
+    # report(str(charge_radii_statistics), report_filepath)
+    # report('Fit: ' + str(charged_f(original_parameters)), report_filepath)
+    #
+    # neutral_f = make_calculate_charge_radius_from_parameters(charged=False)
+    # charge_radii_statistics = _calculate_mean_and_std_of_function_values(
+    #     neutral_f, _read_parameters_in_dir(save_dir),
+    # )
+    # report('Neutral', report_filepath)
+    # report(str(charge_radii_statistics), report_filepath)
+    # report('Fit: ' + str(neutral_f(original_parameters)), report_filepath)
+    #
 
     #
     # from calculate_r_ratio import calculate_cross_sections_ratio_at_phi_peak, calculate_r_ratio
@@ -247,3 +296,63 @@ if __name__ == '__main__':
     # print(f'r_ratio: {_calculate_mean_and_std_of_function_values(get_r_ratio,  _read_parameters_in_dir(save_dir))}')
     # print(f'r_ratio_no_rc: {_calculate_mean_and_std_of_function_values(get_r_ratio_no_rc,  _read_parameters_in_dir(save_dir))}')
     # print(f'cs_ratio: {_calculate_mean_and_std_of_function_values(get_cs_ratio, _read_parameters_in_dir(save_dir))}')
+
+    save_dir_pion = '/home/lukas/reports/kaons/article2_fit/pion_parameters/monte_carlo'
+    save_dir_kaon = '/home/lukas/reports/kaons/article2_fit/monte_carlo'
+    report_filepath = '/home/lukas/git_repos/UA_model/em_mass_report.txt'
+    report('Pion parameters statistics:', report_filepath)
+    report(str(_calculate_parameter_mean_and_std(_read_parameters_in_dir(save_dir_pion, pion=True))), report_filepath)
+    report('Kaon parameters statistics:', report_filepath)
+    report(str(_calculate_parameter_mean_and_std(_read_parameters_in_dir(save_dir_kaon))), report_filepath)
+
+    from calculate_em_mass_contribution import (_wrap_partial_form_factor_function, _make_partial_for_pion_parameters,
+                                                calculate_em_mass2_contribution)
+    from common.utils import make_partial_form_factor_for_parameters
+
+    def make_calculate_em_mass2_from_parameters(for_kaon=True, charged=True, drop_int_error=True):
+        def f(parameters):
+            if for_kaon:
+                parameters.fix_all_parameters()
+                f = _wrap_partial_form_factor_function(
+                    make_partial_form_factor_for_parameters(parameters, return_absolute_value=False),
+                    charged=charged
+                )
+                mass = charged_kaon_mass if charged else neutral_kaon_mass
+            else:
+                f = _make_partial_for_pion_parameters(parameters)
+                mass = charged_pion_mass
+            res_int, err_int = calculate_em_mass2_contribution(f, alpha, mass)
+            if drop_int_error:
+                return res_int
+            return res_int, err_int
+        return f
+
+    report('EM mass charged kaon:', report_filepath)
+    charged_kaon_f = make_calculate_em_mass2_from_parameters(for_kaon=True, charged=True)
+    charged_kaon_m2_statistics = _calculate_mean_and_std_of_function_values(
+        charged_kaon_f, _read_parameters_in_dir(save_dir_kaon),
+    )
+    report('Charged kaon', report_filepath)
+    report(str(charged_kaon_m2_statistics), report_filepath)
+    charged_kaon_f2 = make_calculate_em_mass2_from_parameters(for_kaon=True, charged=True, drop_int_error=False)
+    report('Fit: ' + str(charged_kaon_f2(original_parameters)), report_filepath)
+
+    report('EM mass neutral kaon:', report_filepath)
+    neutral_kaon_f = make_calculate_em_mass2_from_parameters(for_kaon=True, charged=False)
+    neutral_kaon_m2_statistics = _calculate_mean_and_std_of_function_values(
+        neutral_kaon_f, _read_parameters_in_dir(save_dir_kaon),
+    )
+    report('Neutral kaon', report_filepath)
+    report(str(neutral_kaon_m2_statistics), report_filepath)
+    neutral_kaon_f2 = make_calculate_em_mass2_from_parameters(for_kaon=True, charged=False, drop_int_error=False)
+    report('Fit: ' + str(neutral_kaon_f2(original_parameters)), report_filepath)
+
+    report('EM mass charged pion:', report_filepath)
+    charged_pion_f = make_calculate_em_mass2_from_parameters(for_kaon=False, charged=True)
+    charged_pion_m2_statistics = _calculate_mean_and_std_of_function_values(
+        charged_pion_f, _read_parameters_in_dir(save_dir_pion, pion=True),
+    )
+    report('Charged pion', report_filepath)
+    report(str(charged_pion_m2_statistics), report_filepath)
+    charged_pion_f2 = make_calculate_em_mass2_from_parameters(for_kaon=False, charged=True, drop_int_error=False)
+    report('Fit: ' + str(charged_pion_f2(original_parameters_pion)), report_filepath)
