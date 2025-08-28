@@ -168,6 +168,7 @@ if __name__ == '__main__':
     charged_kaon_mass = config.getfloat('constants', 'charged_kaon_mass')
     neutral_kaon_mass = config.getfloat('constants', 'neutral_kaon_mass')
     charged_pion_mass = config.getfloat('constants', 'charged_pion_mass')
+    muon_mass = config.getfloat('constants', 'muon_mass')
     alpha = config.getfloat('constants', 'alpha')
     hc_squared = config.getfloat('constants', 'hc_squared')
 
@@ -297,62 +298,103 @@ if __name__ == '__main__':
     # print(f'r_ratio_no_rc: {_calculate_mean_and_std_of_function_values(get_r_ratio_no_rc,  _read_parameters_in_dir(save_dir))}')
     # print(f'cs_ratio: {_calculate_mean_and_std_of_function_values(get_cs_ratio, _read_parameters_in_dir(save_dir))}')
 
+    # save_dir_pion = '/home/lukas/reports/kaons/article2_fit/pion_parameters/monte_carlo'
+    # save_dir_kaon = '/home/lukas/reports/kaons/article2_fit/monte_carlo'
+    # report_filepath = '/home/lukas/git_repos/UA_model/em_mass_report.txt'
+    # report('Pion parameters statistics:', report_filepath)
+    # report(str(_calculate_parameter_mean_and_std(_read_parameters_in_dir(save_dir_pion, pion=True))), report_filepath)
+    # report('Kaon parameters statistics:', report_filepath)
+    # report(str(_calculate_parameter_mean_and_std(_read_parameters_in_dir(save_dir_kaon))), report_filepath)
+    #
+    # from calculate_em_mass_contribution import (_wrap_partial_form_factor_function, _make_partial_for_pion_parameters,
+    #                                             calculate_em_mass2_contribution)
+    # from common.utils import make_partial_form_factor_for_parameters
+    #
+    # def make_calculate_em_mass2_from_parameters(for_kaon=True, charged=True, drop_int_error=True):
+    #     def f(parameters):
+    #         if for_kaon:
+    #             parameters.fix_all_parameters()
+    #             f = _wrap_partial_form_factor_function(
+    #                 make_partial_form_factor_for_parameters(parameters, return_absolute_value=False),
+    #                 charged=charged
+    #             )
+    #             mass = charged_kaon_mass if charged else neutral_kaon_mass
+    #         else:
+    #             f = _make_partial_for_pion_parameters(parameters)
+    #             mass = charged_pion_mass
+    #         res_int, err_int = calculate_em_mass2_contribution(f, alpha, mass)
+    #         if drop_int_error:
+    #             return res_int
+    #         return res_int, err_int
+    #     return f
+    #
+    # report('EM mass charged kaon:', report_filepath)
+    # charged_kaon_f = make_calculate_em_mass2_from_parameters(for_kaon=True, charged=True)
+    # charged_kaon_m2_statistics = _calculate_mean_and_std_of_function_values(
+    #     charged_kaon_f, _read_parameters_in_dir(save_dir_kaon),
+    # )
+    # report('Charged kaon', report_filepath)
+    # report(str(charged_kaon_m2_statistics), report_filepath)
+    # charged_kaon_f2 = make_calculate_em_mass2_from_parameters(for_kaon=True, charged=True, drop_int_error=False)
+    # report('Fit: ' + str(charged_kaon_f2(original_parameters)), report_filepath)
+    #
+    # report('EM mass neutral kaon:', report_filepath)
+    # neutral_kaon_f = make_calculate_em_mass2_from_parameters(for_kaon=True, charged=False)
+    # neutral_kaon_m2_statistics = _calculate_mean_and_std_of_function_values(
+    #     neutral_kaon_f, _read_parameters_in_dir(save_dir_kaon),
+    # )
+    # report('Neutral kaon', report_filepath)
+    # report(str(neutral_kaon_m2_statistics), report_filepath)
+    # neutral_kaon_f2 = make_calculate_em_mass2_from_parameters(for_kaon=True, charged=False, drop_int_error=False)
+    # report('Fit: ' + str(neutral_kaon_f2(original_parameters)), report_filepath)
+    #
+    # report('EM mass charged pion:', report_filepath)
+    # charged_pion_f = make_calculate_em_mass2_from_parameters(for_kaon=False, charged=True)
+    # charged_pion_m2_statistics = _calculate_mean_and_std_of_function_values(
+    #     charged_pion_f, _read_parameters_in_dir(save_dir_pion, pion=True),
+    # )
+    # report('Charged pion', report_filepath)
+    # report(str(charged_pion_m2_statistics), report_filepath)
+    # charged_pion_f2 = make_calculate_em_mass2_from_parameters(for_kaon=False, charged=True, drop_int_error=False)
+    # report('Fit: ' + str(charged_pion_f2(original_parameters_pion)), report_filepath)
+
     save_dir_pion = '/home/lukas/reports/kaons/article2_fit/pion_parameters/monte_carlo'
     save_dir_kaon = '/home/lukas/reports/kaons/article2_fit/monte_carlo'
-    report_filepath = '/home/lukas/git_repos/UA_model/em_mass_report.txt'
+    report_filepath = '/home/lukas/git_repos/UA_model/hvp_report.txt'
     report('Pion parameters statistics:', report_filepath)
     report(str(_calculate_parameter_mean_and_std(_read_parameters_in_dir(save_dir_pion, pion=True))), report_filepath)
     report('Kaon parameters statistics:', report_filepath)
     report(str(_calculate_parameter_mean_and_std(_read_parameters_in_dir(save_dir_kaon))), report_filepath)
 
-    from calculate_em_mass_contribution import (_wrap_partial_form_factor_function, _make_partial_for_pion_parameters,
-                                                calculate_em_mass2_contribution)
-    from common.utils import make_partial_form_factor_for_parameters
+    from calculate_hvp_contribution import make_calculate_hvp_contribution_kaon, make_calculate_hvp_contribution_pion
 
-    def make_calculate_em_mass2_from_parameters(for_kaon=True, charged=True, drop_int_error=True):
-        def f(parameters):
-            if for_kaon:
-                parameters.fix_all_parameters()
-                f = _wrap_partial_form_factor_function(
-                    make_partial_form_factor_for_parameters(parameters, return_absolute_value=False),
-                    charged=charged
-                )
-                mass = charged_kaon_mass if charged else neutral_kaon_mass
-            else:
-                f = _make_partial_for_pion_parameters(parameters)
-                mass = charged_pion_mass
-            res_int, err_int = calculate_em_mass2_contribution(f, alpha, mass)
-            if drop_int_error:
-                return res_int
-            return res_int, err_int
-        return f
-
-    report('EM mass charged kaon:', report_filepath)
-    charged_kaon_f = make_calculate_em_mass2_from_parameters(for_kaon=True, charged=True)
-    charged_kaon_m2_statistics = _calculate_mean_and_std_of_function_values(
+    report('HVP contribution charged kaon:', report_filepath)
+    charged_kaon_f = make_calculate_hvp_contribution_kaon(
+        alpha, hc_squared, muon_mass, charged_kaon_mass, neutral_kaon_mass, charged=True)
+    charged_kaon_hvp_statistics = _calculate_mean_and_std_of_function_values(
         charged_kaon_f, _read_parameters_in_dir(save_dir_kaon),
     )
     report('Charged kaon', report_filepath)
-    report(str(charged_kaon_m2_statistics), report_filepath)
-    charged_kaon_f2 = make_calculate_em_mass2_from_parameters(for_kaon=True, charged=True, drop_int_error=False)
-    report('Fit: ' + str(charged_kaon_f2(original_parameters)), report_filepath)
+    report(str(charged_kaon_hvp_statistics), report_filepath)
+    report('Fit: ' + str(charged_kaon_f(original_parameters)), report_filepath)
 
-    report('EM mass neutral kaon:', report_filepath)
-    neutral_kaon_f = make_calculate_em_mass2_from_parameters(for_kaon=True, charged=False)
-    neutral_kaon_m2_statistics = _calculate_mean_and_std_of_function_values(
+    report('HVP contribution neutral kaon:', report_filepath)
+    neutral_kaon_f = make_calculate_hvp_contribution_kaon(
+        alpha, hc_squared, muon_mass, charged_kaon_mass, neutral_kaon_mass, charged=False)
+    neutral_kaon_hvp_statistics = _calculate_mean_and_std_of_function_values(
         neutral_kaon_f, _read_parameters_in_dir(save_dir_kaon),
     )
     report('Neutral kaon', report_filepath)
-    report(str(neutral_kaon_m2_statistics), report_filepath)
-    neutral_kaon_f2 = make_calculate_em_mass2_from_parameters(for_kaon=True, charged=False, drop_int_error=False)
-    report('Fit: ' + str(neutral_kaon_f2(original_parameters)), report_filepath)
+    report(str(neutral_kaon_hvp_statistics), report_filepath)
+    report('Fit: ' + str(neutral_kaon_f(original_parameters)), report_filepath)
 
-    report('EM mass charged pion:', report_filepath)
-    charged_pion_f = make_calculate_em_mass2_from_parameters(for_kaon=False, charged=True)
-    charged_pion_m2_statistics = _calculate_mean_and_std_of_function_values(
+    report('HVP contribution charged pion:', report_filepath)
+    charged_pion_f = make_calculate_hvp_contribution_pion(
+        alpha, hc_squared, muon_mass, charged_pion_mass, upper_limit=1.0,
+    )
+    charged_pion_hvp_statistics = _calculate_mean_and_std_of_function_values(
         charged_pion_f, _read_parameters_in_dir(save_dir_pion, pion=True),
     )
-    report('Charged pion', report_filepath)
-    report(str(charged_pion_m2_statistics), report_filepath)
-    charged_pion_f2 = make_calculate_em_mass2_from_parameters(for_kaon=False, charged=True, drop_int_error=False)
-    report('Fit: ' + str(charged_pion_f2(original_parameters_pion)), report_filepath)
+    report('Charged pion E<1.0GeV', report_filepath)
+    report(str(charged_pion_hvp_statistics), report_filepath)
+    report('Fit: ' + str(charged_pion_f(original_parameters_pion)), report_filepath)

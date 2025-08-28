@@ -23,86 +23,20 @@ def make_initial_parameters(t_0_isoscalar, t_0_isovector):
         a_phi=0.4,
         mass_phi=1.019461,
         decay_rate_phi=0.004249,
-        a_phi_prime=0.025,
-        mass_phi_prime=1.680,
-        decay_rate_phi_prime=0.150,
+        #a_phi_prime=0.025,
+        #mass_phi_prime=1.680,
+        #decay_rate_phi_prime=0.150,
         mass_phi_double_prime=2.159,
         decay_rate_phi_double_prime=0.137,
         a_rho=0.0,
         mass_rho=0.75823,  # 0.77526,
         decay_rate_rho=0.14456,  # 0.1474,
-        a_rho_prime=1.0/6,
-        mass_rho_prime=1.342,  # 1.465,
-        decay_rate_rho_prime=0.492,  # 0.4,
-        mass_rho_double_prime=1.719,  # 1.6888,
-        decay_rate_rho_double_prime=0.490,  # 0.161
+#        a_rho_prime=1.0/6,
+        mass_rho_prime=1.32635,  # 1.342,  # 1.465,
+        decay_rate_rho_prime=0.32413,  # 0.492,  # 0.4,
+       # mass_rho_double_prime=1.77054,  # 1.719,  # 1.6888,
+       # decay_rate_rho_double_prime=0.26898,  # 0.490,  # 0.161
     )
-    # return KaonParametersFixedSelected.from_list([
-    #     # Parameter(name='t_0_isoscalar', value=0.17531904388276887, is_fixed=True),
-    #     # Parameter(name='t_0_isovector', value=0.07791957505900839, is_fixed=True),
-    #     # Parameter(name='t_in_isoscalar', value=3.14, is_fixed=False),
-    #     # Parameter(name='t_in_isovector', value=4.51, is_fixed=False),
-    #     # Parameter(name='a_omega', value=0.281597535832303, is_fixed=False),
-    #     # Parameter(name='mass_omega', value=0.78266, is_fixed=True),
-    #     # Parameter(name='decay_rate_omega', value=0.00868, is_fixed=True),
-    #     # Parameter(name='a_omega_prime', value=-0.1078676216790596, is_fixed=False),
-    #     # Parameter(name='mass_omega_prime', value=1.42, is_fixed=True),
-    #     # Parameter(name='decay_rate_omega_prime', value=0.15, is_fixed=False),
-    #     # Parameter(name='a_omega_double_prime', value=0.1385870881083241, is_fixed=False),
-    #     # Parameter(name='mass_omega_double_prime', value=1.67, is_fixed=True),
-    #     # Parameter(name='decay_rate_omega_double_prime', value=0.35, is_fixed=False),
-    #     # Parameter(name='a_phi', value=0.2919572632095028, is_fixed=False),
-    #     # Parameter(name='mass_phi', value=1.0190898268719202, is_fixed=False),
-    #     # Parameter(name='decay_rate_phi', value=0.0043075044510112095, is_fixed=False),
-    #     # Parameter(name='a_phi_prime', value=-0.1063075917575529, is_fixed=False),
-    #     # Parameter(name='mass_phi_prime', value=1.6779405787843227, is_fixed=False),
-    #     # Parameter(name='decay_rate_phi_prime', value=0.15, is_fixed=False),
-    #     # Parameter(name='mass_phi_double_prime', value=2.1811221329851627, is_fixed=False),
-    #     # Parameter(name='decay_rate_phi_double_prime', value=0.07602092049412262, is_fixed=False),
-    #     # Parameter(name='a_rho', value=0.4085860041596347, is_fixed=False),
-    #     # Parameter(name='mass_rho', value=0.75823, is_fixed=True),
-    #     # Parameter(name='decay_rate_rho', value=0.14456, is_fixed=True),
-    #     # Parameter(name='a_rho_prime', value=0.2278416614723415, is_fixed=False),
-    #     # Parameter(name='mass_rho_prime', value=1.25, is_fixed=False),
-    #     # Parameter(name='decay_rate_rho_prime', value=0.4295734885140618, is_fixed=False),
-    #     # Parameter(name='a_rho_double_prime', value=-0.02922483846581725, is_fixed=False),
-    #     # Parameter(name='mass_rho_double_prime', value=1.6826881404960172, is_fixed=False),
-    #     # Parameter(name='decay_rate_rho_double_prime', value=0.1536976816912829, is_fixed=False),
-    #     # Parameter(name='mass_rho_triple_prime', value=2.1235043993928477, is_fixed=False),
-    #     # Parameter(name='decay_rate_rho_triple_prime', value=0.5, is_fixed=False),
-    #     Parameter(name='t_0_isoscalar', value=0.17531904388276887, is_fixed=True),
-    #     Parameter(name='t_0_isovector', value=0.07791957505900839, is_fixed=True),
-    #     Parameter(name='t_in_isoscalar', value=4.5, is_fixed=False),
-    #     Parameter(name='t_in_isovector', value=4.5, is_fixed=False),
-    #     Parameter(name='a_omega', value=0.273221501337684, is_fixed=False),
-    #     Parameter(name='mass_omega', value=0.78266, is_fixed=True),
-    #     Parameter(name='decay_rate_omega', value=0.00868, is_fixed=True),
-    #     Parameter(name='a_omega_prime', value=-0.09837038062184843, is_fixed=False),
-    #     Parameter(name='mass_omega_prime', value=1.42, is_fixed=True),
-    #     Parameter(name='decay_rate_omega_prime', value=0.29, is_fixed=False),
-    #     Parameter(name='a_omega_double_prime', value=0.06437550469737774, is_fixed=False),
-    #     Parameter(name='mass_omega_double_prime', value=1.67, is_fixed=True),
-    #     Parameter(name='decay_rate_omega_double_prime', value=0.4891490612315445, is_fixed=False),
-    #     Parameter(name='a_phi', value=0.2920397094901536, is_fixed=False),
-    #     Parameter(name='mass_phi', value=1.0190930163018095, is_fixed=False),
-    #     Parameter(name='decay_rate_phi', value=0.0043119670480319, is_fixed=False),
-    #     Parameter(name='a_phi_prime', value=-0.032699127581405606, is_fixed=False),
-    #     Parameter(name='mass_phi_prime', value=1.6485253140438345, is_fixed=False),
-    #     Parameter(name='decay_rate_phi_prime', value=0.1866983890167749, is_fixed=False),
-    #     Parameter(name='mass_phi_double_prime', value=2.1998888333530577, is_fixed=False),
-    #     Parameter(name='decay_rate_phi_double_prime', value=0.07, is_fixed=False),
-    #     Parameter(name='a_rho', value=0.42029668396413666, is_fixed=False),
-    #     Parameter(name='mass_rho', value=0.75823, is_fixed=True),
-    #     Parameter(name='decay_rate_rho', value=0.14456, is_fixed=True),
-    #     Parameter(name='a_rho_prime', value=0.22034081751234255, is_fixed=False),
-    #     Parameter(name='mass_rho_prime', value=1.4, is_fixed=False),
-    #     Parameter(name='decay_rate_rho_prime', value=0.43596469243817315, is_fixed=False),
-    #     Parameter(name='a_rho_double_prime', value=-0.02944848197348991, is_fixed=False),
-    #     Parameter(name='mass_rho_double_prime', value=1.6911378888406943, is_fixed=False),
-    #     Parameter(name='decay_rate_rho_double_prime', value=0.15008632300424707, is_fixed=False),
-    #     Parameter(name='mass_rho_triple_prime', value=2.113696787994467, is_fixed=False),
-    #     Parameter(name='decay_rate_rho_triple_prime', value=0.5, is_fixed=False),
-    # ])
 
 
 if __name__ == '__main__':
@@ -124,6 +58,17 @@ if __name__ == '__main__':
     (timelike_charged_ts, timelike_charged_cross_sections_values,
      timelike_charged_errors) = remove_fsr_effects(
         *merge_statistical_and_systematic_errors(
+            # *read_data_files_new(
+            #     file_names=[
+            #         # 'babar_2013_charged_kaons_undressed.csv',
+            #         # 'cmd_3_charged_kaons_undressed.csv',
+            #         # 'snd_charged_kaons_undressed.csv',
+            #         'cmd_3_charged_kaons_dressed.csv',  # added
+            #         'babar_2013_charged_kaons_dressed.csv',
+            #         'babar_charged_kaons_2015_dressed.csv',
+            #         'BESIII_charged_kaons_2019_dressed.csv',
+            #     ], subdir_name='tmp'
+            # )
             *read_data_files_new(
                 file_names=[
                     # 'babar_2013_charged_kaons_undressed.csv',
@@ -139,18 +84,30 @@ if __name__ == '__main__':
     )
     (timelike_neutral_ts, timelike_neutral_cross_sections_values,
      timelike_neutral_errors) = merge_statistical_and_systematic_errors(
-            *read_data_files_new(
-                file_names=[
-                    # 'cmd_2_neutral_kaons_undressed.csv',
-                    # 'cmd_3_neutral_kaons_undressed.csv',
-                    # 'snd_neutral_kaons_charged_mode_undressed.csv',
-                    # 'snd_neutral_kaons_neutral_mode_undressed.csv',
-                    'cmd_2_neutral_kaons_undressed.csv',  # added
-                    'cmd_3_neutral_kaons_undressed.csv',
-                    'babar_neutral_kaons_2014_undressed.csv',
-                    'BESIII_neutral_kaons_2021_undressed.csv',
-                ]
-            )
+        # *read_data_files_new(
+        #     file_names=[
+        #         # 'cmd_2_neutral_kaons_undressed.csv',
+        #         # 'cmd_3_neutral_kaons_undressed.csv',
+        #         # 'snd_neutral_kaons_charged_mode_undressed.csv',
+        #         # 'snd_neutral_kaons_neutral_mode_undressed.csv',
+        #         'cmd_2_neutral_kaons_dressed.csv',  # added
+        #         'cmd_3_neutral_kaons_dressed.csv',
+        #         'babar_neutral_kaons_2014_dressed.csv',
+        #         'BESIII_neutral_kaons_2021_dressed.csv',
+        #     ], subdir_name='tmp'
+        # )
+        *read_data_files_new(
+            file_names=[
+                # 'cmd_2_neutral_kaons_undressed.csv',
+                # 'cmd_3_neutral_kaons_undressed.csv',
+                # 'snd_neutral_kaons_charged_mode_undressed.csv',
+                # 'snd_neutral_kaons_neutral_mode_undressed.csv',
+                'cmd_2_neutral_kaons_undressed.csv',  # added
+                'cmd_3_neutral_kaons_undressed.csv',
+                'babar_neutral_kaons_2014_undressed.csv',
+                'BESIII_neutral_kaons_2021_undressed.csv',
+            ]
+        )
     )
 
     (spacelike_charged_ts, spacelike_charged_form_factor_values,
@@ -178,7 +135,8 @@ if __name__ == '__main__':
         )
         # numbers = (5, 3, 5, 2, 7, 5, 10, 15)
         # repetitions = (10, 40, 20, 15, 30, 25, 30, 20)
-        numbers = (5, 3, 4, 10, 5, 2, 8, 6, 12)
+        #numbers = (5, 3, 4, 10, 5, 2, 8, 6, 12)
+        numbers = (4, 3, 4, 8, 5, 2, 8, 6, 10)
         repetitions = (10, 40, 20, 30, 20, 10, 20, 30, 20)
         pipeline = KaonCombinedIterativePipeline(
             name, initial_parameters,
@@ -202,8 +160,8 @@ if __name__ == '__main__':
 
     final_results = []
     best_fit = {'chi_squared': None, 'name': None, 'parameters': None}
-    for i in range(25, 30):
-        result = f(f'run9simplified_{i}')
+    for i in range(130, 135):
+        result = f(f'run11simplified_{i}')
         gc.collect()
         print(result)
 

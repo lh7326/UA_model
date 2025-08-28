@@ -207,7 +207,7 @@ if __name__ == '__main__':
 
     final_results = []
     best_fit = {'chi_squared': None, 'name': None, 'parameters': None}
-    for i in range(0, 5):
+    for i in range(50, 55):
         result = f(f'runPhiRatio1_{i}')
         gc.collect()
         print(result)

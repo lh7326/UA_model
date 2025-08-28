@@ -60,6 +60,25 @@ def t_to_w_version3(t):
     return 1j * numerator / denominator
 
 
+def t_to_w_version4(t):
+    """
+    In this version I use the definition from the literature while using first the alternate
+    branch of the square root and then the principal branch.
+
+    The definition is:
+    W = i * (sqrt(q_in + q) - sqrt(q_in - q)) / (sqrt(q_in + q) + sqrt(q_in - q)),
+    where
+    q_in = sqrt((t_in - t_0) / t_0)
+    q = sqrt((t - t_0) / t_0)
+
+    """
+    q_in = square_root((T_IN - T_0) / T_0)
+    q = square_root((t - T_0) / T_0)
+    numerator = cmath.sqrt(q_in + q) - cmath.sqrt(q_in - q)
+    denominator = cmath.sqrt(q_in + q) + cmath.sqrt(q_in - q)
+    return 1j * numerator / denominator
+
+
 def plot_t_to_w(f):
     curves = [
         [(n * -0.1 + 1e-10j + T_0) for n in range(1, 1000)],  # between minus infinity and t_0
@@ -78,5 +97,8 @@ if __name__ == '__main__':
     from ua_model.MapFromWtoT import MapFromWtoT
     g = MapFromWtoT(T_0, T_IN)
     for t in [0.05, 1.7+1j, 8123-721j, -7.4+0.5j]:
-        print(t, g(t_to_w_version1(t)), g(t_to_w_version2(t)), g(t_to_w_version3(t)))
-    plot_t_to_w(t_to_w_version3)
+        print(t,
+              g(t_to_w_version1(t)), g(t_to_w_version2(t)),
+              g(t_to_w_version3(t)), g(t_to_w_version4(t)),
+        )
+    plot_t_to_w(t_to_w_version4)

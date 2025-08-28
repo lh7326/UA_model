@@ -50,6 +50,8 @@ if __name__ == '__main__':
     config.read('../configuration.ini')
     alpha = config.getfloat('constants', 'alpha')
     charged_kaon_mass = config.getfloat('constants', 'charged_kaon_mass')
+    neutral_kaon_mass = config.getfloat('constants', 'neutral_kaon_mass')
+    charged_pion_mass = config.getfloat('constants', 'charged_pion_mass')
 
     for i in [2, 29, 40, 125, 151]:
         kaon_parameters_filepath = f'/home/lukas/reports/kaons/run9simplified_{i}/final_fit_parameters.pickle'
@@ -66,7 +68,7 @@ if __name__ == '__main__':
             make_partial_form_factor_for_parameters(kaon_parameters, return_absolute_value=False),
             charged=False
         )
-        em_mass2_neutral_kaon = calculate_em_mass2_contribution(f, alpha, charged_kaon_mass)
+        em_mass2_neutral_kaon = calculate_em_mass2_contribution(f, alpha, neutral_kaon_mass)
         print(f'{kaon_parameters_filepath} EM mass^2 neutral kaon: {em_mass2_neutral_kaon}')
 
     for i in [37, 113, 160, 165]:
@@ -84,7 +86,7 @@ if __name__ == '__main__':
             make_partial_form_factor_for_parameters(kaon_parameters, return_absolute_value=False),
             charged=False
         )
-        em_mass2_neutral_kaon = calculate_em_mass2_contribution(f, alpha, charged_kaon_mass)
+        em_mass2_neutral_kaon = calculate_em_mass2_contribution(f, alpha, neutral_kaon_mass)
         print(f'{kaon_parameters_filepath} EM mass^2 neutral kaon: {em_mass2_neutral_kaon}')
 
     pion_parameters = PionParameters.from_list([
@@ -105,6 +107,6 @@ if __name__ == '__main__':
         Parameter(name='w_zero', value=0.2844582, is_fixed=False),
     ])
     f_pion = _make_partial_for_pion_parameters(pion_parameters)
-    pion_em_m2 = calculate_em_mass2_contribution(f_pion, alpha, charged_kaon_mass)
+    pion_em_m2 = calculate_em_mass2_contribution(f_pion, alpha, charged_pion_mass)
     print(f'EM mass^2 charged pion: {pion_em_m2}')
 

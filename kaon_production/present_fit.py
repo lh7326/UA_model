@@ -14,7 +14,7 @@ from plotting.plot_fit import plot_combined_fit
 def plot_data(xss: List[List[float]], yss: List[List[float]],
               errorss: List[List[float]], labels: List[str], xlabel: str, ylabel: str, title: str,
               ylog=False, xlog=False, only_peak=False, f=None, charged=True, filepath=None,
-              s_min=None, s_max=None, cross_section=True):
+              s_min=None, s_max=None, cross_section=True, extra_xs_ys_pairs=None):
 
     assert (s_min is None and s_max is None) or not only_peak
     if only_peak:
@@ -42,7 +42,13 @@ def plot_data(xss: List[List[float]], yss: List[List[float]],
         ax.errorbar(xs, ys, yerr=errors, fmt=fmt, elinewidth=2, markersize=3.5, label=legend)
         if f:
             new_xs = list(xs)
-            for x_low, x_high in zip(xs[:-1],xs[1:]):
+            if s_min is not None:
+                new_xs = [s_min] + new_xs
+            if s_max is not None:
+                print('here')
+                new_xs = new_xs + [s_max]
+            print(new_xs)
+            for x_low, x_high in zip(new_xs[:-1],new_xs[1:]):
                 new_xs.extend([x_low + 0.01 * i * (x_high - x_low) for i in range(1, 100)])
 
             estimates.extend(zip(new_xs, f([[x, charged, cross_section] for x in new_xs])))
@@ -52,6 +58,12 @@ def plot_data(xss: List[List[float]], yss: List[List[float]],
         estimates = sorted(estimates, key=lambda est: est[0])
         all_xs, all_fit_vals = zip(*estimates)
         ax.plot(all_xs, all_fit_vals, '-k')
+
+    if extra_xs_ys_pairs:
+        # these should be in the format [(xs_line1, ys_line1), ...]
+        colors = ['blue', 'green']
+        for xs, ys in extra_xs_ys_pairs:
+            ax.plot(xs, ys, linestyle='dotted', color=colors.pop())
 
     if ylog:
         ax.set_yscale('log')
@@ -148,7 +160,8 @@ if __name__ == '__main__':
             return xs, ys, ers
         return list(zip(*filter(lambda t: t[0] < threshold, zip(xs, ys, ers))))
 
-    THRESHOLD = 10  # GeV^2
+    # THRESHOLD = 10  # GeV^2
+    THRESHOLD = None
 
     (timelike_charged_ts, timelike_charged_cross_sections_values,
      timelike_charged_errors) = discard_above_threshold(*remove_fsr_effects(
@@ -157,7 +170,7 @@ if __name__ == '__main__':
                 file_names=[
                     'cmd_3_charged_kaons_undressed.csv',
                     'babar_2013_charged_kaons_undressed.csv',
-                    # 'babar_charged_kaons_2015_undressed.csv',
+                    'babar_charged_kaons_2015_undressed.csv', # added
                     'BESIII_charged_kaons_2019_undressed.csv',
                 ]
             )
@@ -167,7 +180,7 @@ if __name__ == '__main__':
      timelike_neutral_errors) = discard_above_threshold(*merge_statistical_and_systematic_errors(
             *read_data_files_new(
                 file_names=[
-                    # 'cmd_2_neutral_kaons_undressed.csv',  # added
+                    'cmd_2_neutral_kaons_undressed.csv',  # added
                     'cmd_3_neutral_kaons_undressed.csv',
                     'babar_neutral_kaons_2014_undressed.csv',
                     'BESIII_neutral_kaons_2021_undressed.csv',
@@ -194,9 +207,9 @@ if __name__ == '__main__':
         ff_errors_charged=space_charged_errors,
     )
 
-    kaon_parameters_filepath = f'/home/lukas/reports/kaons/article_fit/final_fit_parameters.pickle'
-    #kaon_parameters_filepath = f'/home/lukas/reports/kaons/article2_fit/final_fit_parameters.pickle'
-    kaon_parameters = KaonParametersPhiRatio.load_from_serialized_parameters(kaon_parameters_filepath)
+    #kaon_parameters_filepath = f'/home/lukas/reports/kaons/article_fit/final_fit_parameters.pickle'
+    kaon_parameters_filepath = f'/home/lukas/reports/kaons/article2_fit/final_fit_parameters.pickle'
+    kaon_parameters = KaonParametersSimplified.load_from_serialized_parameters(kaon_parameters_filepath)
 
     free_pars = kaon_parameters.get_free_values()
     kaon_parameters.fix_all_parameters()
@@ -233,12 +246,12 @@ if __name__ == '__main__':
           f'Chi squared / # data training set: {chi_squared_per_datapoint_training_set}')
     print(kaon_parameters.to_list())
 
-    plot_distribution_of_normalized_residuals(
-        normalized_residuals_training,
-        'Histogram of fit residuals',
-        35,
-        '/home/lukas/latex_projects/R_ratio/article/submission/fit_residuals.pdf'
-    )
+    # plot_distribution_of_normalized_residuals(
+    #     normalized_residuals_training,
+    #     'Histogram of fit residuals',
+    #     20,
+    #     '/home/lukas/latex_projects/clanok_kaon_model/figures/fit_residuals.pdf'
+    # )
 
     xss, yss, errss, labels = [], [], [], []
     # for label, filename in [
@@ -267,17 +280,36 @@ if __name__ == '__main__':
     #     errss.append(errs)
     #     labels.append(label)
 
-    # for label, filename in [
-    #     ('Dally et al.', 'spacelike_charged_kaons_formfactor_1980_undressed.csv'),
-    #     ('Amendolia et al.', 'spacelike_charged_kaons_formfactor_1986_undressed.csv'),
-    # ]:
-    #     ts, css, errs = merge_statistical_and_systematic_errors(*read_data_files_new(file_names=[filename]))
-    #     xss.append(ts)
-    #     yss.append(css)
-    #     errss.append(errs)
-    #     labels.append(label)
-    #
-    # plot_data(xss, yss, errss, labels, 's [GeV^2]', 'Form factor', 'Charged kaons fit',
-    #           ylog=False, only_peak=False, f=f, charged=True,
-    #           s_min=None, s_max=None, cross_section=False,
-    #           filepath='/home/lukas/latex_projects/clanok_kaon_model/figures/charged_kaons_fit_spacelike.pdf')
+    for label, filename in [
+        ('Dally et al.', 'spacelike_charged_kaons_formfactor_1980_undressed.csv'),
+        ('Amendolia et al.', 'spacelike_charged_kaons_formfactor_1986_undressed.csv'),
+    ]:
+        ts, css, errs = merge_statistical_and_systematic_errors(*read_data_files_new(file_names=[filename]))
+        xss.append(ts)
+        yss.append(css)
+        errss.append(errs)
+        labels.append(label)
+
+    import csv, math
+    extra_charged_filepath = '/home/lukas/Downloads/plot-data_charged_fit2.csv'
+    extra_neutral_filepath = '/home/lukas/Downloads/plot-data_neutral_fit.csv'
+    def prepare_extra_data(filepath):
+        xs = []
+        ys = []
+
+        with open(filepath, 'r') as f:
+            reader = csv.reader(f, delimiter=',')
+            for x, y in reader:
+                xs.append(float(x))
+                ys.append(math.sqrt(float(y)))
+
+        return zip(*sorted(zip(xs, ys), key=lambda t: t[0]))
+
+    extra_lines = [prepare_extra_data(extra_charged_filepath),
+                   prepare_extra_data(extra_neutral_filepath)]
+
+    plot_data(xss, yss, errss, labels, 's [GeV^2]', 'Form factor', 'Charged kaons fit',
+              ylog=False, only_peak=False, f=f, charged=True,
+              s_min=None, s_max=0, cross_section=False,
+              extra_xs_ys_pairs=extra_lines,
+              filepath='/home/lukas/latex_projects/clanok_kaon_model/figures/charged_kaons_fit_spacelike.pdf')
